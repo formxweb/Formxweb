@@ -1,0 +1,286 @@
+---
+import Rail from './Rail.astro';
+
+const axes = [
+  { k: 'X', name: 'Strateji', text: 'Kime, ne için, hangi eylemle? Hedef, kitle ve dönüşüm.' },
+  { k: 'Y', name: 'Tasarım', text: 'Kimlik, tipografi, kompozisyon ve hareket.' },
+  { k: 'Z', name: 'Geliştirme', text: 'Hız, erişilebilirlik, arama motorları ve güvenilir altyapı.' },
+];
+
+const steps = [
+  { t: 'Dinlemek', d: 'İşletmenizi, müşterinizi ve hedefinizi anlıyoruz. Logo, fotoğraf, menü, Instagram: elinizdeki malzemeyi topluyoruz.' },
+  { t: 'Üç yön', d: 'Tipografi, renk, kompozisyon ve hareket bakımından birbirinden gerçekten farklı üç yaklaşım. En güçlüsünü birlikte seçiyoruz.' },
+  { t: 'Sistem', d: 'Tipografi, grid, renk ve hareket kuralları. Site büyüdükçe bozulmayan, markaya ait bir dil.' },
+  { t: 'İnşa', d: 'Üretim kalitesinde kod: hızlı, mobilde kusursuz, erişilebilir ve arama motorlarına hazır.' },
+  { t: 'Yayın', d: 'Alan adı ve barındırma kurulumu, son kontroller ve içeriği nasıl güncelleyeceğinizi anlatan bir teslim.' },
+];
+
+const principles = [
+  { t: 'Uydurma bilgi yok.', d: 'Fiyat, saat, adres ve menü markanın kendi kaynağından gelir. Doğrulanamayan bilgi yayına girmez.' },
+  { t: 'Konsept markanın içinden çıkar.', d: 'CUPISTAN’da KAP hecesi, La Joie’de logodaki altın nokta, Marmara Blue’da markanın kendi filmi.' },
+  { t: 'Gerçek kanallar.', d: 'Rezervasyon, sipariş ve teklif akışları WhatsApp’a ve gerçek ödeme altyapılarına bağlanır. Sahte onay ekranı yok.' },
+  { t: 'Herkes için.', d: 'Klavyeyle gezinme, ekran okuyucu desteği ve hareket azaltma tercihine saygı. Her projede.' },
+];
+---
+
+<section class="ap" id="approach" data-act="IV" data-act-name="Approach" aria-labelledby="ap-title">
+  <Rail act="Act IV" title="Approach" axis="X · Y · Z — tek bir nokta" end="05 adım" />
+
+  <div class="grid ap__head">
+    <h2 class="ap__title" id="ap-title" lang="en" data-reveal="mask">
+      <span class="ap__l1">Every brand</span>
+      <span class="ap__l2">is a coordinate.</span>
+    </h2>
+    <p class="ap__lead t-lead" data-reveal="y">
+      Çoğu site tek bir eksende güçlüdür: ya güzel görünür, ya iyi çalışır, ya da doğru konuşur. Dijitalde bir imza,
+      üç eksenin kesiştiği noktada oluşur.
+    </p>
+  </div>
+
+  <div class="grid ap__model">
+    <div class="ap__fig" aria-hidden="true" data-reveal="draw">
+      <svg viewBox="0 0 600 400" class="xyz">
+        <g class="axis">
+          <path pathLength="1" d="M150 330H520" />
+          <path pathLength="1" d="M150 330V24" />
+          <path pathLength="1" d="M150 330L450 157" />
+          <path pathLength="1" d="M512 324L520 330L512 336M144 32L150 24L156 32M438.8 157.7L450 157L443.8 166.3" />
+        </g>
+        <g class="ticks">
+          <path d="M210 326V334M270 326V334M330 326V334M390 326V334M450 326V334" />
+          <path d="M146 270H154M146 210H154M146 150H154M146 90H154" />
+        </g>
+        <g class="box">
+          <path d="M330 330V180M330 180H150M330 180L405 137M405 137H225M225 137L150 180M225 137V287M225 287L150 330M225 287H405M405 287V137M405 287L330 330" />
+        </g>
+        <g class="labels">
+          <text x="520" y="356" text-anchor="end">X — STRATEJİ</text>
+          <text x="164" y="30">Y — TASARIM</text>
+          <text x="458" y="160">Z — GELİŞTİRME</text>
+          <text x="136" y="352" text-anchor="end">0,0,0</text>
+        </g>
+        <g class="point">
+          <circle cx="405" cy="137" r="16" class="ring" />
+          <circle cx="405" cy="137" r="6" class="core" />
+          <text x="428" y="122">P — MARKANIZ</text>
+        </g>
+      </svg>
+    </div>
+
+    <dl class="ap__axes">
+      {
+        axes.map((a, i) => (
+          <div data-reveal="y" style={`--d:${i}`}>
+            <dt>
+              <span class="ap__k">{a.k}</span>
+              <span class="ap__kn">{a.name}</span>
+            </dt>
+            <dd>{a.text}</dd>
+          </div>
+        ))
+      }
+      <div class="ap__p" data-reveal="y" style="--d:3">
+        <dt>
+          <span class="ap__k">P</span>
+          <span class="ap__kn">Markanız</span>
+        </dt>
+        <dd>Üçünün kesiştiği tek nokta. Başka bir markanın kullanamayacağı bir konum.</dd>
+      </div>
+    </dl>
+  </div>
+
+  <div class="ap__process">
+    <div class="grid ap__process-head">
+      <h3 class="t-micro ap__sub"><span lang="en">Process</span> — çalışma biçimi</h3>
+    </div>
+    <ol class="ap__steps wrap" role="list">
+      {
+        steps.map((s, i) => (
+          <li data-reveal="x" style={`--d:${i}`}>
+            <span class="t-micro ap__sn">0{i + 1}</span>
+            <h4 class="ap__st">{s.t}</h4>
+            <p class="ap__sd">{s.d}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+
+  <div class="grid ap__principles">
+    <h3 class="t-micro ap__sub ap__psub"><span lang="en">Principles</span> — her projede</h3>
+    <ul class="ap__plist" role="list">
+      {
+        principles.map((p, i) => (
+          <li data-reveal="y" style={`--d:${i % 2}`}>
+            <span class="t-micro ap__pn">0{i + 1}</span>
+            <p class="ap__pt">{p.t}</p>
+            <p class="ap__pd t-mute">{p.d}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>
+
+<style>
+  .ap { padding-top: clamp(56px, 8vw, 128px); background: var(--paper-2); overflow: clip; }
+  .ap__head { row-gap: 24px; padding-block: clamp(28px, 4vw, 56px) clamp(32px, 5vw, 72px); align-items: end; }
+  .ap__title {
+    grid-column: 1 / -1;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--f-display);
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+  .ap__l1 { font-stretch: 75%; font-size: clamp(3rem, 1rem + 11vw, 11rem); line-height: 0.88; }
+  .ap__l2 { font-stretch: 125%; font-size: clamp(2rem, 0.6rem + 6.4vw, 7.6rem); letter-spacing: -0.045em; line-height: 0.9; color: var(--axis); }
+  .ap__lead { grid-column: 1 / -1; max-width: 42ch; }
+
+  /* model ---------------------------------------------------------------------- */
+  .ap__model { row-gap: 32px; padding-bottom: clamp(56px, 8vw, 120px); align-items: center; }
+  .ap__fig { grid-column: 1 / -1; }
+  .xyz { width: 100%; height: auto; overflow: visible; }
+  .xyz path { fill: none; stroke-width: 1; vector-effect: non-scaling-stroke; }
+  .xyz .axis path { stroke: var(--ink); }
+  .xyz .ticks path { stroke: var(--ink); opacity: 0.5; }
+  .xyz .box path { stroke: var(--axis); stroke-dasharray: 3 4; opacity: 0.8; }
+  .xyz text {
+    font-family: var(--f-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    fill: var(--ink);
+  }
+  .xyz .point text { fill: var(--axis); }
+  .xyz .ring { fill: none; stroke: var(--axis); stroke-width: 1; }
+  .xyz .core { fill: var(--axis); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .ap__fig[data-reveal='draw'] .axis path {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      transition: stroke-dashoffset 1.4s var(--ease);
+    }
+    :global(.js) .ap__fig[data-reveal='draw'] .box,
+    :global(.js) .ap__fig[data-reveal='draw'] .point {
+      opacity: 0;
+      transition: opacity var(--t3) linear 900ms;
+    }
+    :global(.js) .ap__fig[data-reveal='draw'] .point { transition-delay: 1300ms; }
+    :global(.js) .ap__fig[data-reveal='draw'].is-in .axis path { stroke-dashoffset: 0; }
+    :global(.js) .ap__fig[data-reveal='draw'].is-in .box,
+    :global(.js) .ap__fig[data-reveal='draw'].is-in .point { opacity: 1; }
+  }
+
+  .ap__axes { grid-column: 1 / -1; margin: 0; display: grid; gap: 0; }
+  .ap__axes > div {
+    display: grid;
+    grid-template-columns: 7.5rem 1fr;
+    gap: 16px;
+    padding: 16px 0;
+    border-top: 1px solid var(--line-2);
+  }
+  .ap__axes dt { display: flex; align-items: baseline; gap: 10px; }
+  .ap__k {
+    font-family: var(--f-display);
+    font-stretch: 125%;
+    font-weight: 800;
+    font-size: 1.75rem;
+    line-height: 1;
+    color: var(--axis);
+  }
+  .ap__kn { font-family: var(--f-display); font-stretch: 112%; font-weight: 700; font-size: 0.9375rem; }
+  .ap__axes dd { margin: 0; font-size: var(--fs-small); line-height: 1.55; }
+  .ap__p { background: var(--ink); color: var(--paper); padding-inline: 16px !important; border-top: 0 !important; }
+  .ap__p .ap__k { color: var(--axis-light); }
+
+  /* process ------------------------------------------------------------------------ */
+  .ap__process { padding-bottom: clamp(56px, 8vw, 120px); }
+  .ap__process-head { padding-bottom: 18px; }
+  .ap__sub { grid-column: 1 / -1; color: var(--axis); }
+  .ap__steps { display: grid; gap: 0; margin: 0; }
+  .ap__steps li {
+    display: grid;
+    grid-template-columns: 3rem 1fr;
+    column-gap: 12px;
+    row-gap: 6px;
+    padding: 18px 0;
+    border-top: 1px solid var(--line-2);
+    align-content: start;
+  }
+  .ap__sn { color: var(--axis); grid-row: span 2; padding-top: 0.5em; }
+  .ap__st {
+    margin: 0;
+    font-family: var(--f-display);
+    font-stretch: 125%;
+    font-weight: 800;
+    font-size: clamp(1.5rem, 1rem + 1.6vw, 2.5rem);
+    letter-spacing: -0.035em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+  .ap__sd { font-size: var(--fs-small); line-height: 1.6; max-width: 40ch; }
+
+  /* principles ---------------------------------------------------------------------- */
+  .ap__principles { padding-bottom: clamp(64px, 9vw, 140px); row-gap: 18px; }
+  .ap__plist { grid-column: 1 / -1; margin: 0; display: grid; gap: 0; }
+  .ap__plist li { padding: 20px 0; border-top: 1px solid var(--line-2); display: grid; gap: 8px; align-content: start; }
+  .ap__pn { color: var(--axis); }
+  .ap__pt {
+    font-family: var(--f-serif);
+    font-style: italic;
+    font-weight: 200;
+    font-size: clamp(1.75rem, 1rem + 2.4vw, 3rem);
+    line-height: 1.02;
+    letter-spacing: -0.015em;
+  }
+  .ap__pd { font-size: var(--fs-small); max-width: 46ch; }
+
+  @media (min-width: 1024px) {
+    .ap__lead { grid-column: 8 / 13; }
+    .ap__title { grid-column: 1 / 13; }
+    .ap__fig { grid-column: 1 / 8; }
+    .ap__axes { grid-column: 8 / 13; }
+
+    .ap__steps {
+      position: relative;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      column-gap: var(--g);
+      padding-top: 28px;
+    }
+    .ap__steps::before {
+      content: '';
+      position: absolute;
+      left: var(--m);
+      right: var(--m);
+      top: 0;
+      height: 1px;
+      background: var(--ink);
+    }
+    .ap__steps li {
+      position: relative;
+      grid-template-columns: 1fr;
+      border-top: 0;
+      padding: 0;
+      row-gap: 14px;
+    }
+    .ap__steps li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: -32px;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--axis);
+      box-shadow: 0 0 0 5px var(--paper-2);
+    }
+    .ap__sn { grid-row: auto; padding-top: 0; }
+    .ap__st { font-size: clamp(1.25rem, 0.5rem + 1.3vw, 2rem); font-stretch: 112%; }
+
+    .ap__psub { grid-column: 1 / 4; padding-top: 22px; }
+    .ap__plist { grid-column: 4 / 13; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--g); }
+    .ap__plist li { padding: 22px 0 28px; }
+  }
+</style>

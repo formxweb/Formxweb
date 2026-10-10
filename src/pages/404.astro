@@ -1,0 +1,40 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Sayfa bulunamadı" description="Aradığınız sayfa bu koordinatta yok." act={{ no: '404', name: 'Off the axis' }}>
+  <meta slot="head" name="robots" content="noindex" />
+  <section class="nf">
+    <p class="t-micro nf__coord"><i aria-hidden="true"></i>X 404 · Y 404 · Z 404</p>
+    <h1 class="nf__title" lang="en">Off the axis.</h1>
+    <p class="nf__text t-lead">Aradığınız sayfa bu koordinatta yok. Başlangıç noktasına dönelim.</p>
+    <div class="nf__actions">
+      <a class="btn" href="/">Ana sayfa <span class="arr arr-x" aria-hidden="true">→</span></a>
+      <a class="link" href="/#work">Seçili işler <span class="arr" aria-hidden="true">→</span></a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .nf {
+    min-height: 100svh;
+    display: grid;
+    align-content: center;
+    gap: 22px;
+    padding: calc(var(--header-h) + 40px) var(--m) 64px;
+  }
+  .nf__coord { display: inline-flex; gap: 10px; align-items: center; color: var(--axis); }
+  .nf__coord i { width: 8px; height: 8px; border-radius: 50%; background: var(--axis); }
+  .nf__title {
+    margin: 0;
+    font-family: var(--f-display);
+    font-stretch: 125%;
+    font-weight: 800;
+    font-size: clamp(3rem, 1rem + 10vw, 12rem);
+    letter-spacing: -0.045em;
+    line-height: 0.88;
+    text-transform: uppercase;
+  }
+  .nf__text { max-width: 36ch; }
+  .nf__actions { display: flex; flex-wrap: wrap; gap: 22px; align-items: center; }
+</style>

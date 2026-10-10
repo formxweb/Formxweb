@@ -1,0 +1,388 @@
+---
+import { getImage } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import Shot from '../../components/Shot.astro';
+import { projects, type Project } from '../../data/projects';
+import { whatsappUrl } from '../../data/site';
+
+export function getStaticPaths() {
+  return projects.map((project) => ({ params: { slug: project.slug }, props: { project } }));
+}
+
+interface Props {
+  project: Project;
+}
+
+const { project: p } = Astro.props;
+const index = projects.indexOf(p);
+const next = projects[(index + 1) % projects.length];
+const total = String(projects.length).padStart(2, '0');
+const [hero, ...gallery] = p.shots;
+
+const og = await getImage({ src: hero.src, width: 1200, height: 630, fit: 'cover', position: 'top', format: 'jpg', quality: 82 });
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CreativeWork',
+    name: `${p.name} — ${p.category}`,
+    description: p.summary,
+    dateCreated: p.year,
+    inLanguage: 'tr',
+    image: new URL(og.src, Astro.site).href,
+    url: new URL(`/work/${p.slug}/`, Astro.site).href,
+    creator: { '@id': new URL('/#studio', Astro.site).href },
+    keywords: [...p.scope, ...p.stack].join(', '),
+  },
+];
+
+const talk = whatsappUrl(`Merhaba VERYAXZ, ${p.name} projesini inceledim. Benzer bir proje için görüşmek istiyorum.`);
+---
+
+<Base
+  title={`${p.name} — ${p.category}`}
+  description={`${p.summary} Vaka çalışması: ${p.tagline}`}
+  image={og.src}
+  imageAlt={hero.alt}
+  type="article"
+  jsonLd={jsonLd}
+  headerTone={p.theme.dark ? 'dark' : 'light'}
+  act={{ no: p.no, name: 'Case study' }}
+>
+  <article
+    class:list={['cs', p.theme.dark && 'on-dark']}
+    style={`--p-bg:${p.theme.bg};--p-fg:${p.theme.fg};--p-accent:${p.theme.accent};--p-accent-ink:${p.theme.accentInk ?? p.theme.accent}`}
+    aria-labelledby="cs-title"
+  >
+    <header class="cs-hero">
+      <div class="grid cs-hero__top t-micro">
+        <a class="cs-back" href="/#work"><span aria-hidden="true">←</span> Tüm işler</a>
+        <span class="cs-count"><span lang="en">Case</span> {p.no} / {total}</span>
+        <span class="cs-sector" lang="en">{p.sector}</span>
+      </div>
+
+      <h1 class="cs-hero__name" id="cs-title" lang={p.nameLang}>{p.name}</h1>
+
+      <dl class="grid cs-facts">
+        <div>
+          <dt class="t-micro">Kategori</dt>
+          <dd>{p.category}</dd>
+        </div>
+        <div>
+          <dt class="t-micro">Yıl</dt>
+          <dd>{p.year}</dd>
+        </div>
+        <div>
+          <dt class="t-micro">Kapsam</dt>
+          <dd>{p.scope.join(' · ')}</dd>
+        </div>
+        <div>
+          <dt class="t-micro">Teknoloji</dt>
+          <dd>{p.stack.join(' · ')}</dd>
+        </div>
+      </dl>
+
+      <div class="cs-hero__shot">
+        <Shot shot={hero} sizes="100vw" priority caption={false} bleed />
+      </div>
+      <p class="cs-hero__cap t-micro wrap">01 — {hero.caption}</p>
+    </header>
+
+    <section class="grid cs-concept" aria-labelledby="cs-concept">
+      <h2 class="t-micro cs-label" id="cs-concept">Konsept</h2>
+      <p class="cs-tag t-serif" data-reveal="y">{p.tagline}</p>
+      <div class="cs-paras">
+        {p.concept.map((para, i) => <p data-reveal="y" style={`--d:${i}`}>{para}</p>)}
+      </div>
+    </section>
+
+    <section class="cs-gallery" aria-label="Ekran görüntüleri">
+      <ol class="grid cs-gallery__list" role="list">
+        {
+          gallery.map((s, i) => (
+            <li class="cs-g" data-reveal="y">
+              <Shot shot={s} sizes="(min-width: 1024px) 66vw, 100vw" caption={`0${i + 2} — ${s.caption}`} />
+            </li>
+          ))
+        }
+      </ol>
+      {p.note && <p class="wrap t-micro cs-note">{p.note}</p>}
+    </section>
+
+    <section class="grid cs-ad" aria-labelledby="cs-ad">
+      <h2 class="t-micro cs-label" id="cs-ad">Sanat yönetimi</h2>
+      <div class="cs-type">
+        <h3 class="t-micro cs-sublabel">Tipografi</h3>
+        <ul role="list">
+          {
+            p.type.map((t) => (
+              <li data-reveal="y">
+                <span class="cs-type__name">{t.name}</span>
+                <span class="cs-type__role">{t.role}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <div class="cs-palette">
+        <h3 class="t-micro cs-sublabel">Renk</h3>
+        <ul role="list">
+          {
+            p.palette.map((c) => (
+              <li data-reveal="y">
+                <span class="cs-swatch" style={`background:${c.hex}`} />
+                <span class="cs-swatch__name">{c.name}</span>
+                <span class="t-micro cs-swatch__hex">{c.hex}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </section>
+
+    <section class="grid cs-details" aria-labelledby="cs-details">
+      <h2 class="t-micro cs-label" id="cs-details">Detaylar</h2>
+      <ol class="cs-details__list" role="list">
+        {
+          p.details.map((d, i) => (
+            <li data-reveal="y" style={`--d:${i % 2}`}>
+              <span class="t-micro cs-dn">0{i + 1}</span>
+              <h3 class="cs-dt">{d.title}</h3>
+              <p class="cs-dd">{d.text}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <section class="grid cs-cta" aria-labelledby="cs-cta">
+      <h2 class="cs-cta__title" id="cs-cta">
+        {p.liveUrl ? 'Projeyi canlı görün.' : 'Benzer bir proje mi düşünüyorsunuz?'}
+      </h2>
+      <div class="cs-cta__actions">
+        {
+          p.liveUrl && (
+            <a class="btn btn--paper" href={p.liveUrl} target="_blank" rel="noopener">
+              Canlı siteyi ziyaret et <span class="arr arr-x" aria-hidden="true">↗</span>
+            </a>
+          )
+        }
+        <a class="btn" href={talk} target="_blank" rel="noopener">
+          WhatsApp’ta konuşalım <span class="arr arr-x" aria-hidden="true">↗</span>
+        </a>
+        <a class="link cs-cta__form" href="/#brief">
+          Proje formunu doldurun <span class="arr" aria-hidden="true">→</span>
+        </a>
+      </div>
+    </section>
+  </article>
+
+  <nav class="cs-next" aria-label="Sonraki vaka çalışması">
+    <a href={`/work/${next.slug}/`} class="grid cs-next__link">
+      <span class="t-micro cs-next__label">Sonraki — {next.no} / {total}</span>
+      <span class="cs-next__name" lang={next.nameLang}>{next.name}</span>
+      <span class="cs-next__cat t-micro">{next.category} <span aria-hidden="true">→</span></span>
+    </a>
+  </nav>
+</Base>
+
+<style>
+  .cs {
+    background: var(--p-bg);
+    color: var(--p-fg);
+    padding-top: var(--header-h);
+    overflow: clip;
+  }
+
+  /* hero ------------------------------------------------------------------------- */
+  .cs-hero__top {
+    padding-block: 18px;
+    border-bottom: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+    row-gap: 6px;
+  }
+  .cs-back { grid-column: 1 / -1; display: inline-flex; gap: 8px; padding-block: 6px; width: max-content; }
+  .cs-back:hover { color: var(--p-accent-ink); }
+  .cs-count { grid-column: 1 / 3; color: var(--p-accent-ink); }
+  .cs-sector { grid-column: 3 / -1; text-align: right; opacity: 0.8; }
+
+  .cs-hero__name {
+    margin: clamp(28px, 5vw, 72px) 0 0;
+    padding-inline: var(--m);
+    font-family: var(--f-display);
+    font-stretch: 75%;
+    font-weight: 800;
+    font-size: clamp(3.5rem, 1rem + 15vw, 17rem);
+    line-height: 0.86;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    overflow-wrap: anywhere;
+  }
+  .cs-facts {
+    margin: clamp(24px, 4vw, 56px) 0 clamp(28px, 4vw, 56px);
+    row-gap: 18px;
+  }
+  .cs-facts div { grid-column: span 2; }
+  .cs-facts dt { opacity: 0.8; margin-bottom: 6px; }
+  .cs-facts dd { margin: 0; font-size: var(--fs-small); line-height: 1.5; }
+  .cs-hero__shot :global(.shot__frame) { background: transparent; }
+  .cs-hero__cap { padding-top: 12px; opacity: 0.8; }
+
+  /* concept ------------------------------------------------------------------------- */
+  .cs-concept { padding-block: clamp(64px, 9vw, 140px); row-gap: 22px; }
+  .cs-label { grid-column: 1 / -1; color: var(--p-accent-ink); }
+  .cs-tag { grid-column: 1 / -1; font-size: clamp(2.25rem, 1rem + 4.4vw, 5.5rem); }
+  .cs-paras { grid-column: 1 / -1; display: grid; gap: 18px; max-width: 62ch; }
+  .cs-paras p:first-child { font-size: var(--fs-lead); line-height: 1.45; }
+
+  /* gallery ------------------------------------------------------------------------- */
+  .cs-gallery { padding-bottom: clamp(48px, 7vw, 112px); }
+  .cs-gallery__list { row-gap: clamp(36px, 6vw, 96px); margin: 0; align-items: start; }
+  .cs-g { grid-column: 1 / -1; }
+  .cs-note { padding-top: 28px; opacity: 0.8; }
+
+  /* art direction ----------------------------------------------------------------- */
+  .cs-ad {
+    padding-block: clamp(56px, 8vw, 120px);
+    border-top: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+    row-gap: 32px;
+  }
+  .cs-sublabel { opacity: 0.8; margin: 0 0 14px; }
+  .cs-type,
+  .cs-palette { grid-column: 1 / -1; }
+  .cs-type ul,
+  .cs-palette ul { margin: 0; display: grid; gap: 0; }
+  .cs-type li {
+    display: grid;
+    gap: 4px;
+    padding: 16px 0;
+    border-top: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+  }
+  .cs-type__name {
+    font-family: var(--f-display);
+    font-stretch: 112%;
+    font-weight: 700;
+    font-size: clamp(1.5rem, 1rem + 1.8vw, 2.5rem);
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+  .cs-type__role { font-size: var(--fs-small); opacity: 0.8; }
+  .cs-palette ul { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 18px var(--g); }
+  .cs-palette li { display: grid; gap: 6px; align-content: start; }
+  .cs-swatch {
+    display: block;
+    aspect-ratio: 1;
+    border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+  }
+  .cs-swatch__name { font-size: var(--fs-small); font-weight: 600; }
+  .cs-swatch__hex { opacity: 0.8; }
+
+  /* details -------------------------------------------------------------------- */
+  .cs-details { padding-bottom: clamp(56px, 8vw, 120px); row-gap: 22px; }
+  .cs-details__list { grid-column: 1 / -1; margin: 0; display: grid; gap: 0; }
+  .cs-details__list li {
+    display: grid;
+    gap: 8px;
+    padding: 20px 0 26px;
+    border-top: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+    align-content: start;
+  }
+  .cs-dn { color: var(--p-accent-ink); }
+  .cs-dt {
+    margin: 0;
+    font-family: var(--f-display);
+    font-stretch: 112%;
+    font-weight: 700;
+    font-size: clamp(1.375rem, 1rem + 1.2vw, 2rem);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .cs-dd { font-size: var(--fs-small); line-height: 1.6; max-width: 48ch; opacity: 0.88; }
+
+  /* cta ----------------------------------------------------------------------- */
+  .cs-cta {
+    padding-block: clamp(56px, 8vw, 120px);
+    border-top: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+    row-gap: 28px;
+    align-items: end;
+  }
+  .cs-cta__title {
+    grid-column: 1 / -1;
+    margin: 0;
+    font-family: var(--f-serif);
+    font-style: italic;
+    font-weight: 200;
+    font-size: clamp(2.25rem, 1rem + 4vw, 5rem);
+    line-height: 1.02;
+    letter-spacing: -0.015em;
+  }
+  .cs-cta__actions { grid-column: 1 / -1; display: grid; gap: 14px; justify-items: start; }
+  .cs-cta__actions .btn { min-width: min(100%, 320px); }
+  .on-dark .cs-cta__actions .btn:not(.btn--paper) { --btn-bg: var(--p-fg); --btn-fg: var(--p-bg); }
+  .cs-cta__form {
+    font-family: var(--f-display);
+    font-stretch: 112%;
+    font-weight: 700;
+    font-size: 0.8125rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding-block: 10px 4px;
+  }
+
+  /* next ------------------------------------------------------------------------ */
+  .cs-next { background: var(--paper); }
+  .cs-next__link {
+    padding-block: clamp(48px, 7vw, 112px);
+    row-gap: 12px;
+    align-items: end;
+    transition: color var(--t1) linear;
+  }
+  .cs-next__label { grid-column: 1 / -1; color: var(--axis); }
+  .cs-next__name {
+    grid-column: 1 / -1;
+    font-family: var(--f-display);
+    font-stretch: 125%;
+    font-weight: 800;
+    font-size: clamp(2.5rem, 0.8rem + 8vw, 10rem);
+    letter-spacing: -0.045em;
+    line-height: 0.9;
+    text-transform: uppercase;
+    transition: transform var(--t3) var(--ease);
+  }
+  .cs-next__cat { grid-column: 1 / -1; }
+  .cs-next__link:hover { color: var(--axis); }
+  .cs-next__link:hover .cs-next__name { transform: translateX(1.5vw); }
+
+  @media (min-width: 1024px) {
+    .cs-back { grid-column: 1 / 4; }
+    .cs-count { grid-column: 6 / 9; }
+    .cs-sector { grid-column: 10 / 13; }
+    .cs-hero__name { font-size: min(15.5vw, 18rem); }
+    .cs-facts div:nth-child(1) { grid-column: 1 / 3; }
+    .cs-facts div:nth-child(2) { grid-column: 3 / 5; }
+    .cs-facts div:nth-child(3) { grid-column: 6 / 9; }
+    .cs-facts div:nth-child(4) { grid-column: 10 / 13; }
+
+    .cs-label { grid-column: 1 / 3; padding-top: 0.9em; }
+    .cs-tag { grid-column: 3 / 13; }
+    .cs-paras { grid-column: 6 / 12; margin-top: 24px; }
+
+    .cs-g:nth-child(4n + 1) { grid-column: 1 / 9; }
+    .cs-g:nth-child(4n + 2) { grid-column: 5 / 13; }
+    .cs-g:nth-child(4n + 3) { grid-column: 1 / 7; }
+    .cs-g:nth-child(4n + 4) { grid-column: 7 / 13; margin-top: 8vw; }
+    .cs-g:last-child:nth-child(4n + 3) { grid-column: 3 / 11; }
+
+    .cs-ad .cs-label { grid-row: 1 / 3; }
+    .cs-type { grid-column: 3 / 7; }
+    .cs-palette { grid-column: 8 / 13; }
+
+    .cs-details__list { grid-column: 3 / 13; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--g); }
+
+    .cs-cta__title { grid-column: 1 / 8; }
+    .cs-cta__actions { grid-column: 9 / 13; justify-items: stretch; }
+
+    .cs-next__label { grid-column: 1 / 13; }
+    .cs-next__name { grid-column: 1 / 11; }
+    .cs-next__cat { grid-column: 11 / 13; text-align: right; padding-bottom: 1.2vw; }
+  }
+</style>

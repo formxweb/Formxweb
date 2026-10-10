@@ -1,0 +1,320 @@
+---
+import Wordmark from './Wordmark.astro';
+import AxisMark from './AxisMark.astro';
+import { nav, site, whatsappUrl } from '../data/site';
+
+interface Props {
+  /** Colour of whatever sits under the transparent header at the top of the page. */
+  tone?: 'light' | 'dark';
+  /** Label shown in the act indicator before any section reports itself. */
+  act?: { no: string; name: string };
+}
+const { tone = 'light', act = { no: 'I', name: 'Identity' } } = Astro.props;
+---
+
+<header class="hd" data-hd data-tone={tone}>
+  <a class="hd__brand" href="/" aria-label="VERYAXZ STUDIO — ana sayfa">
+    <AxisMark size={16} class="hd__mark" />
+    <Wordmark studio class="hd__word" />
+  </a>
+
+  <p class="hd__act t-micro" aria-hidden="true">
+    <span class="hd__act-no" data-act-no>{act.no}</span>
+    <span class="hd__act-name" data-act-name lang="en">{act.name}</span>
+  </p>
+
+  <p class="hd__clock t-micro">
+    <span class="t-mute">TR</span>
+    <time data-clock aria-label="Türkiye saati">--:--</time>
+  </p>
+
+  <nav class="hd__nav" aria-label="Ana menü">
+    <ul role="list">
+      {
+        nav.map((item) => (
+          <li>
+            <a href={item.href} lang="en">
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+
+  <a class="btn btn--axis hd__cta" href="/#contact" lang="en">
+    Start a project <span class="arr arr-x" aria-hidden="true">→</span>
+  </a>
+
+  <button class="hd__menu" type="button" aria-haspopup="dialog" aria-controls="menu" aria-expanded="false" data-menu-open>
+    <span class="t-micro">Menü</span>
+    <span class="hd__burger" aria-hidden="true"><i></i><i></i></span>
+  </button>
+</header>
+
+<dialog id="menu" class="menu" aria-label="Menü" data-menu>
+  <div class="menu__top">
+    <Wordmark studio class="menu__word" />
+    <button class="menu__close" type="button" data-menu-close>
+      <span class="t-micro">Kapat</span>
+      <span aria-hidden="true">×</span>
+    </button>
+  </div>
+  <nav aria-label="Mobil menü">
+    <ol class="menu__list" role="list">
+      {
+        nav.map((item, i) => (
+          <li>
+            <a href={item.href} data-menu-link>
+              <span class="t-micro menu__no">0{i + 1}</span>
+              <span class="menu__label" lang="en">{item.label}</span>
+              <span class="t-micro menu__tr">{item.tr}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </nav>
+  <div class="menu__foot">
+    <a class="btn btn--axis" href="/#contact" data-menu-link lang="en">
+      Start a project <span class="arr arr-x" aria-hidden="true">→</span>
+    </a>
+    <ul class="menu__contact t-micro" role="list">
+      <li><a href={whatsappUrl('Merhaba VERYAXZ, bir web sitesi projesi için yazıyorum.')} rel="noopener" target="_blank">WhatsApp ↗</a></li>
+      <li><a href={`tel:${site.contact.phoneHref}`}>{site.contact.phoneDisplay}</a></li>
+      <li><a href={site.contact.instagram} rel="noopener" target="_blank">Instagram ↗</a></li>
+    </ul>
+  </div>
+</dialog>
+
+<style>
+  .hd {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 50;
+    height: var(--header-h);
+    display: grid;
+    grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+    column-gap: var(--g);
+    align-items: center;
+    padding-inline: var(--m);
+    color: var(--ink);
+    background: transparent;
+    border-bottom: 1px solid transparent;
+    transition:
+      transform var(--t2) var(--ease),
+      background-color var(--t2) linear,
+      border-color var(--t2) linear;
+  }
+  .hd[data-scrolled] {
+    background: color-mix(in srgb, var(--paper) 94%, transparent);
+    border-bottom-color: var(--line);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .hd[data-hidden] { transform: translateY(-100%); }
+  .hd[data-tone='dark']:not([data-scrolled]) { color: var(--paper); }
+  .hd[data-tone='dark']:not([data-scrolled]) .hd__mark,
+  .hd[data-tone='dark']:not([data-scrolled]) .hd__act-no { color: var(--axis-light); }
+  .hd[data-tone='dark']:not([data-scrolled]) :global(.axis-letter) { color: var(--axis-light); }
+  .hd[data-tone='dark']:not([data-scrolled]) :focus-visible { outline-color: var(--axis-light); }
+  .hd[data-tone='dark']:not([data-scrolled]) .t-mute { color: rgb(232 228 218 / 0.72); }
+
+  .hd__brand {
+    grid-column: 1 / span 3;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    width: max-content;
+    min-height: 44px;
+  }
+  .hd__mark { color: var(--axis); }
+  .hd__brand :global(.hd__word) { font-size: 0.9375rem; }
+
+  .hd__act,
+  .hd__clock,
+  .hd__nav,
+  .hd__cta { display: none; }
+
+  .hd__menu {
+    grid-column: -2 / -1;
+    justify-self: end;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 0;
+    background: none;
+    border: 0;
+  }
+  .hd__burger {
+    display: grid;
+    gap: 5px;
+    width: 22px;
+  }
+  .hd__burger i {
+    display: block;
+    height: 1.5px;
+    background: currentColor;
+  }
+  .hd__burger i:last-child { width: 60%; justify-self: end; }
+
+  @media (min-width: 1024px) {
+    .hd {
+      display: flex;
+      gap: clamp(16px, 2vw, 32px);
+    }
+    .hd__brand { margin-right: auto; }
+    .hd__act {
+      display: flex;
+      gap: 10px;
+      min-width: 13.5rem;
+    }
+    .hd__act-no { color: var(--axis); min-width: 2.2em; }
+    .hd__nav {
+      display: block;
+      margin-left: auto;
+    }
+    .hd__nav ul {
+      display: flex;
+      gap: clamp(14px, 1.8vw, 28px);
+      margin: 0;
+    }
+    .hd__nav a {
+      position: relative;
+      display: inline-block;
+      padding: 10px 0;
+      font-family: var(--f-display);
+      font-stretch: 112%;
+      font-weight: 600;
+      font-size: 0.8125rem;
+      letter-spacing: 0.01em;
+    }
+    .hd__nav a::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 4px;
+      height: 1px;
+      background: currentColor;
+      transform: scaleX(0);
+      transform-origin: right;
+      transition: transform var(--t2) var(--ease);
+    }
+    .hd__nav a:hover::after,
+    .hd__nav a[aria-current='true']::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+    .hd__cta {
+      display: inline-flex;
+      min-height: 40px;
+      font-size: 0.75rem;
+    }
+    .hd__menu { display: none; }
+  }
+  @media (min-width: 1360px) {
+    .hd__clock { display: flex; gap: 8px; min-width: 6rem; }
+  }
+  @media (min-width: 1024px) and (max-width: 1199px) {
+    .hd__act { display: none; }
+  }
+
+  /* --- mobile menu ------------------------------------------------------- */
+  .menu {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 0 var(--m) max(24px, env(safe-area-inset-bottom));
+    border: 0;
+    background: var(--paper);
+    color: var(--ink);
+    display: none;
+    flex-direction: column;
+  }
+  .menu[open] { display: flex; }
+  .menu::backdrop { background: rgb(18 18 17 / 0.4); }
+  .menu__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: var(--header-h);
+    border-bottom: 1px solid var(--line);
+  }
+  .menu__top :global(.menu__word) { font-size: 0.9375rem; }
+  .menu__close {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    background: none;
+    border: 0;
+    padding: 0;
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+  .menu__list {
+    margin: 0;
+    padding: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .menu__list a {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    align-items: baseline;
+    row-gap: 4px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .menu__label {
+    font-family: var(--f-display);
+    font-stretch: 112%;
+    font-weight: 800;
+    font-size: min(9vw, 3.25rem);
+    letter-spacing: -0.03em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+  .menu__tr { grid-column: 2; }
+  .menu__no { color: var(--axis); }
+  .menu__tr { color: var(--mute); }
+  .menu__foot {
+    display: grid;
+    gap: 18px;
+    padding-top: 18px;
+  }
+  .menu__foot .btn { width: 100%; }
+  .menu__contact {
+    display: flex;
+    justify-content: space-between;
+    margin: 0;
+  }
+  .menu__contact a {
+    display: inline-block;
+    padding: 10px 0;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .menu[open] { animation: menu-in var(--t2) var(--ease); }
+    .menu[open] .menu__list li {
+      animation: menu-item var(--t3) var(--ease) both;
+    }
+    .menu[open] .menu__list li:nth-child(2) { animation-delay: 50ms; }
+    .menu[open] .menu__list li:nth-child(3) { animation-delay: 100ms; }
+    .menu[open] .menu__list li:nth-child(4) { animation-delay: 150ms; }
+  }
+  @keyframes menu-in {
+    from { clip-path: inset(0 0 100% 0); }
+    to { clip-path: inset(0 0 0 0); }
+  }
+  @keyframes menu-item {
+    from { transform: translateY(18px); opacity: 0; }
+    to { transform: none; opacity: 1; }
+  }
+</style>

@@ -1,0 +1,476 @@
+---
+import Rail from './Rail.astro';
+import { site, whatsappUrl } from '../data/site';
+
+const layers = [1, 2, 3];
+const types = ['Özel web sitesi', 'İşletme sitesi', 'E-ticaret', 'Landing page', 'Yeniden tasarım', 'Henüz emin değilim'];
+const timing = ['1 ay içinde', '1–3 ay', 'Esnek'];
+const endpoint = site.form.endpoint;
+const mode = endpoint ? 'endpoint' : 'whatsapp';
+---
+
+<section class="cta on-dark" id="contact" data-act="V" data-act-name="Let’s build" aria-labelledby="cta-title">
+  <Rail act="Act V" title="Let’s build" axis="0,0,0 — her proje burada başlar" end="İletişim" />
+
+  <div class="grid cta__body">
+    <h2 class="cta__title" id="cta-title" lang="en">
+      <span class="cta__l cta__l--1" data-reveal="mask">Your next website</span>
+      <span class="cta__l cta__l--2" data-reveal="mask" style="--d:1">should feel</span>
+      <span class="cta__l cta__l--3" data-reveal="y" style="--d:2">
+        <span class="cta__z" aria-hidden="true">
+          {layers.map((i) => <span style={`--i:${i}`}>different.</span>)}
+        </span>
+        <span class="cta__front">different.</span>
+      </span>
+    </h2>
+
+    <div class="cta__side">
+      <p class="cta__sub t-serif" data-reveal="y">Bir sonraki dijital projenizi birlikte tasarlayalım.</p>
+      <a class="btn btn--paper cta__btn" href="#brief" lang="en" data-reveal="y" style="--d:1">
+        Start your project <span class="arr arr-y" aria-hidden="true">↓</span>
+      </a>
+      <ul class="cta__channels" role="list" data-reveal="y" style="--d:2">
+        <li>
+          <a href={whatsappUrl('Merhaba VERYAXZ, bir web sitesi projesi için yazıyorum.')} target="_blank" rel="noopener">
+            <span class="t-micro">WhatsApp</span>
+            <span class="cta__val">{site.contact.phoneDisplay}</span>
+            <span class="arr" aria-hidden="true">↗</span>
+          </a>
+        </li>
+        <li>
+          <a href={`tel:${site.contact.phoneHref}`}>
+            <span class="t-micro">Telefon</span>
+            <span class="cta__val">{site.contact.phoneDisplay}</span>
+            <span class="arr" aria-hidden="true">→</span>
+          </a>
+        </li>
+        <li>
+          <a href={site.contact.instagram} target="_blank" rel="noopener">
+            <span class="t-micro">Instagram</span>
+            <span class="cta__val">{site.contact.instagramHandle}</span>
+            <span class="arr" aria-hidden="true">↗</span>
+          </a>
+        </li>
+        {
+          site.contact.email && (
+            <li>
+              <a href={`mailto:${site.contact.email}`}>
+                <span class="t-micro">E-posta</span>
+                <span class="cta__val">{site.contact.email}</span>
+                <span class="arr" aria-hidden="true">→</span>
+              </a>
+            </li>
+          )
+        }
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="brief" id="brief" aria-labelledby="brief-title">
+  <div class="grid brief__grid">
+    <div class="brief__intro">
+      <p class="t-micro brief__origin"><i aria-hidden="true"></i>0,0,0</p>
+      <h2 class="brief__title" id="brief-title">Proje başlat</h2>
+      <p class="brief__lead">
+        Birkaç soru, iki dakika. Ne yaptığınızı ve neye ihtiyacınız olduğunu anlatın; size projenize özel bir yol haritası
+        ve teklifle dönelim.
+      </p>
+      <p class="brief__how t-mute">
+        {
+          mode === 'whatsapp'
+            ? 'Gönder dediğinizde, yazdıklarınız WhatsApp’ta hazır bir mesaja dönüşür. Mesaj, siz WhatsApp’ta gönder tuşuna bastığınızda bize ulaşır.'
+            : 'Form doğrudan bize ulaşır. Gönderim başarılı olursa ekranda onay görürsünüz; bir sorun olursa WhatsApp seçeneği açılır.'
+        }
+      </p>
+    </div>
+
+    <form
+      class="brief__form"
+      data-brief
+      data-mode={mode}
+      data-endpoint={endpoint || undefined}
+      data-key={site.form.accessKey || undefined}
+      data-wa={site.contact.whatsapp}
+      method={endpoint ? 'post' : undefined}
+      action={endpoint || undefined}
+      novalidate
+    >
+      <fieldset class="brief__set">
+        <legend class="brief__legend">Proje türü <span class="req" aria-hidden="true">*</span></legend>
+        <div class="chips">
+          {
+            types.map((t, i) => (
+              <label class="chip">
+                <input type="radio" name="tur" value={t} required={i === 0} />
+                <span>{t}</span>
+              </label>
+            ))
+          }
+        </div>
+      </fieldset>
+
+      <fieldset class="brief__set">
+        <legend class="brief__legend">Zaman planı</legend>
+        <div class="chips">
+          {
+            timing.map((t) => (
+              <label class="chip">
+                <input type="radio" name="zaman" value={t} />
+                <span>{t}</span>
+              </label>
+            ))
+          }
+        </div>
+      </fieldset>
+
+      <div class="brief__fields">
+        <div class="field">
+          <label for="f-ad">Ad soyad <span class="req" aria-hidden="true">*</span></label>
+          <input id="f-ad" name="ad" type="text" autocomplete="name" required maxlength="80" />
+        </div>
+        <div class="field">
+          <label for="f-marka">İşletme / marka</label>
+          <input id="f-marka" name="marka" type="text" autocomplete="organization" maxlength="100" />
+        </div>
+        <div class="field">
+          <label for="f-iletisim">Telefon veya e-posta <span class="req" aria-hidden="true">*</span></label>
+          <input id="f-iletisim" name="iletisim" type="text" required maxlength="120" aria-describedby="f-iletisim-hint" />
+          <span class="field__hint t-micro" id="f-iletisim-hint">Size nereden dönelim?</span>
+        </div>
+        <div class="field">
+          <label for="f-site">Mevcut site veya Instagram</label>
+          <input id="f-site" name="mevcut" type="text" maxlength="200" placeholder="ornek.com ya da @hesap" />
+        </div>
+        <div class="field field--wide">
+          <label for="f-mesaj">Kısaca projeniz</label>
+          <textarea id="f-mesaj" name="mesaj" rows="4" maxlength="2000" placeholder="Ne satıyorsunuz, kime satıyorsunuz, sitenin ne yapmasını istiyorsunuz?"></textarea>
+        </div>
+        <div class="hp" aria-hidden="true">
+          <label for="f-hp">Bu alanı boş bırakın</label>
+          <input id="f-hp" name="website_url" type="text" tabindex="-1" autocomplete="off" />
+        </div>
+      </div>
+
+      <div class="brief__submit">
+        <button class="btn btn--axis" type="submit" data-submit>
+          <span data-label>{mode === 'whatsapp' ? 'WhatsApp ile gönder' : 'Gönder'}</span>
+          <span class="arr arr-x" aria-hidden="true">→</span>
+        </button>
+        <p class="brief__privacy t-micro t-mute">Bilgileriniz yalnızca teklifinizi hazırlamak için kullanılır.</p>
+      </div>
+
+      <div class="brief__status" role="status" aria-live="polite" data-status hidden></div>
+    </form>
+  </div>
+</section>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-brief]');
+
+  if (form) {
+    const status = form.querySelector<HTMLElement>('[data-status]')!;
+    const submit = form.querySelector<HTMLButtonElement>('[data-submit]')!;
+    const label = submit.querySelector<HTMLElement>('[data-label]')!;
+    const endpoint = form.dataset.endpoint ?? '';
+    const accessKey = form.dataset.key ?? '';
+    const wa = form.dataset.wa ?? '';
+    const idle = label.textContent ?? '';
+
+    const value = (name: string) => String(new FormData(form).get(name) ?? '').trim();
+
+    const compose = () => {
+      const lines = ['Merhaba VERYAXZ, yeni bir proje için yazıyorum.', '', `Proje türü: ${value('tur')}`];
+      if (value('zaman')) lines.push(`Zaman planı: ${value('zaman')}`);
+      lines.push(`Ad soyad: ${value('ad')}`);
+      if (value('marka')) lines.push(`İşletme / marka: ${value('marka')}`);
+      lines.push(`İletişim: ${value('iletisim')}`);
+      if (value('mevcut')) lines.push(`Mevcut site / Instagram: ${value('mevcut')}`);
+      if (value('mesaj')) lines.push('', value('mesaj'));
+      return lines.join('\n');
+    };
+
+    const waLink = (text: string) => `https://wa.me/${wa}?text=${encodeURIComponent(text)}`;
+
+    const show = (html: string, tone: 'ok' | 'info' | 'error') => {
+      status.hidden = false;
+      status.dataset.tone = tone;
+      status.innerHTML = html;
+    };
+
+    const setError = (input: HTMLInputElement | null, message: string) => {
+      if (!input) return;
+      const field = input.closest('.field, .brief__set');
+      field?.setAttribute('data-invalid', '');
+      let err = field?.querySelector<HTMLElement>('.field__err');
+      if (field && !err) {
+        err = document.createElement('span');
+        err.className = 'field__err t-micro';
+        err.id = `${input.name}-err`;
+        field.append(err);
+      }
+      if (err) err.textContent = message;
+      input.setAttribute('aria-invalid', 'true');
+      input.setAttribute('aria-describedby', [input.getAttribute('aria-describedby'), `${input.name}-err`].filter(Boolean).join(' '));
+    };
+
+    const clearErrors = () => {
+      form.querySelectorAll('[data-invalid]').forEach((el) => el.removeAttribute('data-invalid'));
+      form.querySelectorAll('.field__err').forEach((el) => el.remove());
+      form.querySelectorAll('[aria-invalid]').forEach((el) => {
+        el.removeAttribute('aria-invalid');
+        const ids = (el.getAttribute('aria-describedby') ?? '').split(' ').filter((id) => id && !id.endsWith('-err'));
+        if (ids.length) el.setAttribute('aria-describedby', ids.join(' '));
+        else el.removeAttribute('aria-describedby');
+      });
+    };
+
+    const validate = () => {
+      clearErrors();
+      let first: HTMLInputElement | null = null;
+      const fail = (input: HTMLInputElement | null, msg: string) => {
+        setError(input, msg);
+        first ??= input;
+      };
+      if (!value('tur')) fail(form.querySelector<HTMLInputElement>('input[name="tur"]'), 'Bir proje türü seçin.');
+      if (value('ad').length < 2) fail(form.querySelector<HTMLInputElement>('#f-ad'), 'Adınızı yazın.');
+      const contact = value('iletisim');
+      const isMail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(contact);
+      const isPhone = contact.replace(/\D/g, '').length >= 10;
+      if (!isMail && !isPhone) fail(form.querySelector<HTMLInputElement>('#f-iletisim'), 'Geçerli bir telefon numarası ya da e-posta yazın.');
+      (first as HTMLInputElement | null)?.focus();
+      return !first;
+    };
+
+    form.addEventListener('input', (e) => {
+      const field = (e.target as HTMLElement).closest('[data-invalid]');
+      if (field) {
+        field.removeAttribute('data-invalid');
+        field.querySelector('.field__err')?.remove();
+      }
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      status.hidden = true;
+      if (!validate()) return;
+      if (value('website_url')) return; // honeypot: bots fill every field
+
+      const text = compose();
+
+      if (!endpoint) {
+        const url = waLink(text);
+        const win = window.open(url, '_blank');
+        if (win) win.opener = null;
+        show(
+          win
+            ? `Mesajınız WhatsApp’ta hazır. <strong>Göndermek için WhatsApp’ta gönder tuşuna basın.</strong> Pencere açılmadıysa <a href="${url}" target="_blank" rel="noopener">buraya dokunun</a>.`
+            : `WhatsApp penceresi açılamadı. <a href="${url}" target="_blank" rel="noopener">Mesajı WhatsApp’ta açmak için dokunun</a>.`,
+          'info',
+        );
+        return;
+      }
+
+      submit.disabled = true;
+      label.textContent = 'Gönderiliyor…';
+      try {
+        const data = new FormData(form);
+        data.delete('website_url');
+        data.set('mesaj_ozeti', text);
+        data.set('subject', `Yeni proje talebi — ${value('ad')}`);
+        if (accessKey) data.set('access_key', accessKey);
+        const res = await fetch(endpoint, { method: 'POST', body: data, headers: { Accept: 'application/json' } });
+        if (!res.ok) throw new Error(String(res.status));
+        form.reset();
+        show('<strong>Talebiniz bize ulaştı.</strong> En kısa sürede yazdığınız iletişim bilgisinden size döneceğiz.', 'ok');
+      } catch {
+        show(
+          `Form şu anda gönderilemedi. Aynı mesajı <a href="${waLink(text)}" target="_blank" rel="noopener">WhatsApp ile gönderebilirsiniz</a>.`,
+          'error',
+        );
+      } finally {
+        submit.disabled = false;
+        label.textContent = idle;
+      }
+    });
+  }
+</script>
+
+<style>
+  /* Act V — the one place the axis colour floods the page */
+  .cta {
+    background: var(--axis);
+    color: var(--on-axis);
+    padding-top: clamp(56px, 8vw, 128px);
+    overflow: clip;
+  }
+  .cta :global(.rail) { border-top-color: rgb(242 239 232 / 0.4); }
+  .cta :global(.rail__act) { color: var(--on-axis); }
+  .cta__body { row-gap: 40px; padding-block: clamp(32px, 5vw, 80px) clamp(64px, 9vw, 140px); align-items: end; }
+
+  .cta__title {
+    grid-column: 1 / -1;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--f-display);
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+  .cta__l { display: block; }
+  .cta__l--1 { font-stretch: 112%; font-size: clamp(2rem, 0.4rem + 6.4vw, 7rem); letter-spacing: -0.035em; line-height: 0.95; }
+  .cta__l--2 { font-stretch: 75%; font-size: clamp(2.6rem, 0.6rem + 9.6vw, 10rem); line-height: 0.92; }
+  .cta__l--3 {
+    position: relative;
+    width: max-content;
+    max-width: 100%;
+    font-stretch: 125%;
+    font-size: min(10.4vw, 12.5rem);
+    letter-spacing: -0.045em;
+    line-height: 0.9;
+  }
+  .cta__front { position: relative; }
+  .cta__z span {
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: transparent;
+    -webkit-text-stroke: 1px var(--on-axis);
+    opacity: calc(0.75 - var(--i) * 0.2);
+    transform: translate(calc(var(--i) * 0.06em), calc(var(--i) * -0.035em));
+  }
+
+  .cta__side { grid-column: 1 / -1; display: grid; gap: 22px; align-items: start; }
+  .cta__sub { font-size: clamp(1.625rem, 1rem + 2vw, 2.75rem); }
+  .cta__btn { width: 100%; min-height: 60px; }
+  .cta__channels { margin: 6px 0 0; display: grid; gap: 0; }
+  .cta__channels a {
+    display: grid;
+    grid-template-columns: 6.5rem 1fr auto;
+    align-items: baseline;
+    gap: 12px;
+    padding: 14px 0;
+    border-top: 1px solid rgb(242 239 232 / 0.35);
+    transition: padding var(--t2) var(--ease);
+  }
+  .cta__channels li:last-child a { border-bottom: 1px solid rgb(242 239 232 / 0.35); }
+  .cta__channels .t-micro { opacity: 0.92; }
+  .cta__val { font-family: var(--f-text); font-weight: 600; font-size: 1.0625rem; }
+  .cta__channels .arr { transition: transform var(--t2) var(--ease); }
+  .cta__channels a:hover .arr { transform: translateX(5px); }
+  .cta :global(:focus-visible) { outline-color: var(--on-axis); }
+
+  @media (min-width: 1024px) {
+    .cta__title { grid-column: 1 / 13; }
+    .cta__side {
+      grid-column: 1 / 13;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--g);
+      margin-top: clamp(16px, 3vw, 48px);
+    }
+    .cta__sub { grid-column: 1 / 5; }
+    .cta__btn { grid-column: 5 / 8; }
+    .cta__channels { grid-column: 9 / 13; margin: 0; }
+  }
+
+  /* brief form -------------------------------------------------------------------- */
+  .brief { padding-block: clamp(64px, 9vw, 140px); }
+  .brief__grid { row-gap: 40px; align-items: start; }
+  .brief__intro { grid-column: 1 / -1; display: grid; gap: 18px; align-content: start; }
+  .brief__origin { display: inline-flex; align-items: center; gap: 10px; color: var(--axis); }
+  .brief__origin i { width: 8px; height: 8px; border-radius: 50%; background: var(--axis); }
+  .brief__title {
+    margin: 0;
+    font-family: var(--f-display);
+    font-stretch: 75%;
+    font-weight: 800;
+    font-size: clamp(3rem, 1.4rem + 7vw, 7.5rem);
+    line-height: 0.9;
+    text-transform: uppercase;
+  }
+  .brief__lead { font-size: var(--fs-lead); line-height: 1.4; max-width: 34ch; }
+  .brief__how { font-size: var(--fs-small); max-width: 40ch; }
+
+  .brief__form { grid-column: 1 / -1; display: grid; gap: 30px; }
+  .brief__set { margin: 0; padding: 0; border: 0; min-width: 0; }
+  .brief__legend,
+  .field label {
+    display: block;
+    margin-bottom: 12px;
+    font-family: var(--f-mono);
+    font-size: var(--fs-micro);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .req { color: var(--axis); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { position: relative; display: inline-flex; }
+  .chip input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .chip span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 16px;
+    border: 1px solid var(--line-2);
+    font-family: var(--f-display);
+    font-stretch: 112%;
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: background-color var(--t1) linear, color var(--t1) linear, border-color var(--t1) linear;
+  }
+  .chip:hover span { border-color: var(--ink); }
+  .chip input:checked + span { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .chip input:focus-visible + span { outline: 2px solid var(--axis); outline-offset: 2px; }
+
+  .brief__fields { display: grid; gap: 22px var(--g); }
+  .field { display: grid; align-content: start; }
+  .field input,
+  .field textarea {
+    width: 100%;
+    min-height: 52px;
+    padding: 12px 0;
+    border: 0;
+    border-bottom: 1px solid var(--line-2);
+    border-radius: 0;
+    background: transparent;
+    font-size: 1.125rem;
+    transition: border-color var(--t1) linear;
+  }
+  .field textarea { resize: vertical; min-height: 120px; line-height: 1.5; }
+  .field input::placeholder,
+  .field textarea::placeholder { color: var(--mute); opacity: 0.75; }
+  .field input:focus,
+  .field textarea:focus { outline: none; border-bottom: 2px solid var(--axis); }
+  .field input:focus-visible,
+  .field textarea:focus-visible { outline: none; }
+  .field__hint { margin-top: 8px; color: var(--mute); }
+  :global(.field__err) { display: block; margin-top: 8px; color: #b3261e; }
+  .field[data-invalid] input { border-bottom-color: #b3261e; }
+  .brief__set[data-invalid] .chip span { border-color: #b3261e; }
+
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+  .brief__submit { display: grid; gap: 12px; justify-items: start; }
+  .brief__submit .btn { min-width: min(100%, 320px); min-height: 60px; }
+  .brief__submit .btn:disabled { opacity: 0.6; cursor: progress; }
+
+  .brief__status {
+    padding: 16px 18px;
+    border-left: 3px solid var(--axis);
+    background: var(--paper-2);
+    font-size: var(--fs-small);
+    line-height: 1.55;
+  }
+  .brief__status[data-tone='ok'] { border-left-color: #1f7a4d; }
+  .brief__status[data-tone='error'] { border-left-color: #b3261e; }
+  .brief__status :global(a) { text-decoration: underline; text-underline-offset: 3px; }
+
+  @media (min-width: 640px) {
+    .brief__fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .field--wide { grid-column: 1 / -1; }
+  }
+  @media (min-width: 1024px) {
+    .brief__intro { grid-column: 1 / 5; position: sticky; top: calc(var(--header-h) + 32px); }
+    .brief__form { grid-column: 6 / 13; }
+  }
+</style>

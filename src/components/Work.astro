@@ -1,0 +1,216 @@
+---
+import { Picture } from 'astro:assets';
+import { projects } from '../data/projects';
+import Rail from './Rail.astro';
+import FullBleed from './work/FullBleed.astro';
+import Asymmetric from './work/Asymmetric.astro';
+import Filmstrip from './work/Filmstrip.astro';
+import Spread from './work/Spread.astro';
+import System from './work/System.astro';
+import Poster from './work/Poster.astro';
+
+const layouts = {
+  fullbleed: FullBleed,
+  asymmetric: Asymmetric,
+  filmstrip: Filmstrip,
+  spread: Spread,
+  system: System,
+  poster: Poster,
+} as const;
+const count = String(projects.length).padStart(2, '0');
+---
+
+<section class="work" id="work" data-act="II" data-act-name="Selected work" aria-labelledby="work-title">
+  <Rail act="Act II" title="Selected work" axis="Y — her proje kendi yüksekliğinde" end={`${count} proje`} />
+
+  <div class="grid work__intro">
+    <h2 class="work__title" id="work-title" lang="en" data-reveal="mask">
+      <span class="t-y">Selected</span>
+      <span class="t-x">Work<sup class="t-micro">({count})</sup></span>
+    </h2>
+    <div class="work__lead" data-reveal="y">
+      <p class="t-lead">Her proje kendi dünyası: altı marka, altı ayrı sanat yönetimi.</p>
+      <p class="t-mute work__note">
+        Görseller, projelerin çalışan sürümlerinden alınmış gerçek masaüstü ekran görüntüleridir. Hiçbiri maket ya da
+        şablon değildir.
+      </p>
+    </div>
+  </div>
+
+  {
+    projects.map((p) => {
+      const Layout = layouts[p.layout];
+      return <Layout project={p} />;
+    })
+  }
+
+  <div class="windex" aria-labelledby="windex-title">
+    <div class="grid windex__head">
+      <h3 class="windex__title t-micro" id="windex-title"><span lang="en">Index</span> — tüm vaka çalışmaları</h3>
+      <p class="windex__cols t-micro t-mute" aria-hidden="true">
+        <span>Proje</span><span>Kategori</span><span>Yaklaşım</span><span>Yıl</span>
+      </p>
+    </div>
+    <div class="windex__body" data-index>
+      <div class="windex__preview" data-index-preview aria-hidden="true">
+        {
+          projects.map((p) => (
+            <div class="windex__img" data-preview={p.slug}>
+              <Picture
+                src={p.shots[0].src}
+                alt=""
+                formats={['avif']}
+                fallbackFormat="webp"
+                widths={[480, 720]}
+                sizes="22vw"
+                loading="lazy"
+              />
+            </div>
+          ))
+        }
+      </div>
+      <ol class="windex__list" role="list">
+        {
+          projects.map((p) => (
+            <li data-row={p.slug}>
+              <a href={`/work/${p.slug}/`} class="grid windex__row">
+                <span class="t-micro windex__no">{p.no}</span>
+                <span class="windex__name">{p.name}</span>
+                <span class="windex__cat">{p.category}</span>
+                <span class="windex__app t-mute">{p.tagline}</span>
+                <span class="t-micro windex__year">{p.year}</span>
+                <span class="windex__arr" aria-hidden="true">→</span>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </div>
+</section>
+
+<style>
+  .work { padding-top: clamp(48px, 7vw, 112px); overflow: clip; }
+  .work__intro {
+    row-gap: 24px;
+    padding-block: clamp(28px, 4vw, 56px) clamp(48px, 7vw, 112px);
+    align-items: end;
+  }
+  .work__title {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+  }
+  .work__title .t-y { font-size: clamp(3.5rem, 1rem + 13vw, 12rem); }
+  .work__title .t-x { font-size: clamp(3.5rem, 1rem + 13vw, 12rem); color: var(--axis); }
+  .work__title sup {
+    display: inline-block;
+    vertical-align: top;
+    margin: 0.5em 0 0 0.5rem;
+    font-size: var(--fs-micro);
+    font-stretch: 100%;
+    letter-spacing: 0.06em;
+    color: var(--ink);
+  }
+  .work__lead { grid-column: 1 / -1; display: grid; gap: 14px; max-width: 46ch; }
+  .work__note { font-size: var(--fs-small); }
+
+  @media (min-width: 1024px) {
+    .work__title { grid-column: 1 / -1; flex-direction: row; align-items: baseline; gap: 0.22em; }
+    .work__title .t-y,
+    .work__title .t-x { font-size: min(10.2vw, 12rem); }
+    .work__lead { grid-column: 8 / 13; }
+  }
+
+  /* index -------------------------------------------------------------------- */
+  .windex { padding-block: clamp(64px, 8vw, 128px) clamp(32px, 4vw, 64px); }
+  .windex__head {
+    align-items: end;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--line-2);
+  }
+  .windex__title { grid-column: 1 / -1; }
+  .windex__cols { display: none; }
+  .windex__body { position: relative; }
+  .windex__list { margin: 0; }
+  .windex__row {
+    position: relative;
+    align-items: baseline;
+    row-gap: 2px;
+    padding-block: 16px;
+    border-bottom: 1px solid var(--line);
+    transition: color var(--t1) linear, background-color var(--t2) var(--ease);
+  }
+  .windex__no { grid-column: 1 / 2; color: var(--axis); }
+  .windex__name {
+    grid-column: 2 / -2;
+    font-family: var(--f-display);
+    font-stretch: 112%;
+    font-weight: 700;
+    font-size: var(--fs-m);
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    transition: transform var(--t2) var(--ease);
+  }
+  .windex__cat { grid-column: 2 / -1; font-size: var(--fs-small); }
+  .windex__app,
+  .windex__year { display: none; }
+  .windex__arr {
+    grid-column: -2 / -1;
+    grid-row: 1;
+    justify-self: end;
+    transition: transform var(--t2) var(--ease);
+  }
+  .windex__row:hover .windex__arr { transform: translateX(6px); }
+  .windex__row:hover .windex__name { transform: translateX(10px); }
+  .windex__row:hover { color: var(--axis); }
+
+  .windex__preview { display: none; }
+
+  @media (min-width: 1024px) {
+    .windex__title { grid-column: 1 / 5; }
+    .windex__cols {
+      display: grid;
+      grid-column: 2 / 13;
+      grid-template-columns: repeat(11, minmax(0, 1fr));
+      column-gap: var(--g);
+    }
+    .windex__cols span:nth-child(1) { grid-column: 1 / 4; }
+    .windex__cols span:nth-child(2) { grid-column: 4 / 6; }
+    .windex__cols span:nth-child(3) { grid-column: 6 / 10; }
+    .windex__cols span:nth-child(4) { grid-column: 10 / 11; }
+    .windex__title { grid-row: 1; margin-bottom: 18px; }
+    .windex__cols { grid-row: 2; }
+
+    .windex__no { grid-column: 1 / 2; }
+    .windex__name { grid-column: 2 / 5; font-size: clamp(1.5rem, 0.6rem + 1.6vw, 2.25rem); }
+    .windex__cat { grid-column: 5 / 7; }
+    .windex__app { display: block; grid-column: 7 / 11; font-size: var(--fs-small); }
+    .windex__year { display: block; grid-column: 11 / 12; }
+    .windex__arr { grid-column: 12 / 13; grid-row: auto; }
+
+    .windex__preview {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: calc(var(--m) + (100% - 2 * var(--m) + var(--g)) * (6 / 12));
+      width: calc((100% - 2 * var(--m) + var(--g)) * (4 / 12) - var(--g));
+      aspect-ratio: 16 / 10;
+      z-index: 3;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity var(--t2) linear;
+    }
+    .windex__body[data-hovering] .windex__preview { opacity: 1; }
+    .windex__body[data-hovering] .windex__app { opacity: 0.25; }
+    .windex__img {
+      position: absolute;
+      inset: 0;
+      clip-path: inset(0 0 100% 0);
+      transition: clip-path var(--t2) var(--ease);
+    }
+    .windex__img[data-active] { clip-path: inset(0 0 0 0); z-index: 1; }
+    .windex__img :global(img) { width: 100%; height: 100%; object-fit: cover; }
+  }
+</style>

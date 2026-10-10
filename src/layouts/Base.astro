@@ -1,0 +1,127 @@
+---
+import '../styles/global.css';
+
+/* Self-hosted fonts, Latin + Latin Extended only (Turkish needs both). */
+import hubotLatin from '@fontsource-variable/hubot-sans/files/hubot-sans-latin-standard-normal.woff2?url';
+import hubotExt from '@fontsource-variable/hubot-sans/files/hubot-sans-latin-ext-standard-normal.woff2?url';
+import monaLatin from '@fontsource-variable/mona-sans/files/mona-sans-latin-wght-normal.woff2?url';
+import monaExt from '@fontsource-variable/mona-sans/files/mona-sans-latin-ext-wght-normal.woff2?url';
+import spectralLatin from '@fontsource/spectral/files/spectral-latin-200-italic.woff2?url';
+import spectralExt from '@fontsource/spectral/files/spectral-latin-ext-200-italic.woff2?url';
+import monoLatin from '@fontsource/fragment-mono/files/fragment-mono-latin-400-normal.woff2?url';
+import monoExt from '@fontsource/fragment-mono/files/fragment-mono-latin-ext-400-normal.woff2?url';
+
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../data/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  imageAlt?: string;
+  type?: 'website' | 'article';
+  jsonLd?: Record<string, unknown>[];
+  headerTone?: 'light' | 'dark';
+  act?: { no: string; name: string };
+}
+
+const {
+  title,
+  description = site.description,
+  image = '/og.jpg',
+  imageAlt = 'VERYAXZ STUDIO — Your brand. A different presence.',
+  type = 'website',
+  jsonLd = [],
+  headerTone = 'light',
+  act,
+} = Astro.props;
+
+const LATIN =
+  'U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD';
+const LATIN_EXT =
+  'U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF';
+const face = (family: string, src: string, range: string, extra: string) =>
+  `@font-face{font-family:'${family}';font-display:swap;src:url(${src}) format('woff2');unicode-range:${range};${extra}}`;
+const fontCss = [
+  face('Hubot Sans Variable', hubotLatin, LATIN, 'font-weight:200 900;font-stretch:75% 125%;font-style:normal'),
+  face('Hubot Sans Variable', hubotExt, LATIN_EXT, 'font-weight:200 900;font-stretch:75% 125%;font-style:normal'),
+  face('Mona Sans Variable', monaLatin, LATIN, 'font-weight:200 900;font-style:normal'),
+  face('Mona Sans Variable', monaExt, LATIN_EXT, 'font-weight:200 900;font-style:normal'),
+  face('Spectral', spectralLatin, LATIN, 'font-weight:200;font-style:italic'),
+  face('Spectral', spectralExt, LATIN_EXT, 'font-weight:200;font-style:italic'),
+  face('Fragment Mono', monoLatin, LATIN, 'font-weight:400;font-style:normal'),
+  face('Fragment Mono', monoExt, LATIN_EXT, 'font-weight:400;font-style:normal'),
+].join('');
+
+const fullTitle = title ? `${title} — ${site.name}®` : `${site.name}® — Your brand. A different presence.`;
+const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const ogImage = new URL(image, Astro.site).href;
+
+const organization = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  '@id': new URL('/#studio', Astro.site).href,
+  name: site.name,
+  url: new URL('/', Astro.site).href,
+  description: site.description,
+  telephone: site.contact.phoneHref,
+  sameAs: [site.contact.instagram],
+  knowsAbout: ['Web tasarımı', 'Web geliştirme', 'E-ticaret', 'Landing page', 'Web sitesi yeniden tasarımı', 'Sanat yönetimi'],
+  image: ogImage,
+};
+---
+
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#e8e4da" />
+    <meta name="color-scheme" content="light" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="sitemap" href="/sitemap.xml" />
+
+    <link rel="preload" href={hubotLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={monaLatin} as="font" type="font/woff2" crossorigin />
+    <style is:inline set:html={fontCss}></style>
+
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content={`${site.name}®`} />
+    <meta property="og:locale" content={site.locale} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={imageAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <script type="application/ld+json" set:html={JSON.stringify([organization, ...jsonLd])} />
+    <script is:inline>document.documentElement.classList.add('js');</script>
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip" href="#main">İçeriğe geç</a>
+    <Header tone={headerTone} act={act} />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+    <script>
+      import '../scripts/main';
+    </script>
+  </body>
+</html>

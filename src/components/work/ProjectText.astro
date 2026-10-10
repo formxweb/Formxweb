@@ -1,0 +1,85 @@
+---
+import type { Project } from '../../data/projects';
+
+interface Props {
+  project: Project;
+  class?: string;
+  compact?: boolean;
+}
+const { project: p, class: cls = '', compact = false } = Astro.props;
+---
+
+<div class:list={['ptext', cls]}>
+  <p class="ptext__tag t-serif" data-reveal="y">{p.tagline}</p>
+  <p class="ptext__sum" data-reveal="y" style="--d:1">{p.summary}</p>
+  <dl class="ptext__meta" data-reveal="y" style="--d:2">
+    <div>
+      <dt class="t-micro">Yaklaşım</dt>
+      <dd>{p.approach}</dd>
+    </div>
+    {
+      !compact && (
+        <div>
+          <dt class="t-micro">Kapsam</dt>
+          <dd>{p.scope.join(' · ')}</dd>
+        </div>
+      )
+    }
+  </dl>
+  <a class="ptext__link" href={`/work/${p.slug}/`} data-reveal="x" style="--d:3">
+    <span class="t-micro">{p.no}</span>
+    <span>Vaka çalışmasını aç</span>
+    <span class="arr" aria-hidden="true">→</span>
+    <span class="sr-only">: {p.name}</span>
+  </a>
+</div>
+
+<style>
+  .ptext { display: grid; gap: 18px; align-content: start; }
+  .ptext__tag {
+    font-size: clamp(1.75rem, 1.1rem + 2.4vw, 3rem);
+    color: var(--p-fg, var(--ink));
+  }
+  .ptext__sum {
+    max-width: 44ch;
+    font-size: var(--fs-body);
+    line-height: 1.55;
+  }
+  .ptext__meta {
+    display: grid;
+    gap: 14px;
+    margin: 4px 0 0;
+    padding-top: 14px;
+    border-top: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+  }
+  .ptext__meta dt { opacity: 0.8; margin-bottom: 4px; }
+  .ptext__meta dd { margin: 0; font-size: var(--fs-small); line-height: 1.5; max-width: 46ch; }
+  .ptext__link {
+    display: inline-grid;
+    grid-auto-flow: column;
+    align-items: center;
+    justify-content: start;
+    gap: 14px;
+    width: max-content;
+    max-width: 100%;
+    min-height: 48px;
+    margin-top: 4px;
+    padding: 0 18px;
+    border: 1px solid currentColor;
+    font-family: var(--f-display);
+    font-stretch: 112%;
+    font-weight: 700;
+    font-size: 0.8125rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    transition: background-color var(--t2) var(--ease), color var(--t2) var(--ease), border-color var(--t2) var(--ease);
+  }
+  .ptext__link .t-micro { color: var(--p-accent-ink, var(--axis)); transition: color var(--t2) var(--ease); }
+  .ptext__link .arr { transition: transform var(--t2) var(--ease); }
+  .ptext__link:hover {
+    background: var(--p-fg, var(--ink));
+    color: var(--p-bg, var(--paper));
+    border-color: var(--p-fg, var(--ink));
+  }
+  .ptext__link:hover .arr { transform: translateX(5px); }
+</style>

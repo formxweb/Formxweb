@@ -1,0 +1,109 @@
+---
+import Wordmark from './Wordmark.astro';
+import { nav, site, whatsappUrl } from '../data/site';
+import { projects } from '../data/projects';
+
+const year = new Date().getFullYear();
+---
+
+<footer class="ft on-dark">
+  <div class="grid ft__top">
+    <div class="ft__col ft__col--contact">
+      <p class="t-micro ft__label">İletişim</p>
+      <ul role="list">
+        <li><a href={whatsappUrl('Merhaba VERYAXZ, bir web sitesi projesi için yazıyorum.')} target="_blank" rel="noopener">WhatsApp <span aria-hidden="true">↗</span></a></li>
+        <li><a href={`tel:${site.contact.phoneHref}`}>{site.contact.phoneDisplay}</a></li>
+        <li><a href={site.contact.instagram} target="_blank" rel="noopener">{site.contact.instagramHandle} <span aria-hidden="true">↗</span></a></li>
+        {site.contact.email && <li><a href={`mailto:${site.contact.email}`}>{site.contact.email}</a></li>}
+      </ul>
+    </div>
+    <div class="ft__col">
+      <p class="t-micro ft__label">Site</p>
+      <ul role="list">
+        {nav.map((n) => <li><a href={n.href} lang="en">{n.label}</a></li>)}
+      </ul>
+    </div>
+    <div class="ft__col ft__col--work">
+      <p class="t-micro ft__label">Vaka çalışmaları</p>
+      <ul role="list">
+        {projects.map((p) => <li><a href={`/work/${p.slug}/`}>{p.name}</a></li>)}
+      </ul>
+    </div>
+    <div class="ft__col ft__col--time">
+      <p class="t-micro ft__label">Türkiye</p>
+      <p class="ft__clock"><time data-clock>--:--</time> <span class="t-micro">GMT+3</span></p>
+      <a class="ft__top-link t-micro" href="#top">Başa dön <span aria-hidden="true">↑</span></a>
+    </div>
+  </div>
+
+  <div class="ft__mark" aria-hidden="true">
+    <Wordmark />
+  </div>
+
+  <div class="grid ft__bottom t-micro">
+    <span>© {year} {site.name}®</span>
+    <span class="ft__axes">X Strateji · Y Tasarım · Z Geliştirme</span>
+    <span class="ft__made">Bu site VERYAXZ tarafından tasarlandı ve geliştirildi.</span>
+  </div>
+</footer>
+
+<style>
+  .ft {
+    background: var(--ink);
+    color: var(--paper);
+    padding-top: clamp(56px, 7vw, 112px);
+    overflow: hidden;
+  }
+  .ft__top { row-gap: 36px; }
+  .ft__col { grid-column: span 2; }
+  .ft__label { color: var(--axis-light); margin-bottom: 14px; }
+  .ft ul { margin: 0; padding: 0; display: grid; gap: 4px; }
+  .ft li a {
+    display: inline-block;
+    padding: 4px 0;
+    font-family: var(--f-text);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    transition: color var(--t1) linear, transform var(--t2) var(--ease);
+  }
+  .ft li a:hover { color: var(--axis-light); transform: translateX(4px); }
+  .ft__clock {
+    font-family: var(--f-text);
+    font-weight: 700;
+    font-size: clamp(2rem, 1.2rem + 2.4vw, 3.25rem);
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+  .ft__clock .t-micro { letter-spacing: 0.06em; font-weight: 400; opacity: 0.6; }
+  .ft__top-link { display: inline-block; margin-top: 22px; padding: 8px 0; color: var(--axis-light); }
+
+  .ft__mark {
+    margin-top: clamp(48px, 7vw, 120px);
+    padding-inline: calc(var(--m) * 0.5);
+    font-size: calc((100vw - var(--m)) / 6.15);
+    line-height: 0.74;
+    overflow: hidden;
+  }
+  .ft__mark :global(.wordmark) { letter-spacing: -0.045em; }
+
+  .ft__bottom {
+    row-gap: 6px;
+    padding-block: 18px max(18px, env(safe-area-inset-bottom));
+    border-top: 1px solid rgb(232 228 218 / 0.18);
+    color: rgb(232 228 218 / 0.66);
+  }
+  .ft__bottom span { grid-column: 1 / -1; }
+
+  @media (min-width: 640px) {
+    .ft__col { grid-column: span 3; }
+  }
+  @media (min-width: 1024px) {
+    .ft__col--contact { grid-column: 1 / 4; }
+    .ft__col:nth-child(2) { grid-column: 4 / 6; }
+    .ft__col--work { grid-column: 6 / 9; }
+    .ft__col--time { grid-column: 10 / 13; text-align: right; }
+    .ft__bottom span:nth-child(1) { grid-column: 1 / 4; }
+    .ft__bottom .ft__axes { grid-column: 4 / 8; }
+    .ft__bottom .ft__made { grid-column: 8 / 13; text-align: right; }
+  }
+</style>
