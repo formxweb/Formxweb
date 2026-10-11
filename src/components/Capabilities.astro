@@ -1,0 +1,178 @@
+---
+import { Picture } from 'astro:assets';
+import Rail from './Rail.astro';
+import { getProject } from '../data/projects';
+import { services } from '../data/services';
+
+const rows = services.map((s) => {
+  const ev = getProject(s.evidence.slug)!;
+  return {
+    ...s,
+    ev,
+    shot: ev.shots[s.evidence.shot] ?? ev.shots[0],
+    proofs: s.proof.map((pr) => getProject(pr.slug)).filter((p): p is NonNullable<typeof p> => Boolean(p)),
+  };
+});
+---
+
+<section class="cap" id="capabilities" data-act="III" data-act-name="Hizmetler" aria-labelledby="cap-title">
+  <Rail act="Bölüm III" title="Hizmetler" en="Capabilities" axis="X — her hizmet kendi amacına göre" end={`0${services.length} hizmet`} />
+
+  <div class="grid cap__intro">
+    <h2 class="cap__title" id="cap-title" data-reveal="mask"><span lang="en">Capabilities</span><span class="sr-only"> — Hizmetler</span></h2>
+    <p class="cap__lead t-lead" data-reveal="y">
+      Hizmet listesi değil; her biri ayrı bir amaç. Hepsinde aynı temel: telefon öncelikli yapı, hızlı açılış,
+      erişilebilirlik ve arama motorlarına hazır kod.
+    </p>
+  </div>
+
+  <ol class="cap__list" role="list">
+    {
+      rows.map((s, i) => (
+        <li class:list={['svc', i % 2 === 1 && 'svc--flip']}>
+          <article class="grid svc__grid" aria-labelledby={`svc-${s.id}`}>
+            <header class="svc__head">
+              <p class="svc__n t-micro" data-reveal="x">
+                {s.no} / <span class="svc__tr">{s.tr}</span>
+              </p>
+              <h3 class="svc__title" id={`svc-${s.id}`} data-reveal="mask">
+                <span lang="en">{s.en}</span>
+                <span class="sr-only"> — {s.tr}</span>
+              </h3>
+            </header>
+
+            <figure
+              class:list={['svc__plate', s.ev.theme.dark && 'svc__plate--dark']}
+              style={`--p-bg:${s.ev.theme.bg};--p-fg:${s.ev.theme.fg};--p-accent:${s.ev.theme.accent}`}
+              data-reveal="z"
+            >
+              <a href={`/work/${s.ev.slug}/`} class="svc__plate-link">
+                <Picture
+                  src={s.shot.src}
+                  alt={s.shot.alt}
+                  formats={['avif']}
+                  fallbackFormat="webp"
+                  widths={[560, 900, 1300]}
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  loading="lazy"
+                  decoding="async"
+                  style={s.evidence.position ? `object-position:${s.evidence.position}` : undefined}
+                />
+                <figcaption class="svc__cap t-micro">
+                  <span class="svc__cap-p" lang={s.ev.nameLang}>{s.ev.name}</span>
+                  <span>{s.evidence.label}</span>
+                  <span aria-hidden="true">↗</span>
+                </figcaption>
+              </a>
+            </figure>
+
+            <div class="svc__copy">
+              <p class="svc__text t-lead" data-reveal="y">{s.text}</p>
+              <p class="svc__value t-mute" data-reveal="y" style="--d:1">{s.value}</p>
+              <ul class="svc__gets" role="list" data-reveal="y" style="--d:2">
+                {s.gets.map((g) => <li>{g}</li>)}
+              </ul>
+              <div class="svc__foot" data-reveal="y" style="--d:3">
+                <a class="link svc__more" href={`/hizmetler/${s.slug}/`}>
+                  {s.tr}: neler dahil <span class="arr" aria-hidden="true">→</span>
+                </a>
+                <p class="svc__proof t-micro">
+                  <span class="t-mute">{s.proofLabel}</span>
+                  {s.proofs.map((p) => (
+                    <a href={`/work/${p.slug}/`} lang={p.nameLang}>{p.name}</a>
+                  ))}
+                </p>
+              </div>
+            </div>
+          </article>
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<style>
+  .cap { padding-top: clamp(56px, 8vw, 128px); overflow: clip; }
+  .cap__intro { row-gap: 22px; padding-block: clamp(28px, 4vw, 56px) clamp(40px, 6vw, 96px); align-items: end; }
+  .cap__title {
+    grid-column: 1 / -1;
+    margin: 0;
+    font-family: var(--f-display);
+    font-stretch: 75%;
+    font-weight: 800;
+    font-size: clamp(3.5rem, 1rem + 13.5vw, 13rem);
+    line-height: 0.88;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+  }
+  .cap__lead { grid-column: 1 / -1; max-width: 40ch; }
+
+  .cap__list { margin: 0; }
+  .svc { border-top: 1px solid var(--line-2); }
+  .svc:last-child { border-bottom: 1px solid var(--line-2); }
+  .svc__grid { padding-block: clamp(36px, 5vw, 80px); row-gap: 24px; align-items: start; }
+  .svc__head { grid-column: 1 / -1; display: grid; gap: 14px; }
+  .svc__n { color: var(--axis); }
+  .svc__tr { color: var(--ink); }
+  .svc__title {
+    margin: 0;
+    font-family: var(--f-display);
+    font-stretch: 112%;
+    font-weight: 800;
+    font-size: clamp(2rem, 1rem + 4vw, 4.75rem);
+    letter-spacing: -0.035em;
+    line-height: 0.92;
+    text-transform: uppercase;
+  }
+
+  .svc__plate { grid-column: 1 / -1; margin: 0; background: var(--p-bg); color: var(--p-fg); }
+  .svc__plate-link { display: block; }
+  .svc__plate :global(picture) { display: block; overflow: hidden; }
+  .svc__plate :global(img) {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    object-position: top center;
+    transition: transform var(--t3) var(--ease);
+  }
+  .svc__plate-link:hover :global(img) { transform: scale(1.02); }
+  .svc__cap {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 12px;
+    align-items: baseline;
+    padding: 12px 14px;
+  }
+  .svc__cap-p { color: var(--p-accent); font-weight: 400; }
+  .svc__plate:not(.svc__plate--dark) .svc__cap-p { color: inherit; }
+
+  .svc__copy { grid-column: 1 / -1; display: grid; gap: 14px; align-content: start; max-width: 52ch; }
+  .svc__value { font-size: var(--fs-small); line-height: 1.6; }
+  .svc__gets { margin: 6px 0 0; display: grid; }
+  .svc__gets li {
+    display: flex;
+    gap: 12px;
+    padding: 9px 0;
+    border-top: 1px solid var(--line);
+    font-size: var(--fs-small);
+    font-weight: 600;
+  }
+  .svc__gets li:last-child { border-bottom: 1px solid var(--line); }
+  .svc__gets li::before { content: '+'; color: var(--axis); font-family: var(--f-mono); font-weight: 400; }
+  .svc__foot { display: grid; gap: 14px; justify-items: start; margin-top: 6px; }
+  .svc__more { font-weight: 600; }
+  .svc__proof { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+  .svc__proof a { text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--line-2); }
+  .svc__proof a:hover { color: var(--axis); text-decoration-color: currentColor; }
+
+  @media (min-width: 1024px) {
+    .svc__grid { row-gap: 36px; }
+    .svc__head { grid-column: 1 / 13; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--g); align-items: end; }
+    .svc__n { grid-column: 1 / 4; padding-bottom: 0.6em; }
+    .svc__title { grid-column: 4 / 13; }
+    .svc__plate { grid-column: 1 / 8; grid-row: 2; }
+    .svc__copy { grid-column: 9 / 13; grid-row: 2; }
+    .svc--flip .svc__plate { grid-column: 6 / 13; }
+    .svc--flip .svc__copy { grid-column: 1 / 5; }
+  }
+</style>

@@ -1,0 +1,51 @@
+---
+/* 06 — Poster: one print pinned to the paper, crop marks showing. */
+import type { Project } from '../../data/projects';
+import Shot from '../Shot.astro';
+import ProjectMeta from './ProjectMeta.astro';
+import ProjectText from './ProjectText.astro';
+
+interface Props { project: Project }
+const { project: p } = Astro.props;
+const [hero, b] = p.shots;
+---
+
+<article
+  class:list={['pj poster', p.theme.dark && 'on-dark']}
+  id={`p-${p.slug}`}
+  aria-labelledby={`p-${p.slug}-name`}
+  style={`--p-bg:${p.theme.bg};--p-fg:${p.theme.fg};--p-accent:${p.theme.accent};--p-accent-ink:${p.theme.accentInk ?? p.theme.accent}`}
+>
+  <div class="grid poster__grid">
+    <div class="poster__left">
+      <a class="case-link poster__print" href={`/work/${p.slug}/`} tabindex="-1" aria-hidden="true" data-reveal="z">
+        <Shot shot={hero} sizes="(min-width: 1024px) 62vw, 100vw" class="shot--marks" />
+      </a>
+      <a class="case-link poster__b" href={`/work/${p.slug}/`} tabindex="-1" aria-hidden="true" data-reveal="y">
+        <Shot shot={b} sizes="(min-width: 1024px) 34vw, 100vw" />
+      </a>
+    </div>
+    <div class="poster__side">
+      <ProjectMeta project={p} />
+      <h3 class="pj-name pj-name--y poster__name" id={`p-${p.slug}-name`} lang={p.nameLang} data-reveal="mask">{p.name}</h3>
+      <ProjectText project={p} />
+    </div>
+  </div>
+</article>
+
+<style>
+  .poster { border-top: 1px solid var(--line-2); }
+  .poster__grid { row-gap: 36px; align-items: start; }
+  .poster__left { grid-column: 1 / -1; display: grid; gap: 28px; }
+  .poster__print { padding: 12px; }
+  .poster__side { grid-column: 1 / -1; display: grid; gap: 22px; }
+  .poster__name { font-size: 17vw; }
+
+  @media (min-width: 1024px) {
+    .poster__left { grid-column: 1 / 9; grid-template-columns: repeat(8, minmax(0, 1fr)); column-gap: var(--g); row-gap: 0; }
+    .poster__print { grid-column: 1 / -1; padding: 18px; }
+    .poster__b { grid-column: 4 / 9; margin-top: 8px; }
+    .poster__side { grid-column: 9 / 13; position: sticky; top: calc(var(--header-h) + 28px); }
+    .poster__name { font-size: min(6.4vw, 7.5rem); }
+  }
+</style>

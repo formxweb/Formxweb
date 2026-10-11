@@ -1,0 +1,110 @@
+---
+import { Picture } from 'astro:assets';
+import type { Shot as ShotData } from '../data/projects';
+
+interface Props {
+  shot: ShotData;
+  sizes: string;
+  loading?: 'lazy' | 'eager';
+  priority?: boolean;
+  class?: string;
+  caption?: string | false;
+  bleed?: boolean;
+}
+
+const { shot, sizes, loading = 'lazy', priority = false, class: cls = '', caption, bleed = false } = Astro.props;
+const text = caption === false ? null : (caption ?? shot.caption);
+---
+
+<figure class:list={['shot', bleed && 'shot--bleed', cls]}>
+  <div class="shot__frame">
+    <Picture
+      src={shot.src}
+      alt={shot.alt}
+      formats={['avif']}
+      fallbackFormat="webp"
+      widths={[640, 1024, 1600, 2400]}
+      sizes={sizes}
+      loading={priority ? 'eager' : loading}
+      fetchpriority={priority ? 'high' : 'auto'}
+      decoding="async"
+      class="shot__img"
+    />
+    <span class="crop crop--tl" aria-hidden="true"></span>
+    <span class="crop crop--tr" aria-hidden="true"></span>
+    <span class="crop crop--bl" aria-hidden="true"></span>
+    <span class="crop crop--br" aria-hidden="true"></span>
+  </div>
+  {text && <figcaption class="shot__cap t-micro">{text}</figcaption>}
+</figure>
+
+<style>
+  .shot { position: relative; }
+  .shot__frame {
+    position: relative;
+    background: color-mix(in srgb, currentColor 8%, transparent);
+  }
+  .shot__frame :global(picture) { display: block; overflow: hidden; }
+  .shot__frame :global(img) {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    transition: transform var(--t3) var(--ease);
+  }
+  .shot--bleed .shot__frame :global(img) { aspect-ratio: auto; }
+  .shot--bleed .crop { display: none; }
+
+  .shot__cap {
+    display: block;
+    padding-top: 10px;
+    color: inherit;
+    opacity: 0.8;
+  }
+
+  /* crop marks: horizontal strokes travel on X, vertical strokes on Y */
+  .crop {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    pointer-events: none;
+    color: var(--p-accent, var(--axis));
+  }
+  .crop::before,
+  .crop::after {
+    content: '';
+    position: absolute;
+    background: currentColor;
+    transition: transform var(--t2) var(--ease), opacity var(--t2) linear;
+    opacity: 0;
+  }
+  .crop::before { height: 1px; width: 14px; }
+  .crop::after { width: 1px; height: 14px; }
+  .crop--tl { top: -8px; left: -8px; }
+  .crop--tr { top: -8px; right: -8px; }
+  .crop--bl { bottom: -8px; left: -8px; }
+  .crop--br { bottom: -8px; right: -8px; }
+  .crop--tl::before, .crop--bl::before { left: 0; transform: translateX(-22px); }
+  .crop--tr::before, .crop--br::before { right: 0; transform: translateX(22px); }
+  .crop--tl::before, .crop--tr::before { top: 0; }
+  .crop--bl::before, .crop--br::before { bottom: 0; }
+  .crop--tl::after, .crop--tr::after { top: 0; transform: translateY(-22px); }
+  .crop--bl::after, .crop--br::after { bottom: 0; transform: translateY(22px); }
+  .crop--tl::after, .crop--bl::after { left: 0; }
+  .crop--tr::after, .crop--br::after { right: 0; }
+
+  :global(.case-link:hover) .crop::before,
+  :global(.case-link:hover) .crop::after,
+  :global(.case-link:focus-visible) .crop::before,
+  :global(.case-link:focus-visible) .crop::after {
+    opacity: 1;
+    transform: none;
+  }
+  :global(.case-link:hover) .shot__frame :global(img) { transform: scale(1.025); }
+  .shot--marks .crop::before,
+  .shot--marks .crop::after { opacity: 0.9; transform: none; }
+
+  @media (hover: none) {
+    .crop { display: none; }
+  }
+</style>

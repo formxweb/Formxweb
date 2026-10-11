@@ -1,0 +1,92 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/ui/PageHead.astro';
+import Faq from '../../components/ui/Faq.astro';
+import CtaBand from '../../components/ui/CtaBand.astro';
+import { faqGroups, faqs, plain } from '../../data/faq';
+import { abs } from '../../lib/schema';
+
+const faqLd = {
+  '@type': 'FAQPage',
+  '@id': abs('/sss/#faq', Astro.site),
+  mainEntity: faqs.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a.map(plain).join(' ') },
+  })),
+};
+const slug = (g: string) =>
+  g.toLocaleLowerCase('tr').replace(/ı/g, 'i').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-');
+---
+
+<Base
+  title="Sıkça Sorulan Sorular"
+  description="Web sitesi fiyatı nasıl belirlenir, ne kadar sürer, içerikleri kim hazırlar, Google’da çıkar mıyım? VERYAXZ STUDIO ile çalışmaya dair en çok sorulan sorular ve dürüst cevapları."
+  breadcrumbs={[{ name: 'SSS', path: '/sss/' }]}
+  jsonLd={[faqLd]}
+  act={{ no: '?', name: 'SSS' }}
+>
+  <PageHead
+    crumbs={[{ name: 'SSS' }]}
+    eyebrow="Sıkça sorulan sorular"
+    title="Sorular, düz cevaplar."
+    lead="Fiyat, süre, süreç ve sonrası. Burada bulamadığınız bir şey varsa WhatsApp’tan sorun; kısa ve net cevaplayalım."
+  >
+    <nav class="sss__nav" aria-label="Konular">
+      <ul role="list" class="t-micro">
+        {faqGroups.map((g) => <li><a href={`#${slug(g)}`}>{g}</a></li>)}
+      </ul>
+    </nav>
+  </PageHead>
+
+  <div class="sss">
+    {
+      faqGroups.map((g, i) => (
+        <section class="grid sss__group" id={slug(g)} aria-labelledby={`g-${i}`}>
+          <h2 class="sss__title" id={`g-${i}`}>
+            <span class="t-micro">0{i + 1}</span>
+            {g}
+          </h2>
+          <div class="sss__list">
+            <Faq items={faqs.filter((f) => f.group === g)} openFirst={i === 0} />
+          </div>
+        </section>
+      ))
+    }
+  </div>
+
+  <CtaBand title="Sorunuzun cevabı burada değil mi?" text="WhatsApp’tan yazın ya da formu doldurun. Projenize özel soruları kısa bir görüşmede birlikte netleştirelim." place="sss" />
+</Base>
+
+<style>
+  .sss__nav ul { display: flex; flex-wrap: wrap; gap: 8px; margin: 28px 0 0; }
+  .sss__nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 14px;
+    border: 1px solid var(--line-2);
+    transition: border-color var(--t1) linear, color var(--t1) linear;
+  }
+  .sss__nav a:hover { border-color: var(--axis); color: var(--axis); }
+  .sss { padding-bottom: clamp(64px, 8vw, 128px); }
+  .sss__group { row-gap: 18px; padding-block: clamp(28px, 4vw, 56px); }
+  .sss__title {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 14px;
+    align-items: baseline;
+    font-family: var(--f-display);
+    font-stretch: 112%;
+    font-weight: 750;
+    font-size: var(--fs-m);
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+  }
+  .sss__title .t-micro { color: var(--axis); }
+  .sss__list { grid-column: 1 / -1; }
+  @media (min-width: 1024px) {
+    .sss__title { grid-column: 1 / 5; position: sticky; top: calc(var(--header-h) + 24px); align-self: start; }
+    .sss__list { grid-column: 5 / 13; }
+  }
+</style>

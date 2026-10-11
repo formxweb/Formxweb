@@ -1,0 +1,34 @@
+{
+  "name": "veryaxz-studio",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro check && astro build",
+    "build:local": "ALLOW_LOCAL_SITE=1 astro check && ALLOW_LOCAL_SITE=1 astro build",
+    "preview": "astro preview",
+    "check": "astro check"
+  },
+  "dependencies": {
+    "@fontsource-variable/hubot-sans": "^5.3.0",
+    "@fontsource-variable/mona-sans": "^5.3.0",
+    "@fontsource/fragment-mono": "^5.3.0",
+    "@fontsource/spectral": "^5.3.0",
+    "astro": "^7.3.8"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@types/node": "^22.20.5",
+    "typescript": "^6.0.3"
+  },
+  "engines": {
+    "node": ">=22.12"
+  },
+  "browserslist": [
+    "safari >= 15",
+    "ios_saf >= 15",
+    "chrome >= 100",
+    "firefox >= 100"
+  ]
+}

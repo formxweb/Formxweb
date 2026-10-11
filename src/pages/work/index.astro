@@ -1,0 +1,132 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/ui/PageHead.astro';
+import ProjectCard from '../../components/ui/ProjectCard.astro';
+import CtaBand from '../../components/ui/CtaBand.astro';
+import { projects } from '../../data/projects';
+import { services } from '../../data/services';
+import { abs } from '../../lib/schema';
+import { countWord } from '../../lib/text';
+
+const n = countWord(projects.length);
+
+const listLd = {
+  '@type': 'ItemList',
+  '@id': abs('/work/#list', Astro.site),
+  itemListElement: projects.map((p, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    url: abs(`/work/${p.slug}/`, Astro.site),
+    name: `${p.name} — ${p.category}`,
+  })),
+};
+---
+
+<Base
+  title="İşler — Web Sitesi Projeleri ve Vaka Çalışmaları"
+  description={`Restoran gemisinden e-ticarete, tatlıcıdan VIP transfere ${projects.length} web sitesi projesi. Her biri ayrı bir sanat yönetimiyle; gerçek masaüstü ekran görüntüleri ve vaka çalışmalarıyla.`}
+  pageType="CollectionPage"
+  breadcrumbs={[{ name: 'İşler', path: '/work/' }]}
+  jsonLd={[listLd]}
+  act={{ no: 'II', name: 'İşler' }}
+>
+  <PageHead
+    crumbs={[{ name: 'İşler' }]}
+    eyebrow={`Selected work — ${String(projects.length).padStart(2, '0')}`}
+    title="Her proje kendi dünyası."
+    lead={`Aynı şablonun ${n} rengi değil; ${n} ayrı konsept, ${n} ayrı tipografi ve renk sistemi. Görseller projelerin çalışan sürümlerinden alınmış gerçek masaüstü ekran görüntüleridir.`}
+  />
+
+  <section class="grid wl" aria-label="Projeler">
+    {projects.map((p, i) => <div class:list={['wl__cell', i % 3 === 0 && 'wl__cell--wide']}><ProjectCard project={p} headingLevel="h2" sizes={i % 3 === 0 ? '100vw' : '(min-width: 1024px) 48vw, 100vw'} /></div>)}
+  </section>
+
+  <section class="mx" aria-labelledby="mx-title">
+    <div class="grid mx__head">
+      <h2 class="mx__title" id="mx-title">Hangi işte hangi hizmet?</h2>
+      <p class="mx__lead t-mute">Aradığınız hizmete en yakın örneği bulun. Proje adına dokunun, vaka çalışması açılsın.</p>
+    </div>
+    <div class="mx__scroll wrap" role="region" aria-label="Proje ve hizmet tablosu, yatay kaydırılabilir" tabindex="0">
+      <table class="mx__table">
+        <thead>
+          <tr>
+            <th scope="col" class="t-micro">Proje</th>
+            {services.map((s) => <th scope="col" class="t-micro"><a href={`/hizmetler/${s.slug}/`}>{s.tr}</a></th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {
+            projects.map((p) => (
+              <tr>
+                <th scope="row">
+                  <a href={`/work/${p.slug}/`}>
+                    <span class="mx__name" lang={p.nameLang}>{p.name}</span>
+                    <span class="t-micro mx__cat">{p.category}</span>
+                  </a>
+                </th>
+                {services.map((s) => (
+                  <td>
+                    {p.services.includes(s.id) ? (
+                      <span class="mx__on" style={`--c:${p.theme.dark ? p.theme.accent : (p.theme.accentInk ?? p.theme.accent)}`}>
+                        <span class="sr-only">Var</span>
+                      </span>
+                    ) : (
+                      <span class="mx__off" aria-hidden="true">·</span>
+                    )}
+                  </td>
+                ))}
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <CtaBand title="Sıradaki proje sizinki olabilir." place="work-index" />
+</Base>
+
+<style>
+  .wl { row-gap: var(--g); padding-bottom: clamp(56px, 7vw, 112px); }
+  .wl__cell { grid-column: 1 / -1; min-width: 0; display: grid; }
+  @media (min-width: 640px) {
+    .wl__cell { grid-column: span 3; }
+    .wl__cell--wide { grid-column: 1 / -1; }
+  }
+  @media (min-width: 1024px) {
+    .wl__cell { grid-column: span 6; }
+    .wl__cell--wide { grid-column: 1 / -1; }
+    .wl__cell--wide :global(.pc__link) { grid-template-columns: 8fr 4fr; grid-template-rows: auto; }
+    .wl__cell--wide :global(.pc__body) { align-content: end; }
+  }
+
+  .mx { padding-block: clamp(56px, 7vw, 112px); border-top: 1px solid var(--line-2); }
+  .mx__head { row-gap: 12px; margin-bottom: 28px; }
+  .mx__title {
+    grid-column: 1 / -1;
+    font-family: var(--f-display);
+    font-stretch: 112%;
+    font-weight: 750;
+    font-size: var(--fs-m);
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+  }
+  .mx__lead { grid-column: 1 / -1; font-size: var(--fs-small); }
+  .mx__scroll { position: relative; overflow-x: auto; }
+  .mx__scroll:focus-visible { outline-offset: -2px; }
+  .mx__table { width: 100%; min-width: 720px; border-collapse: collapse; }
+  .mx__table th, .mx__table td { padding: 14px 10px 14px 0; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+  .mx__table thead th { vertical-align: bottom; border-bottom-color: var(--line-2); font-weight: 400; }
+  .mx__table thead a:hover { color: var(--axis); }
+  .mx__table td { text-align: center; width: 13%; }
+  .mx__table tbody th a { display: grid; gap: 2px; }
+  .mx__table tbody th a:hover .mx__name { color: var(--axis); }
+  .mx__name { font-family: var(--f-display); font-stretch: 112%; font-weight: 750; font-size: 1.0625rem; text-transform: uppercase; letter-spacing: -0.01em; }
+  .mx__cat { color: var(--mute); }
+  .mx__on { display: inline-block; width: 14px; height: 14px; border-radius: 50%; background: var(--c, var(--axis)); box-shadow: 0 0 0 1px rgb(18 18 17 / 0.25); }
+  .mx__off { color: var(--line-2); }
+  @media (min-width: 1024px) {
+    .mx__title { grid-column: 1 / 7; }
+    .mx__lead { grid-column: 8 / 13; align-self: end; }
+  }
+</style>

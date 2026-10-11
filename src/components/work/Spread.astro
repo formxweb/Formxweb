@@ -1,0 +1,122 @@
+---
+/* 04 — Spread: two facing pages and a fold, the brand's golden dot as punctuation. */
+import type { Project } from '../../data/projects';
+import Shot from '../Shot.astro';
+import ProjectMeta from './ProjectMeta.astro';
+
+interface Props { project: Project }
+const { project: p } = Astro.props;
+const [hero, b, c] = p.shots;
+const tag = p.tagline.replace(/\.$/, '');
+---
+
+<article
+  class:list={['pj spread', p.theme.dark && 'on-dark']}
+  id={`p-${p.slug}`}
+  aria-labelledby={`p-${p.slug}-name`}
+  style={`--p-bg:${p.theme.bg};--p-fg:${p.theme.fg};--p-accent:${p.theme.accent};--p-accent-ink:${p.theme.accentInk ?? p.theme.accent}`}
+>
+  <div class="grid spread__grid">
+    <span class="spread__fold" aria-hidden="true"></span>
+
+    <div class="spread__left">
+      <a class="case-link" href={`/work/${p.slug}/`} tabindex="-1" aria-hidden="true" data-reveal="z">
+        <Shot shot={hero} sizes="(min-width: 1024px) 46vw, 100vw" />
+      </a>
+      <a class="case-link spread__c" href={`/work/${p.slug}/`} tabindex="-1" aria-hidden="true" data-reveal="y">
+        <Shot shot={c} sizes="(min-width: 1024px) 30vw, 80vw" />
+      </a>
+    </div>
+
+    <div class="spread__right">
+      <ProjectMeta project={p} />
+      <h3 class="spread__name t-serif" id={`p-${p.slug}-name`} lang={p.nameLang} data-reveal="mask">{p.name}</h3>
+      <p class="spread__tag t-head" data-reveal="y">{tag}<span class="spread__dot" aria-hidden="true">.</span></p>
+      <p class="spread__sum" data-reveal="y" style="--d:1">{p.summary}</p>
+      <dl class="spread__meta" data-reveal="y" style="--d:2">
+        <div><dt class="t-micro">Yaklaşım</dt><dd>{p.approach}</dd></div>
+        <div><dt class="t-micro">Kapsam</dt><dd>{p.scope.join(' · ')}</dd></div>
+      </dl>
+      <a class="case-link spread__b" href={`/work/${p.slug}/`} tabindex="-1" aria-hidden="true" data-reveal="y">
+        <Shot shot={b} sizes="(min-width: 1024px) 40vw, 100vw" />
+      </a>
+      <a class="spread__link" href={`/work/${p.slug}/`} data-reveal="x">
+        <span class="t-micro">{p.no}</span>
+        <span>Vaka çalışmasını aç</span>
+        <span class="arr" aria-hidden="true">→</span>
+        <span class="sr-only">: {p.name}</span>
+      </a>
+    </div>
+  </div>
+</article>
+
+<style>
+  .spread__grid { position: relative; row-gap: 40px; }
+  .spread__fold { display: none; }
+  .spread__left { grid-column: 1 / -1; display: grid; gap: 24px; }
+  .spread__c { width: 82%; justify-self: end; }
+  .spread__right { grid-column: 1 / -1; display: grid; gap: 20px; align-content: start; }
+
+  .spread__name {
+    font-size: clamp(4rem, 2rem + 9vw, 10rem);
+    line-height: 0.9;
+    letter-spacing: -0.035em;
+    margin: 6px 0 0;
+  }
+  .spread__tag {
+    font-size: var(--fs-m);
+    font-stretch: 100%;
+    font-weight: 600;
+    max-width: 18ch;
+    line-height: 1.08;
+  }
+  .spread__dot { color: var(--p-accent); }
+  .spread__sum { max-width: 46ch; }
+  .spread__meta {
+    display: grid;
+    gap: 14px;
+    margin: 0;
+    padding-top: 14px;
+    border-top: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+  }
+  .spread__meta dt { opacity: 0.8; margin-bottom: 4px; }
+  .spread__meta dd { margin: 0; font-size: var(--fs-small); max-width: 46ch; }
+  .spread__link {
+    display: inline-grid;
+    grid-auto-flow: column;
+    align-items: center;
+    justify-content: start;
+    gap: 14px;
+    width: max-content;
+    min-height: 48px;
+    padding: 0 18px;
+    border: 1px solid currentColor;
+    font-family: var(--f-display);
+    font-stretch: 112%;
+    font-weight: 700;
+    font-size: 0.8125rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    transition: background-color var(--t2) var(--ease), color var(--t2) var(--ease);
+  }
+  .spread__link .t-micro { color: var(--p-accent-ink); }
+  .spread__link .arr { transition: transform var(--t2) var(--ease); }
+  .spread__link:hover { background: var(--p-fg); color: var(--p-bg); }
+  .spread__link:hover .arr { transform: translateX(5px); }
+
+  @media (min-width: 1024px) {
+    .spread__fold {
+      display: block;
+      position: absolute;
+      top: -40px;
+      bottom: -40px;
+      left: 50%;
+      width: 1px;
+      background: color-mix(in srgb, currentColor 28%, transparent);
+    }
+    .spread__left { grid-column: 1 / 7; gap: 64px; }
+    .spread__c { width: 66%; justify-self: start; margin-left: calc(var(--g) * 0); }
+    .spread__right { grid-column: 8 / 13; }
+    .spread__b { margin-top: 24px; width: 86%; }
+  }
+</style>

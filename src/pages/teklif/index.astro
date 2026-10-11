@@ -1,0 +1,143 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/ui/PageHead.astro';
+import BriefForm from '../../components/BriefForm.astro';
+import Faq from '../../components/ui/Faq.astro';
+import { faqs } from '../../data/faq';
+import { site, whatsappHello, whatsappUrl } from '../../data/site';
+
+const quick = faqs.filter((f) => f.group === 'Fiyat ve süre' || f.q.startsWith('Nasıl başlıyoruz'));
+---
+
+<Base
+  title="Teklif Al — Proje Başlat"
+  description="Web sitesi, e-ticaret ya da landing page projeniz için iki dakikalık formu doldurun veya WhatsApp’tan yazın. Kapsam, takvim ve ödeme planıyla yazılı teklif hazırlıyoruz."
+  pageType="ContactPage"
+  breadcrumbs={[{ name: 'Teklif al', path: '/teklif/' }]}
+  act={{ no: 'V', name: 'Başlayalım' }}
+  actionBar={false}
+>
+  <PageHead
+    crumbs={[{ name: 'Teklif al' }]}
+    eyebrow="0,0,0 — her proje burada başlar"
+    title="Proje başlat"
+    lead="Birkaç soru, iki dakika. Ne yaptığınızı ve neye ihtiyacınız olduğunu anlatın; size projenize özel bir yol haritası ve teklifle dönelim."
+  />
+
+  <section class="grid tk" aria-label="Proje formu">
+    <div class="tk__card">
+      <BriefForm />
+    </div>
+
+    <div class="tk__side">
+      <h2 class="t-micro tk__label" id="tk-side">Formla uğraşmak istemiyorsanız</h2>
+      <ul class="tk__channels" role="list">
+        <li>
+          <a href={whatsappUrl(whatsappHello)} target="_blank" rel="noopener" data-event="WhatsApp" data-event-place="teklif">
+            <span class="t-micro">WhatsApp</span>
+            <span class="tk__val">{site.contact.phoneDisplay}</span>
+            <span aria-hidden="true">↗</span>
+          </a>
+        </li>
+        <li>
+          <a href={`tel:${site.contact.phoneHref}`} data-event="Telefon" data-event-place="teklif">
+            <span class="t-micro">Telefon</span>
+            <span class="tk__val">{site.contact.phoneDisplay}</span>
+            <span aria-hidden="true">→</span>
+          </a>
+        </li>
+        <li>
+          <a href={site.contact.instagram} target="_blank" rel="noopener" data-event="Instagram" data-event-place="teklif">
+            <span class="t-micro">Instagram</span>
+            <span class="tk__val">{site.contact.instagramHandle}</span>
+            <span aria-hidden="true">↗</span>
+          </a>
+        </li>
+        {
+          site.contact.email && (
+            <li>
+              <a href={`mailto:${site.contact.email}`}>
+                <span class="t-micro">E-posta</span>
+                <span class="tk__val">{site.contact.email}</span>
+                <span aria-hidden="true">→</span>
+              </a>
+            </li>
+          )
+        }
+      </ul>
+      {(site.studio.hours || site.contact.responseTime) && (
+        <dl class="tk__facts">
+          {site.studio.hours && (<div><dt class="t-micro">Çalışma saatleri</dt><dd>{site.studio.hours}</dd></div>)}
+          {site.contact.responseTime && (<div><dt class="t-micro">Dönüş</dt><dd>{site.contact.responseTime}</dd></div>)}
+        </dl>
+      )}
+
+      <h2 class="t-micro tk__label">Sonra ne oluyor?</h2>
+      <ol class="tk__steps" role="list">
+        <li><span class="t-micro">01</span><span><strong>Okuyoruz.</strong> Talebinizi ve varsa mevcut sitenizi ya da Instagram hesabınızı inceliyoruz.</span></li>
+        <li><span class="t-micro">02</span><span><strong>Konuşuyoruz.</strong> Kısa bir görüşmede işletmenizi, hedefinizi ve elinizdeki malzemeyi netleştiriyoruz.</span></li>
+        <li><span class="t-micro">03</span><span><strong>Yazılı teklif.</strong> Kapsam, takvim ve ödeme planı tek bir belgede. Onayınız olmadan hiçbir şey başlamaz.</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="grid tk-faq" aria-labelledby="tk-faq">
+    <h2 class="tk-faq__title" id="tk-faq">Teklif öncesi en çok sorulanlar</h2>
+    <div class="tk-faq__list">
+      <Faq items={quick} />
+      <a class="link tk-faq__more" href="/sss/">Tüm sorular <span class="arr" aria-hidden="true">→</span></a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .tk { row-gap: 48px; padding-bottom: clamp(64px, 8vw, 128px); align-items: start; }
+  .tk__card { grid-column: 1 / -1; min-width: 0; }
+  .tk__side { grid-column: 1 / -1; display: grid; gap: 18px; align-content: start; }
+  .tk__label { color: var(--axis); margin-top: 12px; }
+  .tk__channels { margin: 0; }
+  .tk__channels a {
+    display: grid;
+    grid-template-columns: 6rem 1fr auto;
+    align-items: baseline;
+    gap: 12px;
+    padding: 14px 0;
+    border-top: 1px solid var(--line);
+    transition: color var(--t1) linear;
+  }
+  .tk__channels li:last-child a { border-bottom: 1px solid var(--line); }
+  .tk__channels a:hover { color: var(--axis); }
+  .tk__val { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .tk__facts { display: grid; gap: 10px; margin: 0; font-size: var(--fs-small); }
+  .tk__facts dd { margin: 2px 0 0; font-weight: 600; }
+  .tk__steps { margin: 0; display: grid; gap: 14px; font-size: var(--fs-small); }
+  .tk__steps li { display: grid; grid-template-columns: 2.4rem 1fr; align-items: baseline; }
+  .tk__steps .t-micro { color: var(--axis); }
+  .tk__steps strong { font-weight: 700; }
+
+  .tk-faq { row-gap: 28px; padding-block: clamp(56px, 7vw, 112px); border-top: 1px solid var(--line-2); }
+  .tk-faq__title {
+    grid-column: 1 / -1;
+    font-family: var(--f-display);
+    font-stretch: 112%;
+    font-weight: 750;
+    font-size: var(--fs-m);
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    max-width: 16ch;
+  }
+  .tk-faq__list { grid-column: 1 / -1; display: grid; gap: 24px; justify-items: start; }
+  .tk-faq__list > :global(.faq) { width: 100%; }
+
+  @media (min-width: 1024px) {
+    .tk__card {
+      grid-column: 1 / 8;
+      padding: clamp(28px, 3vw, 48px);
+      background: var(--paper-2);
+      border: 1px solid var(--line);
+    }
+    .tk__side { grid-column: 9 / 13; position: sticky; top: calc(var(--header-h) + 24px); }
+    .tk-faq__title { grid-column: 1 / 5; }
+    .tk-faq__list { grid-column: 6 / 13; }
+  }
+</style>

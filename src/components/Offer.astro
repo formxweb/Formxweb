@@ -1,0 +1,77 @@
+---
+/** "Ne yapıyoruz": the five services in owner language, right under the hero. */
+import { services } from '../data/services';
+---
+
+<section class="offer" aria-labelledby="offer-title">
+  <div class="grid offer__head">
+    <h2 class="t-micro offer__label" id="offer-title">Ne yapıyoruz</h2>
+    <p class="offer__for">
+      Restoran, kafe, spor salonu, butik ve e-ticaret markaları için web sitesi tasarlıyor ve kodluyoruz.
+      <a class="link" href="/hizmetler/">Hizmetler <span class="arr" aria-hidden="true">→</span></a>
+    </p>
+  </div>
+  <ol class="offer__list" role="list">
+    {
+      services.map((s, i) => (
+        <li data-reveal="y" style={`--d:${i}`}>
+          <a href={`/hizmetler/${s.slug}/`}>
+            <span class="t-micro offer__no">{s.no}</span>
+            <span class="offer__name">{s.tr}</span>
+            <span class="offer__short">{s.short}</span>
+            <span class="offer__arr" aria-hidden="true">→</span>
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<style>
+  .offer { padding-block: clamp(40px, 5vw, 72px) 0; border-top: 1px solid var(--line-2); }
+  .offer__head { row-gap: 10px; align-items: baseline; margin-bottom: clamp(18px, 2.4vw, 32px); }
+  .offer__label { grid-column: 1 / -1; color: var(--axis); }
+  .offer__for { grid-column: 1 / -1; font-size: var(--fs-lead); line-height: 1.35; letter-spacing: -0.01em; max-width: 40ch; }
+  .offer__for .link { font-size: var(--fs-small); margin-left: 0.4em; white-space: nowrap; }
+  .offer__list { margin: 0; padding-inline: var(--m); display: grid; }
+  .offer__list a {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2.4rem 1fr auto;
+    align-items: baseline;
+    row-gap: 2px;
+    padding: 16px 0;
+    border-top: 1px solid var(--line);
+    transition: color var(--t1) linear;
+  }
+  .offer__name {
+    font-family: var(--f-display);
+    font-stretch: 112%;
+    font-weight: 750;
+    font-size: clamp(1.125rem, 1rem + 0.6vw, 1.5rem);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .offer__short { grid-column: 2 / 3; font-size: var(--fs-small); color: var(--mute); }
+  .offer__no { color: var(--axis); }
+  .offer__arr { grid-row: 1; grid-column: 3; transition: transform var(--t2) var(--ease); }
+  .offer__list a:hover { color: var(--axis); }
+  .offer__list a:hover .offer__arr { transform: translateX(5px); }
+
+  @media (min-width: 1024px) {
+    .offer__label { grid-column: 1 / 3; }
+    .offer__for { grid-column: 3 / 10; }
+    .offer__list { grid-template-columns: repeat(5, minmax(0, 1fr)); column-gap: var(--g); }
+    .offer__list a {
+      grid-template-columns: 1fr auto;
+      align-content: start;
+      gap: 10px;
+      height: 100%;
+      padding: 18px 0 28px;
+      border-top: 1px solid var(--line-2);
+    }
+    .offer__no { grid-column: 1; }
+    .offer__arr { grid-column: 2; grid-row: 1; }
+    .offer__name, .offer__short { grid-column: 1 / -1; }
+  }
+</style>

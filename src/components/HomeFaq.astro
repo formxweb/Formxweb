@@ -1,0 +1,41 @@
+---
+import Faq from './ui/Faq.astro';
+import { faqs } from '../data/faq';
+
+const items = faqs.filter((f) => f.home);
+---
+
+<section class="hfaq" id="sss" aria-labelledby="hfaq-title">
+  <div class="grid hfaq__grid">
+    <div class="hfaq__head">
+      <p class="t-micro hfaq__label">SSS — sıkça sorulanlar</p>
+      <h2 class="hfaq__title" id="hfaq-title" data-reveal="y">Başlamadan önce.</h2>
+      <p class="hfaq__lead t-mute" data-reveal="y" style="--d:1">Fiyat, süre ve süreç hakkında düz cevaplar.</p>
+      <a class="link" href="/sss/">Tüm sorular <span class="arr" aria-hidden="true">→</span></a>
+    </div>
+    <div class="hfaq__list">
+      <Faq items={items} />
+    </div>
+  </div>
+</section>
+
+<style>
+  .hfaq { padding-block: clamp(64px, 8vw, 128px); background: var(--paper-2); }
+  .hfaq__grid { row-gap: 32px; align-items: start; }
+  .hfaq__head { grid-column: 1 / -1; display: grid; gap: 14px; justify-items: start; }
+  .hfaq__label { color: var(--axis); }
+  .hfaq__title {
+    font-family: var(--f-display);
+    font-stretch: 112%;
+    font-weight: 800;
+    font-size: var(--fs-l);
+    letter-spacing: -0.04em;
+    line-height: 0.95;
+  }
+  .hfaq__lead { font-size: var(--fs-small); max-width: 30ch; }
+  .hfaq__list { grid-column: 1 / -1; }
+  @media (min-width: 1024px) {
+    .hfaq__head { grid-column: 1 / 5; position: sticky; top: calc(var(--header-h) + 24px); }
+    .hfaq__list { grid-column: 6 / 13; }
+  }
+</style>

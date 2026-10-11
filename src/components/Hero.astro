@@ -1,0 +1,354 @@
+---
+import { projects } from '../data/projects';
+import { site } from '../data/site';
+
+const layers = [1, 2, 3];
+---
+
+<section class="hero" id="kimlik" data-act="I" data-act-name="Kimlik" aria-labelledby="hero-title">
+  <div class="hero__meta grid t-micro">
+    <span class="hero__meta-a">{site.role}</span>
+    <span class="hero__meta-b">Bölüm I — Kimlik</span>
+    <span class="hero__meta-c">X Strateji · Y Tasarım · Z Geliştirme</span>
+  </div>
+
+  <div class="hero__stage">
+    <div class="ruler-y" aria-hidden="true">
+      <span class="ruler-y__label t-micro">Y — Tasarım ↑</span>
+    </div>
+
+    <div class="hero__type">
+    <h1 id="hero-title" class="hero__title" lang="en">
+      <span class="hl hl--1"><span class="hl__in">Your brand.</span></span>
+      <span class="hl hl--2"><span class="hl__in">A different</span></span>
+      <span class="hl hl--3">
+        <span class="z" aria-hidden="true">
+          {layers.map((i) => <span class="z__layer" style={`--i:${i}`}>Presence.</span>)}
+        </span>
+        <span class="hl__mask"><span class="hl__in">Presence.</span></span>
+        <span class="z__label t-micro" aria-hidden="true" lang="tr">Z — Geliştirme ↗</span>
+      </span>
+    </h1>
+
+    <p class="hero__alt t-serif">
+      Sadece bir web sitesi değil.<br />Dijitalde bir imza.
+    </p>
+    </div>
+  </div>
+
+  <div class="ruler-x" aria-hidden="true">
+    <span class="ruler-x__origin t-micro"><i></i>0,0,0</span>
+    <span class="ruler-x__label t-micro">X — Strateji →</span>
+  </div>
+
+  <div class="hero__foot grid">
+    <p class="hero__desc">
+      Markalar için özgün dijital deneyimler. Strateji, tasarım ve geliştirme tek bir bütün olarak.
+    </p>
+
+    <nav class="hero__index" aria-label="Seçili işler">
+      <p class="t-micro t-mute">Seçili işler — {String(projects.length).padStart(2, '0')}</p>
+      <ol role="list">
+        {
+          projects.map((p) => (
+            <li>
+              <a href={`#p-${p.slug}`}>
+                <span class="t-micro idx-no">{p.no}</span>
+                <span class="idx-name" lang={p.nameLang}>{p.name}</span>
+                <span class="t-micro idx-cat">{p.category}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </nav>
+
+    <div class="hero__cta">
+      <a class="btn" href="#work" lang="en" data-event="Isler" data-event-place="hero">
+        Explore selected work <span class="arr arr-y" aria-hidden="true">↓</span>
+      </a>
+      <a class="link hero__second" href="#contact" lang="en" data-event="Teklif" data-event-place="hero">
+        Start a project <span class="arr" aria-hidden="true">→</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    padding-top: var(--header-h);
+    overflow: hidden;
+  }
+
+  /* meta row ---------------------------------------------------------------- */
+  .hero__meta {
+    padding-block: 14px 12px;
+    border-bottom: 1px solid var(--line);
+    row-gap: 4px;
+  }
+  .hero__meta-a { grid-column: 1 / -1; }
+  .hero__meta-b { display: none; }
+  .hero__meta-c { grid-column: 1 / -1; color: var(--mute); }
+  @media (min-width: 1024px) {
+    .hero__meta-a { grid-column: 1 / 6; }
+    .hero__meta-b { display: block; grid-column: 6 / 9; color: var(--axis); }
+    .hero__meta-c { grid-column: 9 / 13; text-align: right; }
+  }
+
+  /* stage --------------------------------------------------------------------- */
+  .hero__stage {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: clamp(28px, 5svh, 64px) var(--m) clamp(20px, 3svh, 40px);
+    container-type: inline-size;
+    --col: calc((100cqw - (var(--cols) - 1) * var(--g)) / var(--cols));
+    --step: calc(var(--col) + var(--g));
+  }
+
+  .hero__type { position: relative; --fs: 18.5vw; }
+  .hero__title {
+    position: relative;
+    z-index: 1;
+    margin: 0;
+    font-weight: inherit;
+  }
+  .hl {
+    display: block;
+    font-family: var(--f-display);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .hl--1 {
+    font-size: var(--fs);
+    font-stretch: 125%;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 0.86;
+    white-space: normal;
+  }
+  .hl--2 {
+    font-size: calc(var(--fs) * 0.9);
+    font-stretch: 75%;
+    font-weight: 760;
+    letter-spacing: -0.01em;
+    line-height: 0.92;
+    margin-top: 0.12em;
+  }
+  .hl--3 {
+    position: relative;
+    font-size: calc(var(--fs) * 1.08);
+    font-stretch: 75%;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    line-height: 0.92;
+  }
+  .hl--1,
+  .hl--2 { overflow: hidden; padding-block: 0.04em; margin-block: -0.04em; }
+  .hl__mask { display: block; overflow: hidden; padding-block: 0.04em; margin-block: -0.04em; }
+  .hl__in { display: inline-block; }
+
+  /* Z extrusion: hairline copies receding at ~30° */
+  .z {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    padding-block: 0.04em;
+    margin-block: -0.04em;
+  }
+  .z__layer {
+    position: absolute;
+    left: 0;
+    top: 0.04em;
+    color: transparent;
+    -webkit-text-stroke: 1px var(--axis);
+    opacity: calc(1 - var(--i) * 0.26);
+    transform: translate(calc(var(--i) * 0.075em), calc(var(--i) * -0.0435em));
+  }
+  .hl--3 .hl__in { color: var(--ink); position: relative; }
+  .hl--3 { width: max-content; }
+  .z__label {
+    display: none;
+    position: absolute;
+    left: calc(100% + var(--fs) * 0.32);
+    top: calc(var(--fs) * -0.2);
+    font-size: var(--fs-micro);
+    color: var(--axis);
+    white-space: nowrap;
+  }
+
+  .hero__alt {
+    margin-top: clamp(18px, 3svh, 32px);
+    font-size: clamp(1.375rem, 1rem + 1.6vw, 2.125rem);
+    color: var(--ink-2);
+  }
+
+  /* rulers -------------------------------------------------------------------- */
+  .ruler-y {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(var(--m) * 0.42);
+    width: 7px;
+    border-left: 1px solid var(--line-2);
+    background: repeating-linear-gradient(to bottom, var(--line-2) 0 1px, transparent 1px 32px);
+    background-size: 5px 100%;
+    background-repeat: no-repeat;
+    transform-origin: bottom;
+  }
+  .ruler-y__label {
+    position: absolute;
+    top: 18px;
+    left: 10px;
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    color: var(--axis);
+    display: none;
+  }
+  .ruler-x {
+    position: relative;
+    height: 30px;
+    margin-inline: var(--m);
+    border-bottom: 1px solid var(--line-2);
+    background: repeating-linear-gradient(to right, var(--line-2) 0 1px, transparent 1px 40px);
+    background-size: 100% 6px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transform-origin: left;
+  }
+  .ruler-x__origin,
+  .ruler-x__label {
+    position: absolute;
+    bottom: 10px;
+    background: var(--paper);
+    padding-inline: 0 6px;
+  }
+  .ruler-x__origin { left: 0; display: inline-flex; align-items: center; gap: 8px; }
+  .ruler-x__origin i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--axis);
+  }
+  .ruler-x__label { right: 0; padding-inline: 6px 0; color: var(--axis); }
+
+  /* foot ---------------------------------------------------------------------- */
+  .hero__foot {
+    padding-block: 20px max(24px, env(safe-area-inset-bottom));
+    row-gap: 22px;
+    align-items: start;
+  }
+  .hero__desc {
+    grid-column: 1 / -1;
+    max-width: 30ch;
+    font-size: var(--fs-lead);
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+  }
+  .hero__index { display: none; }
+  .hero__cta {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: 14px;
+    justify-items: start;
+  }
+  .hero__cta .btn { width: 100%; }
+  .hero__second {
+    font-family: var(--f-display);
+    font-stretch: 112%;
+    font-weight: 700;
+    font-size: 0.8125rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding-block: 12px 4px;
+  }
+
+  @media (min-width: 640px) {
+    .hero__type { --fs: 10.8vw; }
+    .hl--1 { white-space: nowrap; }
+    .hl--2 { font-size: var(--fs); margin-left: var(--step); }
+    .hl--3 { font-size: var(--fs); font-stretch: 125%; letter-spacing: -0.04em; line-height: 0.88; }
+    .hero__desc { grid-column: 1 / 4; }
+    .hero__cta { grid-column: 4 / 7; }
+    .hero__index { display: block; grid-column: 1 / -1; }
+  }
+
+  @media (min-width: 1024px) {
+    .hero__type { --fs: min(10.4vw, 18.5svh); }
+    .hl--2 { margin-left: calc(var(--step) * 2); }
+    .hl--3 { margin-left: var(--step); }
+    .z__label { display: none; }
+    .ruler-y__label { display: block; }
+
+    .hero__alt {
+      position: absolute;
+      right: 0;
+      top: calc(var(--fs) * 0.98 + (var(--fs) * 0.92 - 2.3em) / 2);
+      width: calc(var(--col) * 4 + var(--g) * 3);
+      margin: 0;
+      font-size: clamp(1.25rem, 0.4rem + 1.25vw, 2rem);
+      line-height: 1.12;
+    }
+    .hero__desc { grid-column: 1 / 5; }
+    .hero__index { display: block; grid-column: 5 / 9; }
+    .hero__cta { grid-column: 10 / 13; justify-items: stretch; }
+  }
+
+  .hero__index ol { margin: 10px 0 0; }
+  .hero__index a {
+    display: grid;
+    grid-template-columns: 2.4rem 1fr auto;
+    align-items: baseline;
+    padding: 4px 0;
+    border-top: 1px solid var(--line);
+    transition: color var(--t1) linear;
+  }
+  .hero__index li:last-child a { border-bottom: 1px solid var(--line); }
+  .idx-name {
+    font-family: var(--f-display);
+    font-stretch: 112%;
+    font-weight: 650;
+    font-size: 0.9375rem;
+    letter-spacing: -0.01em;
+    transition: transform var(--t2) var(--ease);
+  }
+  .idx-no,
+  .idx-cat { color: var(--mute); }
+  .hero__index a:hover { color: var(--axis); }
+  .hero__index a:hover .idx-name { transform: translateX(6px); }
+
+  /* opening — Y for lines, X/Y for rulers, Z for the extrusion ------------------ */
+  @media (prefers-reduced-motion: no-preference) {
+    .hl__in { animation: rise var(--t4) var(--ease) both; }
+    .hl--2 .hl__in { animation-delay: 70ms; }
+    .hl--3 .hl__in { animation-delay: 140ms; }
+    .z__layer { animation: recede var(--t3) var(--ease) both; animation-delay: calc(520ms + var(--i) * 45ms); }
+    .z__label { animation: fade var(--t3) linear both 1100ms; }
+    .ruler-y { animation: grow-y var(--t4) var(--ease) both; }
+    .ruler-x { animation: grow-x var(--t4) var(--ease) both 120ms; }
+    .hero__meta,
+    .hero__alt,
+    .hero__foot { animation: lift var(--t3) var(--ease) both 420ms; }
+    .hero__alt { animation-delay: 700ms; }
+  }
+  @media (min-width: 1200px) {
+    .z__label { display: block; }
+  }
+  @media (min-width: 1024px) and (max-width: 1279px) {
+    .hero__desc { grid-column: 1 / 6; }
+    .hero__index { display: none; }
+    .hero__cta { grid-column: 8 / 13; }
+  }
+  @keyframes rise { from { transform: translateY(108%); } to { transform: none; } }
+  @keyframes recede { from { transform: none; opacity: 0; } }
+  @keyframes grow-y { from { transform: scaleY(0); } to { transform: none; } }
+  @keyframes grow-x { from { transform: scaleX(0); } to { transform: none; } }
+  @keyframes lift { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+</style>

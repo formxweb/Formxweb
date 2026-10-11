@@ -1,0 +1,42 @@
+---
+import { trademarkSign } from '../data/site';
+/**
+ * VER·Y·A·X·Z — the three axes hidden in the name are set in axis blue.
+ */
+interface Props {
+  class?: string;
+  studio?: boolean;
+  tag?: 'span' | 'p' | 'div';
+}
+const { class: cls = '', studio = false, tag: Tag = 'span' } = Astro.props;
+---
+
+<Tag class:list={['wordmark', cls]} aria-label={studio ? 'VERYAXZ STUDIO' : 'VERYAXZ'} role="img">
+  <span aria-hidden="true">VER</span><span class="axis-letter" aria-hidden="true">Y</span><span aria-hidden="true">A</span><span class="axis-letter" aria-hidden="true">XZ</span>{
+    studio && <span class="wordmark__studio" aria-hidden="true">STUDIO{trademarkSign && <sup>{trademarkSign}</sup>}</span>
+  }
+</Tag>
+
+<style>
+  .wordmark {
+    display: inline-flex;
+    align-items: baseline;
+    font-family: var(--f-display);
+    font-stretch: 125%;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    white-space: nowrap;
+  }
+  .wordmark__studio {
+    margin-left: 0.55em;
+    font-stretch: 100%;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  sup {
+    font-size: 0.55em;
+    vertical-align: 0.55em;
+    margin-left: 0.08em;
+  }
+</style>

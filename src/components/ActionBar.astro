@@ -1,0 +1,74 @@
+---
+/**
+ * Mobile action bar: the two ways to start, always one thumb away.
+ * Appears after the first screen, steps aside where contact options are already on screen.
+ */
+import { whatsappHello, whatsappUrl } from '../data/site';
+---
+
+<div class="abar" data-abar>
+  <a class="abar__wa" href={whatsappUrl(whatsappHello)} target="_blank" rel="noopener" data-event="WhatsApp" data-event-place="action-bar">
+    <span class="abar__dot" aria-hidden="true"></span>WhatsApp<span class="sr-only"> (yeni sekmede açılır)</span>
+  </a>
+  <a class="abar__go" href="/teklif/" data-event="Teklif" data-event-place="action-bar">
+    Proje başlat <span aria-hidden="true">→</span>
+  </a>
+</div>
+
+<style>
+  .abar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    display: grid;
+    grid-template-columns: 1fr 1.25fr;
+    gap: 8px;
+    padding: 8px var(--m) max(8px, env(safe-area-inset-bottom));
+    background: rgb(232 228 218 / 0.96);
+    border-top: 1px solid var(--line);
+    transform: translateY(110%);
+    visibility: hidden;
+    transition:
+      transform var(--t2) var(--ease),
+      visibility 0s linear var(--t2);
+  }
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    .abar {
+      background: rgb(232 228 218 / 0.93);
+      backdrop-filter: blur(12px) saturate(1.2);
+      -webkit-backdrop-filter: blur(12px) saturate(1.2);
+    }
+  }
+  :global(.js) .abar[data-show] {
+    transform: none;
+    visibility: visible;
+    transition:
+      transform var(--t2) var(--ease),
+      visibility 0s;
+  }
+  .abar a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 48px;
+    font-family: var(--f-display);
+    font-stretch: 112%;
+    font-weight: 700;
+    font-size: 0.8125rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+  .abar__wa { border: 1px solid var(--line-2); background: var(--paper); color: var(--ink); }
+  .abar__go { background: var(--axis); color: var(--on-axis); }
+  .abar__dot { width: 7px; height: 7px; border-radius: 50%; background: #1fa855; }
+
+  @media (min-width: 1024px) {
+    .abar { display: none; }
+  }
+  @media print {
+    .abar { display: none; }
+  }
+</style>

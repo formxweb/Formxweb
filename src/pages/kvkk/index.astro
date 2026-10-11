@@ -1,0 +1,152 @@
+---
+import LegalPage from '../../components/ui/LegalPage.astro';
+import { site } from '../../data/site';
+
+const l = site.legal;
+const c = site.contact;
+const who = l.controller ? `${l.controller}${l.controller !== l.tradeName ? ` (${l.tradeName})` : ''}` : l.tradeName;
+const hasChannel = Boolean(l.address || l.kep || l.email);
+const hosting = l.hosting.name ? `${l.hosting.name}${l.hosting.country ? ` (${l.hosting.country})` : ''}` : '';
+const formProc = site.form.endpoint
+  ? l.formProcessor.name
+    ? `${l.formProcessor.name}${l.formProcessor.country ? ` (${l.formProcessor.country})` : ''}`
+    : 'form gönderim hizmeti sağlayıcısı'
+  : '';
+---
+
+<LegalPage
+  title="KVKK Aydınlatma Metni"
+  path="/kvkk/"
+  description="VERYAXZ STUDIO’nun web sitesi, proje formu, WhatsApp ve telefon kanallarında işlediği kişisel veriler, işleme amaçları, hukuki sebepleri ve 6698 sayılı Kanun kapsamındaki haklarınız."
+>
+  <p>
+    Bu metin, 6698 sayılı Kişisel Verilerin Korunması Kanunu’nun (“KVKK”) 10. maddesi uyarınca, bu web sitesini ziyaret
+    eden ve proje talebi için bizimle iletişime geçen kişileri bilgilendirmek amacıyla hazırlanmıştır.
+  </p>
+
+  <h2>1. Veri sorumlusu</h2>
+  <p>
+    Kişisel verileriniz, veri sorumlusu sıfatıyla <strong>{who}</strong> tarafından işlenmektedir.
+  </p>
+  <ul>
+    {l.address && <li>Adres: {l.address}</li>}
+    {l.kep && <li>KEP adresi: {l.kep}</li>}
+    {l.email && <li>E-posta: <a href={`mailto:${l.email}`}>{l.email}</a></li>}
+    {l.mersis && <li>MERSİS no: {l.mersis}</li>}
+    <li>Telefon ve WhatsApp: <a href={`tel:${c.phoneHref}`}>{c.phoneDisplay}</a></li>
+  </ul>
+
+  <h2>2. Hangi kişisel verileri işliyoruz?</h2>
+  <h3>Proje formu, WhatsApp, telefon, Instagram ya da e-posta ile yazdığınızda</h3>
+  <ul>
+    <li><strong>Kimlik:</strong> ad ve soyad.</li>
+    <li><strong>İletişim:</strong> telefon numarası ve/veya e-posta adresi.</li>
+    <li><strong>Talep bilgisi:</strong> işletme ya da marka adı, mevcut web sitesi veya sosyal medya adresi, proje türü, zaman planı, belirtmeniz halinde bütçe ve mesajınızın içeriği.</li>
+  </ul>
+  <h3>Siteyi ziyaret ettiğinizde</h3>
+  <ul>
+    <li>
+      <strong>İşlem güvenliği:</strong> sitenin barındırıldığı hizmet sağlayıcının sunucu kayıtları (IP adresi, tarayıcı
+      ve cihaz bilgisi, ziyaret zamanı, istenen sayfa). Bu kayıtlar sitenin güvenliği ve işleyişi için tutulur.
+    </li>
+    {
+      site.analytics.domain && (
+        <li>
+          <strong>Ziyaret istatistikleri:</strong> çerez kullanmayan ve kişisel veri saklamayan bir ölçüm aracıyla toplu
+          sayfa görüntüleme sayıları. IP adresiniz saklanmaz; sizi siteler arasında izleyen bir tanımlayıcı oluşturulmaz.
+        </li>
+      )
+    }
+  </ul>
+  <p>Özel nitelikli kişisel veri (sağlık, inanç vb.) talep etmiyoruz; lütfen mesajlarınızda paylaşmayın.</p>
+
+  <h2>3. Hangi amaçlarla işliyoruz?</h2>
+  <ul>
+    <li>Proje talebinizi değerlendirmek, size dönmek ve görüşme yapmak,</li>
+    <li>Teklif hazırlamak ve sözleşme süreçlerini yürütmek,</li>
+    <li>Sizinle iletişim faaliyetlerini sürdürmek,</li>
+    <li>Web sitesinin güvenliğini ve işleyişini sağlamak,</li>
+    <li>Hukuki yükümlülüklerimizi yerine getirmek ve olası uyuşmazlıklarda haklarımızı korumak.</li>
+  </ul>
+  <p>Kişisel verilerinizi pazarlama listelerine eklemiyor, üçüncü kişilere satmıyor ya da kiralamıyoruz.</p>
+
+  <h2>4. Hukuki sebepler</h2>
+  <p>Kişisel verileriniz KVKK’nın 5. maddesinin 2. fıkrasında yer alan şu sebeplere dayanılarak işlenir:</p>
+  <ul>
+    <li>(c) Bir sözleşmenin kurulması veya ifasıyla doğrudan doğruya ilgili olması: talebinizin değerlendirilmesi, teklif ve sözleşme öncesi görüşmeler.</li>
+    <li>(ç) Veri sorumlusunun hukuki yükümlülüğünü yerine getirebilmesi için zorunlu olması.</li>
+    <li>(e) Bir hakkın tesisi, kullanılması veya korunması için zorunlu olması.</li>
+    <li>(f) Temel hak ve özgürlüklerinize zarar vermemek kaydıyla meşru menfaatimiz için zorunlu olması: talebinize yanıt verilmesi ve sitenin güvenliği.</li>
+  </ul>
+
+  <h2>5. Toplama yöntemi</h2>
+  <p>
+    Kişisel verileriniz; sitedeki proje formu, WhatsApp, telefon, Instagram ve e-posta yoluyla sizin tarafınızdan
+    iletildiğinde, sunucu kayıtları ise siteyi ziyaret ettiğinizde otomatik yollarla toplanır.
+  </p>
+
+  <h2>6. Kimlere aktarılır?</h2>
+  <ul>
+    <li>Kanunen yetkili kamu kurum ve kuruluşlarına, talep edilmesi halinde ve mevzuatın gerektirdiği ölçüde.</li>
+    <li>Sözleşme kurulması halinde, yükümlülüklerimizi yerine getirmek için hukuk ve mali müşavirlik hizmeti aldığımız kişilere.</li>
+    <li>
+      Sitenin barındırıldığı hizmet sağlayıcıya{hosting && ` (${hosting})`}{formProc && `, form gönderimlerini ileten ${formProc} hizmetine`}.
+      Bu sağlayıcıların sunucuları yurt dışında bulunabilir. Yurt dışına aktarımlar KVKK’nın 9. maddesinde öngörülen
+      şartlara uygun olarak gerçekleştirilir.
+    </li>
+  </ul>
+  <p>
+    <strong>WhatsApp ve Instagram hakkında:</strong> Bize WhatsApp ya da Instagram üzerinden yazdığınızda mesajınız bu
+    platformların (Meta Platforms) altyapısı üzerinden iletilir. Bu iletimi uygulamayı kullanarak siz başlatırsınız ve
+    ilgili platformun kendi gizlilik koşulları geçerlidir. Formun WhatsApp seçeneği yalnızca mesajı hazırlar; mesaj, siz
+    WhatsApp’ta gönderdiğinizde bize ulaşır.
+  </p>
+
+  <h2>7. Ne kadar süre saklanır?</h2>
+  <p>
+    {
+      l.retention
+        ? `Proje talepleri ${l.retention} saklanır; sözleşmeye dönüşen talepler için mevzuatta öngörülen saklama süreleri uygulanır.`
+        : 'Kişisel verileriniz işleme amacının gerektirdiği süre boyunca ve ilgili mevzuatta öngörülen süreler kadar saklanır. Sözleşmeye dönüşmeyen talepler, amacın ortadan kalkmasının ardından silinir, yok edilir veya anonim hale getirilir.'
+    }
+  </p>
+
+  <h2>8. Haklarınız</h2>
+  <p>KVKK’nın 11. maddesi uyarınca veri sorumlusuna başvurarak şu haklarınızı kullanabilirsiniz:</p>
+  <ul>
+    <li>Kişisel verilerinizin işlenip işlenmediğini öğrenme,</li>
+    <li>İşlenmişse buna ilişkin bilgi talep etme,</li>
+    <li>İşlenme amacını ve bunların amacına uygun kullanılıp kullanılmadığını öğrenme,</li>
+    <li>Yurt içinde veya yurt dışında aktarıldığı üçüncü kişileri bilme,</li>
+    <li>Eksik veya yanlış işlenmişse düzeltilmesini isteme,</li>
+    <li>KVKK’nın 7. maddesindeki şartlar çerçevesinde silinmesini veya yok edilmesini isteme,</li>
+    <li>Düzeltme, silme ve yok etme işlemlerinin, verilerin aktarıldığı üçüncü kişilere bildirilmesini isteme,</li>
+    <li>İşlenen verilerin münhasıran otomatik sistemlerle analiz edilmesi suretiyle aleyhinize bir sonucun ortaya çıkmasına itiraz etme,</li>
+    <li>Kanuna aykırı işleme sebebiyle zarara uğramanız halinde zararın giderilmesini talep etme.</li>
+  </ul>
+
+  <h2>9. Başvuru</h2>
+  <p>
+    Başvurunuzu, Veri Sorumlusuna Başvuru Usul ve Esasları Hakkında Tebliğ’e uygun olarak yazılı olarak, kayıtlı
+    elektronik posta (KEP) adresi, güvenli elektronik imza, mobil imza ya da daha önce bize bildirdiğiniz ve
+    sistemimizde kayıtlı bulunan e-posta adresiniz aracılığıyla iletebilirsiniz.
+  </p>
+  {
+    hasChannel ? (
+      <ul>
+        {l.address && <li>Yazılı başvuru adresi: {l.address}</li>}
+        {l.kep && <li>KEP: {l.kep}</li>}
+        {l.email && <li>E-posta: <a href={`mailto:${l.email}`}>{l.email}</a></li>}
+      </ul>
+    ) : (
+      <p>Başvuru adresimizi öğrenmek için <a href={`tel:${c.phoneHref}`}>{c.phoneDisplay}</a> numaralı hattan bize ulaşabilirsiniz.</p>
+    )
+  }
+  <p>
+    Başvurunuz, niteliğine göre en geç otuz gün içinde ücretsiz olarak sonuçlandırılır. İşlemin ayrıca bir maliyet
+    gerektirmesi halinde Kişisel Verileri Koruma Kurulu tarafından belirlenen tarifedeki ücret alınabilir. Başvurunuzun
+    reddedilmesi, verilen cevabı yetersiz bulmanız veya süresinde cevap verilmemesi halinde Kişisel Verileri Koruma
+    Kurulu’na şikâyette bulunma hakkınız saklıdır.
+  </p>
+  <p>Çerezler ve ziyaret ölçümü hakkında ayrıntı için <a href="/gizlilik/">Gizlilik ve Çerezler</a> sayfasına bakabilirsiniz.</p>
+</LegalPage>

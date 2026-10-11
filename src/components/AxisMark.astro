@@ -1,0 +1,32 @@
+---
+/** The studio's origin mark: Y up, X right, Z receding at 30°. */
+interface Props {
+  class?: string;
+  size?: number;
+  label?: string;
+}
+const { class: cls = '', size = 18, label } = Astro.props;
+---
+
+<svg
+  class:list={['axismark', cls]}
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.5"
+  stroke-linecap="square"
+  role={label ? 'img' : undefined}
+  aria-label={label}
+  aria-hidden={label ? undefined : 'true'}
+>
+  <path d="M6 18V3" />
+  <path d="M6 18h15" />
+  <path d="M6 18l11-6.35" stroke-dasharray="2 2" />
+  <circle cx="6" cy="18" r="2.2" fill="currentColor" stroke="none" />
+</svg>
+
+<style>
+  .axismark { flex: none; }
+</style>

@@ -1,0 +1,29 @@
+---
+import type { Project } from '../../data/projects';
+import { projects } from '../../data/projects';
+
+interface Props {
+  project: Project;
+  class?: string;
+}
+const { project: p, class: cls = '' } = Astro.props;
+const total = String(projects.length).padStart(2, '0');
+---
+
+<p class:list={['pmeta t-micro', cls]} data-reveal="y">
+  <span class="pmeta__no">{p.no} / {total}</span>
+  <span>{p.category}</span>
+  <span class="pmeta__sector" lang="en">{p.sector}</span>
+  <span>{p.year}</span>
+</p>
+
+<style>
+  .pmeta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 22px;
+    margin: 0;
+  }
+  .pmeta__no { color: var(--p-accent-ink, var(--axis)); }
+  .pmeta__sector { opacity: 0.8; }
+</style>

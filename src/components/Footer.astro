@@ -1,0 +1,155 @@
+---
+import Wordmark from './Wordmark.astro';
+import { legalLinks, nav, site, whatsappHello, whatsappUrl } from '../data/site';
+import { services } from '../data/services';
+import { projects } from '../data/projects';
+
+const year = new Date().getFullYear();
+const l = site.legal;
+const kunye = [
+  { k: 'Unvan', v: l.controller },
+  { k: 'Adres', v: l.address },
+  { k: 'MERSİS', v: l.mersis },
+  { k: 'Vergi', v: [l.taxOffice, l.taxNo].filter(Boolean).join(' · ') },
+  { k: 'KEP', v: l.kep },
+].filter((row) => row.v);
+const studioLines = [site.studio.city, site.studio.serviceArea, site.studio.hours].filter(Boolean);
+---
+
+<footer class="ft on-dark">
+  <div class="grid ft__top">
+    <div class="ft__col ft__col--contact">
+      <p class="t-micro ft__label">İletişim</p>
+      <ul role="list">
+        <li><a href={whatsappUrl(whatsappHello)} target="_blank" rel="noopener" data-event="WhatsApp" data-event-place="footer">WhatsApp <span aria-hidden="true">↗</span></a></li>
+        <li><a href={`tel:${site.contact.phoneHref}`} class="ft__phone" data-event="Telefon" data-event-place="footer">{site.contact.phoneDisplay}</a></li>
+        <li><a href={site.contact.instagram} target="_blank" rel="noopener" data-event="Instagram" data-event-place="footer">{site.contact.instagramHandle} <span aria-hidden="true">↗</span></a></li>
+        {site.contact.email && <li><a href={`mailto:${site.contact.email}`}>{site.contact.email}</a></li>}
+      </ul>
+      {studioLines.length > 0 && <p class="ft__facts">{studioLines.join(' · ')}</p>}
+      {site.contact.responseTime && <p class="ft__facts">Dönüş: {site.contact.responseTime}</p>}
+    </div>
+    <div class="ft__col ft__col--pages">
+      <p class="t-micro ft__label">Sayfalar</p>
+      <ul role="list">
+        {nav.map((n) => <li><a href={n.href}>{n.label}</a></li>)}
+        <li><a href="/teklif/">Teklif al</a></li>
+      </ul>
+    </div>
+    <div class="ft__col ft__col--services">
+      <p class="t-micro ft__label">Hizmetler</p>
+      <ul role="list">
+        {services.map((s) => <li><a href={`/hizmetler/${s.slug}/`}>{s.tr}</a></li>)}
+      </ul>
+    </div>
+    <div class="ft__col ft__col--work">
+      <p class="t-micro ft__label">İşler</p>
+      <ul role="list">
+        {projects.map((p) => <li><a href={`/work/${p.slug}/`} lang={p.nameLang}>{p.name}</a></li>)}
+      </ul>
+    </div>
+    <div class="ft__col ft__col--legal">
+      <p class="t-micro ft__label">Künye</p>
+      <dl class="ft__kunye">
+        <div><dt class="sr-only">Marka</dt><dd>{l.tradeName}</dd></div>
+        {
+          kunye.map((row) => (
+            <div>
+              <dt class="t-micro">{row.k}</dt>
+              <dd>{row.v}</dd>
+            </div>
+          ))
+        }
+      </dl>
+      <ul role="list" class="ft__legal">
+        {legalLinks.map((link) => <li><a href={link.href}>{link.label}</a></li>)}
+      </ul>
+    </div>
+  </div>
+
+  <div class="ft__mark" aria-hidden="true">
+    <Wordmark />
+  </div>
+
+  <div class="grid ft__bottom t-micro">
+    <span class="ft__copy">© {year} {site.name}</span>
+    <span class="ft__axes">X Strateji · Y Tasarım · Z Geliştirme</span>
+    <span class="ft__cookie">Bu site çerez kullanmaz.</span>
+    <a class="ft__top-link" href="#top">Başa dön <span aria-hidden="true">↑</span></a>
+  </div>
+</footer>
+
+<style>
+  .ft {
+    background: var(--ink);
+    color: var(--paper);
+    padding-top: clamp(56px, 7vw, 112px);
+    overflow: hidden;
+  }
+  .ft__top { row-gap: 40px; }
+  .ft__col { grid-column: span 2; min-width: 0; }
+  .ft__col--contact,
+  .ft__col--legal { grid-column: 1 / -1; }
+  .ft__label { color: var(--axis-light); margin-bottom: 14px; }
+  .ft ul { margin: 0; padding: 0; display: grid; gap: 2px; }
+  .ft li a {
+    display: inline-block;
+    padding: 5px 0;
+    font-family: var(--f-text);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    transition: color var(--t1) linear;
+  }
+  .ft li a:hover { color: var(--axis-light); }
+  .ft__col--contact li a { font-size: 1.0625rem; }
+  .ft__phone { font-variant-numeric: tabular-nums; }
+  .ft__facts { margin-top: 14px; font-size: var(--fs-small); color: rgb(232 228 218 / 0.72); }
+
+  .ft__kunye { margin: 0 0 16px; display: grid; gap: 6px; font-size: var(--fs-small); }
+  .ft__kunye div { display: grid; gap: 2px; }
+  .ft__kunye dt { color: rgb(232 228 218 / 0.6); }
+  .ft__kunye dd { margin: 0; font-weight: 600; }
+  .ft .ft__legal a { font-size: var(--fs-small); font-weight: 500; color: rgb(232 228 218 / 0.86); }
+
+  .ft__mark {
+    margin-top: clamp(48px, 7vw, 120px);
+    padding-inline: calc(var(--m) * 0.5);
+    font-size: calc((100vw - var(--m)) / 6.15);
+    line-height: 0.74;
+    overflow: hidden;
+  }
+  .ft__mark :global(.wordmark) { letter-spacing: -0.045em; }
+
+  .ft__bottom {
+    row-gap: 8px;
+    padding-block: 18px max(18px, env(safe-area-inset-bottom));
+    border-top: 1px solid rgb(232 228 218 / 0.18);
+    color: rgb(232 228 218 / 0.7);
+  }
+  .ft__bottom > * { grid-column: 1 / -1; }
+  .ft__top-link { color: var(--axis-light); padding-block: 6px; justify-self: start; }
+
+  @media (min-width: 640px) {
+    .ft__col { grid-column: span 2; }
+    .ft__col--contact { grid-column: 1 / 4; }
+    .ft__col--legal { grid-column: 4 / 7; }
+    .ft__bottom .ft__copy { grid-column: 1 / 3; }
+    .ft__bottom .ft__cookie { grid-column: 3 / 5; }
+    .ft__bottom .ft__top-link { grid-column: 5 / 7; justify-self: end; }
+    .ft__bottom .ft__axes { display: none; }
+  }
+  @media (min-width: 1024px) {
+    .ft__col--contact { grid-column: 1 / 4; grid-row: 1; }
+    .ft__col--pages { grid-column: 4 / 6; grid-row: 1; }
+    .ft__col--services { grid-column: 6 / 8; grid-row: 1; }
+    .ft__col--work { grid-column: 8 / 10; grid-row: 1; }
+    .ft__col--legal { grid-column: 10 / 13; grid-row: 1; }
+    .ft__bottom .ft__copy { grid-column: 1 / 4; }
+    .ft__bottom .ft__axes { display: block; grid-column: 4 / 8; }
+    .ft__bottom .ft__cookie { grid-column: 8 / 11; }
+    .ft__bottom .ft__top-link { grid-column: 11 / 13; justify-self: end; }
+  }
+  @media print {
+    .ft__mark { display: none; }
+  }
+</style>

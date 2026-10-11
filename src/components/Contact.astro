@@ -1,0 +1,215 @@
+---
+import Rail from './Rail.astro';
+import BriefForm from './BriefForm.astro';
+import { site, whatsappHello, whatsappUrl } from '../data/site';
+
+const layers = [1, 2, 3];
+const mode = site.form.endpoint ? 'endpoint' : 'whatsapp';
+---
+
+<section class="cta on-dark" id="contact" data-act="V" data-abar-hide data-act-name="Başlayalım" aria-labelledby="cta-title">
+  <Rail act="Bölüm V" title="Başlayalım" en="Let’s build" axis="0,0,0 — her proje burada başlar" end="İletişim" />
+
+  <div class="grid cta__body">
+    <h2 class="cta__title" id="cta-title" lang="en">
+      <span class="cta__l cta__l--1" data-reveal="mask">Your next website</span>
+      <span class="cta__l cta__l--2" data-reveal="mask" style="--d:1">should feel</span>
+      <span class="cta__l cta__l--3" data-reveal="y" style="--d:2">
+        <span class="cta__z" aria-hidden="true">
+          {layers.map((i) => <span style={`--i:${i}`}>different.</span>)}
+        </span>
+        <span class="cta__front">different.</span>
+      </span>
+    </h2>
+
+    <div class="cta__side">
+      <p class="cta__sub t-serif" data-reveal="y">Bir sonraki dijital projenizi birlikte tasarlayalım.</p>
+      <a class="btn btn--paper cta__btn" href="#brief" lang="en" data-reveal="y" style="--d:1" data-event="Teklif" data-event-place="act-v">
+        Start your project <span class="arr arr-y" aria-hidden="true">↓</span>
+      </a>
+      <ul class="cta__channels" role="list" data-reveal="y" style="--d:2">
+        <li>
+          <a href={whatsappUrl(whatsappHello)} target="_blank" rel="noopener" data-event="WhatsApp" data-event-place="act-v">
+            <span class="t-micro">WhatsApp</span>
+            <span class="cta__val">{site.contact.phoneDisplay}</span>
+            <span class="arr" aria-hidden="true">↗</span>
+          </a>
+        </li>
+        <li>
+          <a href={`tel:${site.contact.phoneHref}`} data-event="Telefon" data-event-place="act-v">
+            <span class="t-micro">Telefon</span>
+            <span class="cta__val">{site.contact.phoneDisplay}</span>
+            <span class="arr" aria-hidden="true">→</span>
+          </a>
+        </li>
+        <li>
+          <a href={site.contact.instagram} target="_blank" rel="noopener" data-event="Instagram" data-event-place="act-v">
+            <span class="t-micro">Instagram</span>
+            <span class="cta__val">{site.contact.instagramHandle}</span>
+            <span class="arr" aria-hidden="true">↗</span>
+          </a>
+        </li>
+        {
+          site.contact.email && (
+            <li>
+              <a href={`mailto:${site.contact.email}`}>
+                <span class="t-micro">E-posta</span>
+                <span class="cta__val">{site.contact.email}</span>
+                <span class="arr" aria-hidden="true">→</span>
+              </a>
+            </li>
+          )
+        }
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="brief" id="brief" aria-labelledby="brief-title" data-abar-hide>
+  <div class="grid brief__grid">
+    <div class="brief__intro">
+      <p class="t-micro brief__origin"><i aria-hidden="true"></i>0,0,0 — <span lang="en">Project brief</span></p>
+      <h2 class="brief__title" id="brief-title">Proje başlat</h2>
+      <p class="brief__lead">
+        Birkaç soru, iki dakika. Ne yaptığınızı ve neye ihtiyacınız olduğunu anlatın; size projenize özel bir yol haritası
+        ve teklifle dönelim.
+      </p>
+      <ol class="brief__steps" role="list">
+        <li><span class="t-micro">01</span> Formu gönderin ya da WhatsApp’tan yazın.</li>
+        <li><span class="t-micro">02</span> Kısa bir görüşmede işletmenizi ve hedefinizi konuşalım.</li>
+        <li><span class="t-micro">03</span> Kapsam, takvim ve ödeme planıyla yazılı teklif.</li>
+      </ol>
+      <p class="brief__how t-mute">
+        {
+          mode === 'whatsapp'
+            ? 'Gönder dediğinizde yazdıklarınız WhatsApp’ta hazır bir mesaja dönüşür ve siz gönderdiğinizde bize ulaşır.'
+            : 'Form doğrudan bize ulaşır. Bir sorun olursa WhatsApp seçeneği açılır.'
+        }
+        {site.contact.responseTime && ` Dönüş süremiz: ${site.contact.responseTime}.`}
+      </p>
+    </div>
+
+    <div class="brief__card">
+      <BriefForm />
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Act V — the one place the axis colour floods the page */
+  .cta {
+    background: var(--axis);
+    color: var(--on-axis);
+    padding-top: clamp(56px, 8vw, 128px);
+    overflow: clip;
+  }
+  .cta :global(.rail) { border-top-color: rgb(242 239 232 / 0.4); }
+  .cta :global(.rail__act) { color: var(--on-axis); }
+  .cta :global(.rail__en) { opacity: 1; }
+  .cta__body { row-gap: 40px; padding-block: clamp(32px, 5vw, 80px) clamp(64px, 9vw, 140px); align-items: end; }
+
+  .cta__title {
+    grid-column: 1 / -1;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--f-display);
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+  .cta__l { display: block; }
+  .cta__l--1 { font-stretch: 112%; font-size: clamp(2rem, 0.4rem + 6.4vw, 7rem); letter-spacing: -0.035em; line-height: 0.95; }
+  .cta__l--2 { font-stretch: 75%; font-size: clamp(2.6rem, 0.6rem + 9.6vw, 10rem); line-height: 0.92; }
+  .cta__l--3 {
+    position: relative;
+    width: max-content;
+    max-width: 100%;
+    font-stretch: 125%;
+    font-size: min(10.4vw, 12.5rem);
+    letter-spacing: -0.045em;
+    line-height: 0.9;
+  }
+  .cta__front { position: relative; }
+  .cta__z span {
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: transparent;
+    -webkit-text-stroke: 1px var(--on-axis);
+    opacity: calc(0.75 - var(--i) * 0.2);
+    transform: translate(calc(var(--i) * 0.06em), calc(var(--i) * -0.035em));
+  }
+
+  .cta__side { grid-column: 1 / -1; display: grid; gap: 22px; align-items: start; }
+  .cta__sub { font-size: clamp(1.625rem, 1rem + 2vw, 2.75rem); }
+  .cta__btn { width: 100%; min-height: 60px; }
+  .cta__channels { margin: 6px 0 0; display: grid; gap: 0; }
+  .cta__channels a {
+    display: grid;
+    grid-template-columns: 6.5rem 1fr auto;
+    align-items: baseline;
+    gap: 12px;
+    padding: 14px 0;
+    border-top: 1px solid rgb(242 239 232 / 0.35);
+    transition: padding var(--t2) var(--ease);
+  }
+  .cta__channels li:last-child a { border-bottom: 1px solid rgb(242 239 232 / 0.35); }
+  .cta__channels .t-micro { opacity: 0.92; }
+  .cta__val { font-family: var(--f-text); font-weight: 600; font-size: 1.0625rem; }
+  .cta__channels .arr { transition: transform var(--t2) var(--ease); }
+  .cta__channels a:hover .arr { transform: translateX(5px); }
+  .cta :global(:focus-visible) { outline-color: var(--on-axis); }
+
+  @media (min-width: 1024px) {
+    .cta__title { grid-column: 1 / 13; }
+    .cta__side {
+      grid-column: 1 / 13;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--g);
+      margin-top: clamp(16px, 3vw, 48px);
+    }
+    .cta__sub { grid-column: 1 / 5; }
+    .cta__btn { grid-column: 5 / 8; }
+    .cta__channels { grid-column: 9 / 13; margin: 0; }
+  }
+
+  /* brief -------------------------------------------------------------------------- */
+  .brief { padding-block: clamp(64px, 9vw, 140px); }
+  .brief__grid { row-gap: 40px; align-items: start; }
+  .brief__intro { grid-column: 1 / -1; display: grid; gap: 18px; align-content: start; }
+  .brief__origin { display: inline-flex; align-items: center; gap: 10px; color: var(--axis); }
+  .brief__origin i { width: 8px; height: 8px; border-radius: 50%; background: var(--axis); }
+  .brief__title {
+    margin: 0;
+    font-family: var(--f-display);
+    font-stretch: 75%;
+    font-weight: 800;
+    font-size: clamp(3rem, 1.4rem + 7vw, 7.5rem);
+    line-height: 0.9;
+    text-transform: uppercase;
+  }
+  .brief__lead { font-size: var(--fs-lead); line-height: 1.4; max-width: 34ch; }
+  .brief__steps { display: grid; gap: 0; margin: 6px 0 0; max-width: 40ch; }
+  .brief__steps li {
+    display: grid;
+    grid-template-columns: 2.4rem 1fr;
+    align-items: baseline;
+    padding: 10px 0;
+    border-top: 1px solid var(--line);
+    font-size: var(--fs-small);
+  }
+  .brief__steps li:last-child { border-bottom: 1px solid var(--line); }
+  .brief__steps .t-micro { color: var(--axis); }
+  .brief__how { font-size: var(--fs-small); max-width: 40ch; }
+  .brief__card { grid-column: 1 / -1; min-width: 0; }
+
+  @media (min-width: 1024px) {
+    .brief__intro { grid-column: 1 / 5; position: sticky; top: calc(var(--header-h) + 32px); }
+    .brief__card {
+      grid-column: 6 / 13;
+      padding: clamp(28px, 3vw, 48px);
+      background: var(--paper-2);
+      border: 1px solid var(--line);
+    }
+  }
+</style>

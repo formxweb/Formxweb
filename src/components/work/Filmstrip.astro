@@ -1,0 +1,125 @@
+---
+/* 03 — Filmstrip: one held frame, a contact strip beside it, a single hairline between. */
+import type { Project } from '../../data/projects';
+import Shot from '../Shot.astro';
+import ProjectMeta from './ProjectMeta.astro';
+import ProjectText from './ProjectText.astro';
+
+interface Props { project: Project }
+const { project: p } = Astro.props;
+const [hero, ...rest] = p.shots;
+const strip = rest.slice(0, 3);
+---
+
+<article
+  class:list={['pj film', p.theme.dark && 'on-dark']}
+  id={`p-${p.slug}`}
+  aria-labelledby={`p-${p.slug}-name`}
+  style={`--p-bg:${p.theme.bg};--p-fg:${p.theme.fg};--p-accent:${p.theme.accent};--p-accent-ink:${p.theme.accentInk ?? p.theme.accent}`}
+>
+  <div class="grid film__head">
+    <ProjectMeta project={p} class="film__meta" />
+    <p class="film__note t-micro" aria-hidden="true">Contact sheet · FR 01—04</p>
+  </div>
+
+  <div class="grid film__reel">
+    <h3 class="pj-name pj-name--y film__name" id={`p-${p.slug}-name`} lang={p.nameLang} data-reveal="mask">{p.name}</h3>
+    <a class="case-link film__main" href={`/work/${p.slug}/`} tabindex="-1" aria-hidden="true" data-reveal="z">
+      <Shot shot={hero} sizes="(min-width: 1024px) 72vw, 100vw" caption={`FR 01 — ${hero.caption}`} />
+    </a>
+    <span class="film__strait" aria-hidden="true"></span>
+    <ol class="film__strip" role="list">
+      {
+        strip.map((s, i) => (
+          <li data-reveal="y" style={`--d:${i + 1}`}>
+            <a class="case-link" href={`/work/${p.slug}/`} tabindex="-1" aria-hidden="true">
+              <Shot shot={s} sizes="(min-width: 1024px) 22vw, 50vw" caption={`FR 0${i + 2} — ${s.caption}`} />
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+
+  <div class="grid film__body">
+    <ProjectText project={p} class="film__text" />
+  </div>
+</article>
+
+<style>
+  .film__head { row-gap: 14px; align-items: end; }
+  .film :global(.film__meta) { grid-column: 1 / -1; }
+  .film__note { display: none; }
+  .film__name { grid-column: 1 / -1; font-size: 20vw; line-height: 0.86; }
+
+  .film__reel {
+    margin-top: clamp(28px, 4vw, 56px);
+    row-gap: 22px;
+    align-items: start;
+  }
+  .film__main { grid-column: 1 / -1; }
+  .film__strait { display: none; }
+  .film__strip {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px var(--g);
+    margin: 0;
+  }
+  .film__strip li:first-child { grid-column: 1 / -1; }
+
+  .film__body { margin-top: clamp(40px, 6vw, 88px); }
+  .film :global(.film__text) {
+    grid-column: 1 / -1;
+  }
+
+  @media (min-width: 1024px) {
+    .film :global(.film__meta) { grid-column: 1 / 9; }
+    .film__note { display: block; grid-column: 10 / 13; text-align: right; opacity: 0.8; }
+
+    .film__reel { position: relative; }
+    .film__name {
+      grid-column: 1 / 2;
+      grid-row: 1;
+      align-self: stretch;
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      font-size: clamp(4rem, 6.4vw, 7.6rem);
+      line-height: 0.82;
+      white-space: nowrap;
+      text-align: right;
+      justify-self: start;
+    }
+    .film__main { grid-column: 2 / 10; grid-row: 1; }
+    .film__strait {
+      display: block;
+      position: absolute;
+      top: -24px;
+      bottom: -24px;
+      left: calc(var(--m) + (100% - 2 * var(--m) + var(--g)) * 0.75 - var(--g) / 2);
+      width: 1px;
+      background: var(--p-accent);
+      opacity: 0.8;
+    }
+    .film__strip {
+      grid-column: 10 / 13;
+      grid-row: 1;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+    .film__strip li:first-child { grid-column: auto; }
+    .film__strip :global(.shot__cap) { font-size: 0.625rem; }
+
+    .film :global(.film__text) {
+      grid-column: 1 / 13;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      column-gap: var(--g);
+      row-gap: 0;
+      align-items: start;
+    }
+    .film :global(.film__text .ptext__tag) { grid-column: 1 / 5; grid-row: 1 / 4; }
+    .film :global(.film__text .ptext__sum) { grid-column: 5 / 9; }
+    .film :global(.film__text .ptext__meta) { grid-column: 9 / 13; grid-row: 1 / 3; margin: 0; }
+    .film :global(.film__text .ptext__link) { grid-column: 5 / 9; margin-top: 22px; }
+  }
+</style>

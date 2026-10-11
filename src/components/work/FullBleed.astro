@@ -1,0 +1,86 @@
+---
+/* 01 — Full-bleed: the night fills the screen, the name crosses into it. */
+import type { Project } from '../../data/projects';
+import Shot from '../Shot.astro';
+import ProjectMeta from './ProjectMeta.astro';
+import ProjectText from './ProjectText.astro';
+
+interface Props { project: Project }
+const { project: p } = Astro.props;
+const [hero, b, c] = p.shots;
+---
+
+<article
+  class:list={['pj fb', p.theme.dark && 'on-dark']}
+  id={`p-${p.slug}`}
+  aria-labelledby={`p-${p.slug}-name`}
+  style={`--p-bg:${p.theme.bg};--p-fg:${p.theme.fg};--p-accent:${p.theme.accent};--p-accent-ink:${p.theme.accentInk ?? p.theme.accent}`}
+>
+  <div class="grid fb__top">
+    <h3 class="pj-name pj-name--x fb__name" id={`p-${p.slug}-name`} lang={p.nameLang} data-reveal="mask">{p.name}</h3>
+    <ProjectMeta project={p} class="fb__meta" />
+  </div>
+
+  <a class="case-link fb__hero" href={`/work/${p.slug}/`} tabindex="-1" aria-hidden="true">
+    <Shot shot={hero} sizes="100vw" caption={false} bleed />
+  </a>
+  <p class="fb__cap t-micro wrap">{hero.caption}</p>
+
+  <div class="grid fb__body">
+    <ProjectText project={p} class="fb__text" />
+    <div class="fb__pair">
+      <a class="case-link fb__b" href={`/work/${p.slug}/`} tabindex="-1" aria-hidden="true" data-reveal="y">
+        <Shot shot={b} sizes="(min-width: 1024px) 40vw, 100vw" />
+      </a>
+      <a class="case-link fb__c" href={`/work/${p.slug}/`} tabindex="-1" aria-hidden="true" data-reveal="y" style="--d:2">
+        <Shot shot={c} sizes="(min-width: 1024px) 40vw, 100vw" />
+      </a>
+    </div>
+  </div>
+</article>
+
+<style>
+  .fb__top { align-items: end; row-gap: 14px; padding-bottom: clamp(24px, 3vw, 44px); }
+  .fb :global(.fb__meta) { grid-column: 1 / -1; }
+  .fb__name {
+    grid-column: 1 / -1;
+    font-size: 15vw;
+    font-stretch: 75%;
+    letter-spacing: -0.01em;
+    line-height: 0.92;
+  }
+  .fb__hero { position: relative; }
+  .fb__hero :global(.shot__frame) { background: transparent; }
+  .fb__cap { padding-top: 12px; opacity: 0.8; }
+
+  .fb__body {
+    margin-top: clamp(40px, 6vw, 96px);
+    row-gap: 48px;
+  }
+  .fb :global(.fb__text) { grid-column: 1 / -1; }
+  .fb__pair {
+    grid-column: 1 / -1;
+    display: grid;
+    gap: 28px;
+  }
+
+  @media (min-width: 1024px) {
+    .fb__name {
+      grid-column: 1 / 9;
+      font-size: min(6.6vw, 7.5rem);
+      font-stretch: 125%;
+      letter-spacing: -0.04em;
+      line-height: 0.86;
+    }
+    .fb :global(.fb__meta) { grid-column: 9 / 13; justify-content: flex-end; padding-bottom: 0.4em; }
+    .fb :global(.fb__text) { grid-column: 1 / 5; position: sticky; top: calc(var(--header-h) + 32px); align-self: start; }
+    .fb__pair {
+      grid-column: 6 / 13;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      column-gap: var(--g);
+      row-gap: 0;
+    }
+    .fb__b { grid-column: 1 / 6; }
+    .fb__c { grid-column: 3 / 8; margin-top: 2.5vw; }
+  }
+</style>

@@ -1,0 +1,25 @@
+---
+/** Recurring act header: act number, Turkish title, English art name, axis note, index. */
+interface Props {
+  act: string;
+  title: string;
+  en?: string;
+  axis?: string;
+  end?: string;
+  class?: string;
+}
+const { act, title, en, axis, end, class: cls = '' } = Astro.props;
+---
+
+<div class:list={['rail t-micro', cls]} data-reveal="line">
+  <span class="rail__act">{act}</span>
+  <span class="rail__title">{title}{en && <span class="rail__en" lang="en"> / {en}</span>}</span>
+  {axis && <span class="rail__axis">{axis}</span>}
+  {end && <span class="rail__end">{end}</span>}
+</div>
+
+<style>
+  .rail__act { color: var(--axis); }
+  .rail__en { opacity: 0.8; }
+  :global(.on-dark) .rail__act { color: var(--p-accent-ink, var(--axis-light)); }
+</style>

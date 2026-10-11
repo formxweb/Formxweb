@@ -1,0 +1,467 @@
+---
+/**
+ * Project brief. Two honest delivery modes:
+ *  - endpoint: POSTs to the configured form service; success is shown only after a 2xx
+ *    answer that does not report failure. Without JavaScript the browser posts directly
+ *    and the service redirects to /tesekkurler/.
+ *  - whatsapp: writes the brief into a WhatsApp message the visitor sends themselves.
+ * Prefill: /teklif/?tur=E-ticaret&ref=motorcu-chopper
+ */
+import { site } from '../data/site';
+import { formTypes, services } from '../data/services';
+import { projects } from '../data/projects';
+
+const endpoint = site.form.endpoint;
+const mode = endpoint ? 'endpoint' : 'whatsapp';
+const timing = ['1 ay içinde', '1–3 ay', '3 ay sonra', 'Esnek'];
+const reply = ['WhatsApp', 'Telefon', 'E-posta'];
+const refs = Object.fromEntries(projects.map((p) => [p.slug, p.name]));
+const serviceNames = Object.fromEntries(services.map((s) => [s.slug, s.tr]));
+const thanks = new URL('/tesekkurler/', Astro.site).href;
+---
+
+<form
+  class="bf"
+  data-brief
+  data-mode={mode}
+  data-endpoint={endpoint || undefined}
+  data-key={site.form.accessKey || undefined}
+  data-wa={site.contact.whatsapp}
+  data-refs={JSON.stringify(refs)}
+  data-services={JSON.stringify(serviceNames)}
+  method={endpoint ? 'post' : undefined}
+  action={endpoint || undefined}
+  novalidate
+>
+  {endpoint && <input type="hidden" name="_next" value={thanks} />}
+  {endpoint && <input type="hidden" name="redirect" value={thanks} />}
+  {site.form.accessKey && <input type="hidden" name="access_key" value={site.form.accessKey} />}
+  <input type="hidden" name="kaynak" value="" data-source />
+  <input type="hidden" name="referans" value="" data-ref-input />
+
+  <p class="bf__ref t-micro" data-ref hidden></p>
+
+  <fieldset class="bf__set">
+    <legend class="bf__legend">Ne tür bir proje? <span class="req" aria-hidden="true">*</span><span class="sr-only"> (zorunlu)</span></legend>
+    <div class="chips">
+      {
+        formTypes.map((t) => (
+          <label class="chip">
+            <input type="radio" name="tur" value={t} />
+            <span>{t}</span>
+          </label>
+        ))
+      }
+    </div>
+  </fieldset>
+
+  <fieldset class="bf__set">
+    <legend class="bf__legend">Ne zaman yayında olsun?</legend>
+    <div class="chips">
+      {
+        timing.map((t) => (
+          <label class="chip">
+            <input type="radio" name="zaman" value={t} />
+            <span>{t}</span>
+          </label>
+        ))
+      }
+    </div>
+  </fieldset>
+
+  <div class="bf__fields">
+    <div class="field">
+      <label for="f-ad">Ad soyad <span class="req" aria-hidden="true">*</span><span class="sr-only"> (zorunlu)</span></label>
+      <input id="f-ad" name="ad" type="text" autocomplete="name" required maxlength="80" />
+    </div>
+    <div class="field">
+      <label for="f-marka">İşletme / marka</label>
+      <input id="f-marka" name="marka" type="text" autocomplete="organization" maxlength="100" />
+    </div>
+    <div class="field">
+      <label for="f-iletisim">Telefon veya e-posta <span class="req" aria-hidden="true">*</span><span class="sr-only"> (zorunlu)</span></label>
+      <input id="f-iletisim" name="iletisim" type="text" inputmode="email" autocomplete="email" required maxlength="120" aria-describedby="f-iletisim-hint" />
+      <span class="field__hint t-micro" id="f-iletisim-hint">Size buradan döneceğiz.</span>
+    </div>
+    <fieldset class="field bf__reply">
+      <legend>Size nasıl dönelim?</legend>
+      <div class="chips chips--sm">
+        {
+          reply.map((t) => (
+            <label class="chip">
+              <input type="radio" name="donus" value={t} />
+              <span>{t}</span>
+            </label>
+          ))
+        }
+      </div>
+    </fieldset>
+    <div class="field">
+      <label for="f-site">Mevcut site veya Instagram</label>
+      <input id="f-site" name="mevcut" type="text" maxlength="200" placeholder="ornek.com ya da @hesap" />
+    </div>
+    <div class="field">
+      <label for="f-butce">Aklınızdaki bütçe</label>
+      <input id="f-butce" name="butce" type="text" maxlength="80" aria-describedby="f-butce-hint" />
+      <span class="field__hint t-micro" id="f-butce-hint">İsteğe bağlı. Bilmiyorsanız boş bırakın.</span>
+    </div>
+    <div class="field field--wide">
+      <label for="f-mesaj">Kısaca projeniz</label>
+      <textarea id="f-mesaj" name="mesaj" rows="4" maxlength="2000" placeholder="Ne satıyorsunuz, kime satıyorsunuz, sitenin ne yapmasını istiyorsunuz?"></textarea>
+    </div>
+    <div class="hp" aria-hidden="true">
+      <label for="f-hp">Bu alanı boş bırakın</label>
+      <input id="f-hp" name="_gotcha" type="text" tabindex="-1" autocomplete="off" />
+    </div>
+  </div>
+
+  <p class="bf__kvkk">
+    Bilgileriniz yalnızca talebinizi yanıtlamak ve teklif hazırlamak için,
+    <a href="/kvkk/">KVKK Aydınlatma Metni</a>’nde açıklandığı şekilde işlenir.
+    {mode === 'whatsapp' && ' Gönder dediğinizde mesaj WhatsApp’ta açılır; WhatsApp’ın kendi gizlilik koşulları geçerlidir.'}
+  </p>
+
+  <noscript>
+    <p class="bf__noscript">
+      {
+        mode === 'whatsapp'
+          ? 'Tarayıcınızda JavaScript kapalı olduğu için form çalışmıyor. Bize WhatsApp’tan ya da telefonla ulaşabilirsiniz: '
+          : 'JavaScript kapalı: form doğrudan gönderilir ve bir onay sayfasına yönlendirilirsiniz. İsterseniz WhatsApp’tan da ulaşabilirsiniz: '
+      }
+      <a href={`https://wa.me/${site.contact.whatsapp}`}>WhatsApp</a> · <a href={`tel:${site.contact.phoneHref}`}>{site.contact.phoneDisplay}</a>
+    </p>
+  </noscript>
+
+  <div class="bf__submit">
+    <button class="btn btn--axis" type="submit" data-submit>
+      <span data-label>{mode === 'whatsapp' ? 'WhatsApp ile gönder' : 'Talebi gönder'}</span>
+      <span class="arr arr-x" aria-hidden="true">→</span>
+    </button>
+    <p class="bf__how t-micro t-mute">
+      {mode === 'whatsapp' ? 'Mesaj, WhatsApp’ta siz gönder tuşuna bastığınızda bize ulaşır.' : 'Gönderim başarılı olursa ekranda onay görürsünüz.'}
+    </p>
+  </div>
+
+  <div class="bf__status" role="status" aria-live="polite" tabindex="-1" data-status hidden></div>
+</form>
+
+<template id="bf-next">
+  <ol class="bf__next" role="list">
+    <li><span class="t-micro">01</span> Talebinizi okuyoruz.</li>
+    <li><span class="t-micro">02</span> Yazdığınız kanaldan size dönüyoruz.</li>
+    <li><span class="t-micro">03</span> Kısa bir görüşmede işletmenizi ve hedefinizi konuşuyoruz.</li>
+    <li><span class="t-micro">04</span> Kapsam, takvim ve ödeme planıyla yazılı teklif gönderiyoruz.</li>
+  </ol>
+</template>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-brief]');
+
+  if (form) {
+    const status = form.querySelector<HTMLElement>('[data-status]')!;
+    const submit = form.querySelector<HTMLButtonElement>('[data-submit]')!;
+    const label = submit.querySelector<HTMLElement>('[data-label]')!;
+    const endpoint = form.dataset.endpoint ?? '';
+    const wa = form.dataset.wa ?? '';
+    const refs: Record<string, string> = JSON.parse(form.dataset.refs ?? '{}');
+    const serviceNames: Record<string, string> = JSON.parse(form.dataset.services ?? '{}');
+    const idle = label.textContent ?? '';
+    const next = document.querySelector<HTMLTemplateElement>('#bf-next');
+
+    const value = (name: string) => String(new FormData(form).get(name) ?? '').trim();
+    const esc = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+
+    /* Prefill from the URL ---------------------------------------------------- */
+    const params = new URLSearchParams(location.search);
+    const wanted = params.get('tur') ?? serviceNames[params.get('hizmet') ?? ''] ?? '';
+    if (wanted) {
+      const radio = [...form.querySelectorAll<HTMLInputElement>('input[name="tur"]')].find((r) => r.value === wanted);
+      if (radio) radio.checked = true;
+    }
+    const refSlug = params.get('ref') ?? '';
+    const refName = refs[refSlug];
+    const refInput = form.querySelector<HTMLInputElement>('[data-ref-input]')!;
+    if (refName) {
+      refInput.value = `${refName} vaka çalışması`;
+      const note = form.querySelector<HTMLElement>('[data-ref]')!;
+      note.textContent = `Referans: ${refName} vaka çalışması`;
+      note.hidden = false;
+    }
+    form.querySelector<HTMLInputElement>('[data-source]')!.value = location.pathname;
+
+    /* Brief text --------------------------------------------------------------- */
+    const compose = () => {
+      const lines = ['Merhaba VERYAXZ, yeni bir proje için yazıyorum.', '', `Proje türü: ${value('tur')}`];
+      if (value('zaman')) lines.push(`Yayın zamanı: ${value('zaman')}`);
+      lines.push(`Ad soyad: ${value('ad')}`);
+      if (value('marka')) lines.push(`İşletme / marka: ${value('marka')}`);
+      lines.push(`İletişim: ${value('iletisim')}`);
+      if (value('donus')) lines.push(`Dönüş tercihi: ${value('donus')}`);
+      if (value('mevcut')) lines.push(`Mevcut site / Instagram: ${value('mevcut')}`);
+      if (value('butce')) lines.push(`Bütçe: ${value('butce')}`);
+      if (refInput.value) lines.push(`Referans: ${refInput.value}`);
+      if (value('mesaj')) lines.push('', value('mesaj'));
+      return lines.join('\n');
+    };
+
+    const waLink = (text: string) => `https://wa.me/${wa}?text=${encodeURIComponent(text)}`;
+
+    const show = (html: string, tone: 'ok' | 'info' | 'error', withNext = false) => {
+      status.hidden = false;
+      status.dataset.tone = tone;
+      status.innerHTML = html;
+      if (withNext && next) status.append(next.content.cloneNode(true));
+      status.focus({ preventScroll: true });
+      status.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    };
+
+    const copyButton = (text: string) => {
+      if (!navigator.clipboard) return '';
+      return `<button type="button" class="bf__copy" data-copy-text="${esc(text)}">Mesaj metnini kopyala</button>`;
+    };
+    status.addEventListener('click', async (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-copy-text]');
+      if (!btn) return;
+      try {
+        await navigator.clipboard.writeText(btn.dataset.copyText ?? '');
+        btn.textContent = 'Kopyalandı';
+      } catch {
+        btn.textContent = 'Kopyalanamadı';
+      }
+    });
+
+    /* Validation --------------------------------------------------------------- */
+    const setError = (input: HTMLInputElement | null, message: string) => {
+      if (!input) return;
+      const field = input.closest('.field, .bf__set');
+      field?.setAttribute('data-invalid', '');
+      const id = `${input.name}-err`;
+      let err = field?.querySelector<HTMLElement>('.field__err');
+      if (field && !err) {
+        err = document.createElement('span');
+        err.className = 'field__err t-micro';
+        err.id = id;
+        field.append(err);
+      }
+      if (err) err.textContent = message;
+      input.setAttribute('aria-invalid', 'true');
+      const ids = (input.getAttribute('aria-describedby') ?? '').split(' ').filter(Boolean);
+      if (!ids.includes(id)) input.setAttribute('aria-describedby', [...ids, id].join(' '));
+    };
+
+    const clearError = (field: Element) => {
+      field.removeAttribute('data-invalid');
+      field.querySelector('.field__err')?.remove();
+      field.querySelectorAll('[aria-invalid]').forEach((el) => {
+        el.removeAttribute('aria-invalid');
+        const ids = (el.getAttribute('aria-describedby') ?? '').split(' ').filter((id) => id && !id.endsWith('-err'));
+        if (ids.length) el.setAttribute('aria-describedby', ids.join(' '));
+        else el.removeAttribute('aria-describedby');
+      });
+    };
+
+    const validate = () => {
+      form.querySelectorAll('[data-invalid]').forEach(clearError);
+      let first: HTMLInputElement | null = null;
+      const fail = (input: HTMLInputElement | null, msg: string) => {
+        setError(input, msg);
+        first ??= input;
+      };
+      if (!value('tur')) fail(form.querySelector<HTMLInputElement>('input[name="tur"]'), 'Bir proje türü seçin.');
+      if (value('ad').length < 2) fail(form.querySelector<HTMLInputElement>('#f-ad'), 'Adınızı yazın.');
+      const contact = value('iletisim');
+      const isMail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(contact);
+      const isPhone = contact.replace(/\D/g, '').length >= 10;
+      if (!isMail && !isPhone) fail(form.querySelector<HTMLInputElement>('#f-iletisim'), 'Geçerli bir telefon numarası ya da e-posta yazın.');
+      (first as HTMLInputElement | null)?.focus();
+      return !first;
+    };
+
+    form.addEventListener('input', (e) => {
+      const field = (e.target as HTMLElement).closest('[data-invalid]');
+      if (field) clearError(field);
+    });
+
+    /* Submit ------------------------------------------------------------------- */
+    const track = (name: string) => window.plausible?.(name, { props: { yer: location.pathname } });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      status.hidden = true;
+      if (!validate()) return;
+      if (value('_gotcha')) return; // honeypot: bots fill every field
+
+      const text = compose();
+
+      if (!endpoint) {
+        const url = waLink(text);
+        const win = window.open(url, '_blank', 'noopener');
+        track('Form WhatsApp');
+        show(
+          `<p><strong>Mesajınız WhatsApp’ta hazır.</strong> Bize ulaşması için WhatsApp’ta <strong>gönder</strong> tuşuna basmanız gerekiyor.</p>
+           <p>${win === null ? 'Pencere açılmadıysa ' : 'Açılmadıysa '}<a href="${url}" target="_blank" rel="noopener">mesajı WhatsApp’ta açın</a>. WhatsApp kullanmıyorsanız metni kopyalayıp e-posta ya da SMS ile de gönderebilirsiniz. ${copyButton(text)}</p>`,
+          'info',
+        );
+        return;
+      }
+
+      submit.disabled = true;
+      submit.setAttribute('aria-busy', 'true');
+      label.textContent = 'Gönderiliyor…';
+      const controller = new AbortController();
+      const timer = window.setTimeout(() => controller.abort(), 15000);
+      try {
+        const data = new FormData(form);
+        data.delete('_gotcha');
+        data.delete('_next');
+        data.delete('redirect');
+        data.set('mesaj_ozeti', text);
+        data.set('subject', `Yeni proje talebi — ${value('ad')}${value('marka') ? ` / ${value('marka')}` : ''}`);
+        if (isMailLike(value('iletisim'))) data.set('email', value('iletisim'));
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          body: data,
+          headers: { Accept: 'application/json' },
+          signal: controller.signal,
+        });
+        let body: { ok?: boolean; success?: boolean } = {};
+        try {
+          body = await res.clone().json();
+        } catch {
+          /* not JSON: rely on the status code */
+        }
+        if (!res.ok || body.ok === false || body.success === false) throw new Error(String(res.status));
+        form.reset();
+        refInput.value = refName ? `${refName} vaka çalışması` : '';
+        track('Form gönderildi');
+        show('<p><strong>Talebiniz bize ulaştı.</strong> Teşekkürler. Bundan sonrası şöyle ilerliyor:</p>', 'ok', true);
+      } catch {
+        show(
+          `<p><strong>Form şu anda gönderilemedi.</strong> Yazdıklarınız kaybolmadı. Aynı mesajı <a href="${waLink(text)}" target="_blank" rel="noopener">WhatsApp ile gönderebilir</a> ya da bir süre sonra yeniden deneyebilirsiniz. ${copyButton(text)}</p>`,
+          'error',
+        );
+      } finally {
+        window.clearTimeout(timer);
+        submit.disabled = false;
+        submit.removeAttribute('aria-busy');
+        label.textContent = idle;
+      }
+    });
+
+    function isMailLike(s: string) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(s);
+    }
+  }
+</script>
+
+<style>
+  .bf { display: grid; gap: 30px; }
+  .bf__ref {
+    justify-self: start;
+    padding: 8px 12px;
+    background: var(--paper-2);
+    border-left: 2px solid var(--axis);
+  }
+  .bf__set { margin: 0; padding: 0; border: 0; min-width: 0; }
+  .bf__legend,
+  .field > label,
+  .field > legend {
+    display: block;
+    margin-bottom: 12px;
+    padding: 0;
+    font-family: var(--f-mono);
+    font-size: var(--fs-micro);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .req { color: var(--axis); }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { position: relative; display: inline-flex; }
+  .chip input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+  .chip span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 16px;
+    border: 1px solid var(--line-2);
+    font-family: var(--f-display);
+    font-stretch: 112%;
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: background-color var(--t1) linear, color var(--t1) linear, border-color var(--t1) linear;
+  }
+  .chips--sm .chip span { min-height: 44px; padding: 0 14px; font-size: 0.8125rem; }
+  .chip:hover span { border-color: var(--ink); }
+  .chip input:checked + span { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .chip input:focus-visible + span { outline: 2px solid var(--axis); outline-offset: 2px; }
+
+  .bf__fields { display: grid; gap: 24px var(--g); }
+  .field { display: grid; align-content: start; min-width: 0; margin: 0; padding: 0; border: 0; }
+  .field input,
+  .field textarea {
+    width: 100%;
+    min-height: 52px;
+    padding: 12px 0;
+    border: 0;
+    border-bottom: 1px solid var(--line-2);
+    border-radius: 0;
+    background: transparent;
+    font-size: 1.125rem;
+    transition: border-color var(--t1) linear;
+  }
+  .field textarea { resize: vertical; min-height: 120px; line-height: 1.5; }
+  .field input::placeholder,
+  .field textarea::placeholder { color: var(--mute); opacity: 0.8; }
+  .field input:focus,
+  .field textarea:focus { outline: none; border-bottom: 2px solid var(--axis); padding-bottom: 11px; }
+  .field__hint { margin-top: 8px; color: var(--mute); }
+  :global(.field__err) { display: block; margin-top: 8px; color: #a8231b; }
+  .field[data-invalid] input { border-bottom-color: #a8231b; }
+  .bf__set[data-invalid] .chip span { border-color: #a8231b; }
+
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+  .bf__kvkk { font-size: var(--fs-small); color: var(--mute); max-width: 60ch; }
+  .bf__kvkk a, .bf__noscript a { text-decoration: underline; text-underline-offset: 3px; color: var(--ink); }
+  .bf__noscript { padding: 14px 16px; border-left: 3px solid var(--axis); background: var(--paper-2); font-size: var(--fs-small); }
+
+  .bf__submit { display: grid; gap: 12px; justify-items: start; }
+  .bf__submit .btn { min-width: min(100%, 320px); min-height: 60px; }
+  .bf__submit .btn:disabled { opacity: 0.6; cursor: progress; }
+
+  .bf__status {
+    display: grid;
+    gap: 12px;
+    padding: 18px 20px;
+    border-left: 3px solid var(--axis);
+    background: var(--paper-2);
+    font-size: var(--fs-small);
+    line-height: 1.55;
+  }
+  .bf__status:focus { outline: none; }
+  .bf__status[hidden], .bf__ref[hidden] { display: none; }
+  .bf__status[data-tone='ok'] { border-left-color: #1f7a4d; }
+  .bf__status[data-tone='error'] { border-left-color: #a8231b; }
+  .bf__status :global(a) { text-decoration: underline; text-underline-offset: 3px; }
+  .bf__status :global(.bf__copy) {
+    display: inline-flex;
+    margin-top: 8px;
+    min-height: 40px;
+    padding: 0 14px;
+    border: 1px solid var(--line-2);
+    background: var(--paper);
+    font-family: var(--f-mono);
+    font-size: var(--fs-micro);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    align-items: center;
+  }
+  .bf__status :global(.bf__next) { display: grid; gap: 8px; margin: 4px 0 0; padding: 0; list-style: none; }
+  .bf__status :global(.bf__next li) { display: grid; grid-template-columns: 2rem 1fr; align-items: baseline; }
+  .bf__status :global(.bf__next .t-micro) { color: var(--axis); }
+
+  @media (min-width: 640px) {
+    .bf__fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .field--wide { grid-column: 1 / -1; }
+  }
+</style>
