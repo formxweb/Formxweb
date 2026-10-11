@@ -1,0 +1,78 @@
+---
+/** End-of-page call to action for inner pages. */
+import { site, whatsappHello, whatsappUrl } from '../../data/site';
+
+interface Props {
+  title?: string;
+  text?: string;
+  /** Quote form link, e.g. /teklif/?tur=E-ticaret */
+  href?: string;
+  whatsapp?: string;
+  place?: string;
+}
+const {
+  title = 'Bir sonraki dijital projenizi birlikte tasarlayalım.',
+  text = 'Birkaç soru, iki dakika. Ne yaptığınızı ve neye ihtiyacınız olduğunu anlatın; size projenize özel bir yol haritası ve teklifle dönelim.',
+  href = '/teklif/',
+  whatsapp = whatsappHello,
+  place = 'cta-band',
+} = Astro.props;
+---
+
+<section class="band on-dark" aria-labelledby="band-title" data-abar-hide>
+  <div class="grid band__grid">
+    <p class="t-micro band__origin"><i aria-hidden="true"></i>0,0,0 <span lang="en">— Let’s build</span></p>
+    <h2 class="band__title" id="band-title" data-reveal="y">{title}</h2>
+    <p class="band__text" data-reveal="y" style="--d:1">{text}</p>
+    <div class="band__actions" data-reveal="y" style="--d:2">
+      <a class="btn btn--paper" href={href} data-event="Teklif" data-event-place={place}>
+        Proje başlat <span class="arr arr-x" aria-hidden="true">→</span>
+      </a>
+      <a class="band__wa" href={whatsappUrl(whatsapp)} target="_blank" rel="noopener" data-event="WhatsApp" data-event-place={place}>
+        <span class="t-micro">WhatsApp</span>
+        <span class="band__num">{site.contact.phoneDisplay}</span>
+        <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .band {
+    background: var(--axis);
+    color: var(--on-axis);
+    padding-block: clamp(64px, 9vw, 140px);
+  }
+  .band :global(:focus-visible) { outline-color: var(--on-axis); }
+  .band__grid { row-gap: 22px; align-items: end; }
+  .band__origin { grid-column: 1 / -1; display: inline-flex; align-items: center; gap: 10px; }
+  .band__origin i { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+  .band__title {
+    grid-column: 1 / -1;
+    max-width: 18ch;
+    font-family: var(--f-display);
+    font-stretch: 112%;
+    font-weight: 800;
+    font-size: clamp(2rem, 1rem + 4.2vw, 5rem);
+    letter-spacing: -0.035em;
+    line-height: 0.98;
+  }
+  .band__text { grid-column: 1 / -1; max-width: 46ch; font-size: var(--fs-lead); line-height: 1.4; }
+  .band__actions { grid-column: 1 / -1; display: grid; gap: 14px; margin-top: 10px; }
+  .band__actions .btn { min-height: 60px; }
+  .band__wa {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: baseline;
+    gap: 14px;
+    padding: 14px 0;
+    border-top: 1px solid rgb(242 239 232 / 0.4);
+    border-bottom: 1px solid rgb(242 239 232 / 0.4);
+  }
+  .band__num { font-weight: 600; font-size: 1.0625rem; font-variant-numeric: tabular-nums; }
+  @media (min-width: 1024px) {
+    .band__title { grid-column: 1 / 9; }
+    .band__text { grid-column: 1 / 7; }
+    .band__actions { grid-column: 9 / 13; grid-row: 2 / 4; align-self: end; }
+  }
+</style>

@@ -1,30 +1,11 @@
 ---
 import Rail from './Rail.astro';
+import { axes, principles, steps } from '../data/process';
 
-const axes = [
-  { k: 'X', name: 'Strateji', text: 'Kime, ne için, hangi eylemle? Hedef, kitle ve dönüşüm.' },
-  { k: 'Y', name: 'Tasarım', text: 'Kimlik, tipografi, kompozisyon ve hareket.' },
-  { k: 'Z', name: 'Geliştirme', text: 'Hız, erişilebilirlik, arama motorları ve güvenilir altyapı.' },
-];
-
-const steps = [
-  { t: 'Dinlemek', d: 'İşletmenizi, müşterinizi ve hedefinizi anlıyoruz. Logo, fotoğraf, menü, Instagram: elinizdeki malzemeyi topluyoruz.' },
-  { t: 'Üç yön', d: 'Tipografi, renk, kompozisyon ve hareket bakımından birbirinden gerçekten farklı üç yaklaşım. En güçlüsünü birlikte seçiyoruz.' },
-  { t: 'Sistem', d: 'Tipografi, grid, renk ve hareket kuralları. Site büyüdükçe bozulmayan, markaya ait bir dil.' },
-  { t: 'İnşa', d: 'Üretim kalitesinde kod: hızlı, mobilde kusursuz, erişilebilir ve arama motorlarına hazır.' },
-  { t: 'Yayın', d: 'Alan adı ve barındırma kurulumu, son kontroller ve içeriği nasıl güncelleyeceğinizi anlatan bir teslim.' },
-];
-
-const principles = [
-  { t: 'Uydurma bilgi yok.', d: 'Fiyat, saat, adres ve menü markanın kendi kaynağından gelir. Doğrulanamayan bilgi yayına girmez.' },
-  { t: 'Konsept markanın içinden çıkar.', d: 'CUPISTAN’da KAP hecesi, La Joie’de logodaki altın nokta, Marmara Blue’da markanın kendi filmi.' },
-  { t: 'Gerçek kanallar.', d: 'Rezervasyon, sipariş ve teklif akışları WhatsApp’a ve gerçek ödeme altyapılarına bağlanır. Sahte onay ekranı yok.' },
-  { t: 'Herkes için.', d: 'Klavyeyle gezinme, ekran okuyucu desteği ve hareket azaltma tercihine saygı. Her projede.' },
-];
 ---
 
-<section class="ap" id="approach" data-act="IV" data-act-name="Approach" aria-labelledby="ap-title">
-  <Rail act="Act IV" title="Approach" axis="X · Y · Z — tek bir nokta" end="05 adım" />
+<section class="ap" id="approach" data-act="IV" data-act-name="Yaklaşım" aria-labelledby="ap-title">
+  <Rail act="Bölüm IV" title="Yaklaşım" en="Approach" axis="X · Y · Z — tek bir nokta" end="05 adım" />
 
   <div class="grid ap__head">
     <h2 class="ap__title" id="ap-title" lang="en" data-reveal="mask">
@@ -91,7 +72,7 @@ const principles = [
 
   <div class="ap__process">
     <div class="grid ap__process-head">
-      <h3 class="t-micro ap__sub"><span lang="en">Process</span> — çalışma biçimi</h3>
+      <h3 class="t-micro ap__sub">Süreç — her adımın sonunda sizin onayınız var</h3>
     </div>
     <ol class="ap__steps wrap" role="list">
       {
@@ -100,6 +81,7 @@ const principles = [
             <span class="t-micro ap__sn">0{i + 1}</span>
             <h4 class="ap__st">{s.t}</h4>
             <p class="ap__sd">{s.d}</p>
+            <p class="ap__you t-micro"><span>Sizden</span> {s.you}</p>
           </li>
         ))
       }
@@ -107,7 +89,7 @@ const principles = [
   </div>
 
   <div class="grid ap__principles">
-    <h3 class="t-micro ap__sub ap__psub"><span lang="en">Principles</span> — her projede</h3>
+    <h3 class="t-micro ap__sub ap__psub">İlkeler — her projede</h3>
     <ul class="ap__plist" role="list">
       {
         principles.map((p, i) => (
@@ -283,4 +265,7 @@ const principles = [
     .ap__plist { grid-column: 4 / 13; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--g); }
     .ap__plist li { padding: 22px 0 28px; }
   }
+  .ap__you { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--line-2); color: var(--ink-2); font-family: var(--f-text); font-size: 0.8125rem; text-transform: none; letter-spacing: 0; line-height: 1.5; }
+  .ap__you span { font-family: var(--f-mono); font-size: var(--fs-micro); }
+  .ap__you span { display: block; color: var(--axis); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px; }
 </style>

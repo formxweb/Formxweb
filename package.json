@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro check && astro build",
-    "build:fast": "astro build",
+    "build:local": "ALLOW_LOCAL_SITE=1 astro check && ALLOW_LOCAL_SITE=1 astro build",
     "preview": "astro preview",
     "check": "astro check"
   },
@@ -21,5 +21,14 @@
     "@astrojs/check": "^0.9.10",
     "@types/node": "^22.20.5",
     "typescript": "^6.0.3"
-  }
+  },
+  "engines": {
+    "node": ">=22.12"
+  },
+  "browserslist": [
+    "safari >= 15",
+    "ios_saf >= 15",
+    "chrome >= 100",
+    "firefox >= 100"
+  ]
 }

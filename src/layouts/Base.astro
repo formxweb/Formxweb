@@ -13,28 +13,47 @@ import monoExt from '@fontsource/fragment-mono/files/fragment-mono-latin-ext-400
 
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { site } from '../data/site';
+import ActionBar from '../components/ActionBar.astro';
+import { brand, missingLegalFields, site } from '../data/site';
+import { breadcrumbNode, pageNode, studioNode, websiteNode, type Node } from '../lib/schema';
 
 interface Props {
+  /** Page title; " — VERYAXZ STUDIO" is appended. Omit on the home page. */
   title?: string;
   description?: string;
+  /** Root-relative or absolute image for Open Graph (1200 × 630). */
   image?: string;
   imageAlt?: string;
   type?: 'website' | 'article';
-  jsonLd?: Record<string, unknown>[];
+  /** schema.org type of the page node (WebPage, AboutPage, FAQPage, CollectionPage, ContactPage…). */
+  pageType?: string;
+  /** Extra JSON-LD nodes for this page's @graph. */
+  jsonLd?: Node[];
+  /** Breadcrumb trail after "Ana sayfa". */
+  breadcrumbs?: { name: string; path: string }[];
   headerTone?: 'light' | 'dark';
   act?: { no: string; name: string };
+  /** Colour of the browser chrome on mobile. */
+  themeColor?: string;
+  noindex?: boolean;
+  /** Hide the mobile action bar (e.g. on the quote page, which is the action). */
+  actionBar?: boolean;
 }
 
 const {
   title,
   description = site.description,
   image = '/og.jpg',
-  imageAlt = 'VERYAXZ STUDIO — Your brand. A different presence.',
+  imageAlt = 'VERYAXZ STUDIO — Your brand. A different presence. Web tasarım ve geliştirme stüdyosu.',
   type = 'website',
+  pageType = 'WebPage',
   jsonLd = [],
+  breadcrumbs = [],
   headerTone = 'light',
   act,
+  themeColor = '#e8e4da',
+  noindex = false,
+  actionBar = true,
 } = Astro.props;
 
 const LATIN =
@@ -54,22 +73,38 @@ const fontCss = [
   face('Fragment Mono', monoExt, LATIN_EXT, 'font-weight:400;font-style:normal'),
 ].join('');
 
-const fullTitle = title ? `${title} — ${site.name}®` : `${site.name}® — Your brand. A different presence.`;
-const canonical = new URL(Astro.url.pathname, Astro.site).href;
+const path = Astro.url.pathname;
+const isHome = path === '/';
+const fullTitle = title ? `${title} — ${brand}` : `${brand} — Web Tasarım ve Geliştirme Stüdyosu`;
+const canonical = new URL(path, Astro.site).href;
 const ogImage = new URL(image, Astro.site).href;
 
-const organization = {
-  '@context': 'https://schema.org',
-  '@type': 'ProfessionalService',
-  '@id': new URL('/#studio', Astro.site).href,
-  name: site.name,
-  url: new URL('/', Astro.site).href,
-  description: site.description,
-  telephone: site.contact.phoneHref,
-  sameAs: [site.contact.instagram],
-  knowsAbout: ['Web tasarımı', 'Web geliştirme', 'E-ticaret', 'Landing page', 'Web sitesi yeniden tasarımı', 'Sanat yönetimi'],
-  image: ogImage,
-};
+const page = pageNode(Astro.site, path, fullTitle, description, ogImage);
+page['@type'] = pageType;
+const graph: Node[] = [studioNode(Astro.site), websiteNode(Astro.site), page];
+if (!isHome && breadcrumbs.length) {
+  const trail = breadcrumbNode(Astro.site, path, [{ name: 'Ana sayfa', path: '/' }, ...breadcrumbs]);
+  page.breadcrumb = { '@id': trail['@id'] };
+  graph.push(trail);
+}
+graph.push(...jsonLd);
+const ld = JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }).replace(/</g, '\\u003c');
+
+const env = import.meta.env;
+const verifyGoogle = env.PUBLIC_GOOGLE_SITE_VERIFICATION ?? '';
+const verifyYandex = env.PUBLIC_YANDEX_VERIFICATION ?? '';
+const analytics = site.analytics.domain && !noindex ? site.analytics : null;
+
+if (import.meta.env.PROD && isHome) {
+  const missing = missingLegalFields();
+  if (missing.length) {
+    console.warn(`\n[VERYAXZ] Künye alanları boş: ${missing.join(', ')}. src/data/site.ts → legal bölümünü doldurun.\n`);
+  }
+}
+
+const speculation = JSON.stringify({
+  prefetch: [{ where: { and: [{ href_matches: '/*' }, { not: { href_matches: '/*.*' } }] }, eagerness: 'moderate' }],
+});
 ---
 
 <!doctype html>
@@ -79,10 +114,12 @@ const organization = {
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={canonical} />
-    <meta name="theme-color" content="#e8e4da" />
+    {noindex ? <meta name="robots" content="noindex, follow" /> : <link rel="canonical" href={canonical} />}
+    <meta name="theme-color" content={themeColor} />
     <meta name="color-scheme" content="light" />
     <meta name="format-detection" content="telephone=no" />
+    {verifyGoogle && <meta name="google-site-verification" content={verifyGoogle} />}
+    {verifyYandex && <meta name="yandex-verification" content={verifyYandex} />}
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
@@ -95,7 +132,7 @@ const organization = {
     <style is:inline set:html={fontCss}></style>
 
     <meta property="og:type" content={type} />
-    <meta property="og:site_name" content={`${site.name}®`} />
+    <meta property="og:site_name" content={site.name} />
     <meta property="og:locale" content={site.locale} />
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
@@ -108,18 +145,28 @@ const organization = {
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={imageAlt} />
 
-    <script type="application/ld+json" set:html={JSON.stringify([organization, ...jsonLd])} />
-    <script is:inline>document.documentElement.classList.add('js');</script>
+    <script type="application/ld+json" set:html={ld} />
+    <script is:inline>
+      document.documentElement.classList.add('js');
+      // If the page script never runs (blocked, failed), show everything instead of leaving reveals hidden.
+      setTimeout(function () {
+        if (!window.__vx) document.documentElement.classList.add('no-reveal');
+      }, 2500);
+    </script>
+    <script type="speculationrules" set:html={speculation} />
+    {analytics && <script is:inline defer data-domain={analytics.domain} src={analytics.src}></script>}
     <slot name="head" />
   </head>
-  <body>
+  <body id="top">
     <a class="skip" href="#main">İçeriğe geç</a>
     <Header tone={headerTone} act={act} />
     <main id="main" tabindex="-1">
       <slot />
     </main>
     <Footer />
+    {actionBar && <ActionBar />}
     <script>
       import '../scripts/main';
     </script>

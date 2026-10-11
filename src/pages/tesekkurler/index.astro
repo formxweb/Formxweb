@@ -1,0 +1,51 @@
+---
+import Base from '../../layouts/Base.astro';
+import { site, whatsappHello, whatsappUrl } from '../../data/site';
+---
+
+<Base title="Teşekkürler" description="Proje talebiniz için teşekkürler." noindex act={{ no: 'V', name: 'Başlayalım' }}>
+  <section class="ty wrap">
+    <p class="t-micro ty__coord"><i aria-hidden="true"></i>0,0,0</p>
+    <h1 class="ty__title">Teşekkürler.</h1>
+    <p class="ty__lead t-lead">
+      Bu sayfaya proje formunu gönderdikten sonra geldiyseniz talebiniz bize ulaştı. Yazdığınız iletişim bilgisinden size
+      döneceğiz{site.contact.responseTime ? ` (${site.contact.responseTime})` : ''}.
+    </p>
+    <ol class="ty__steps" role="list">
+      <li><span class="t-micro">01</span> Talebinizi okuyoruz.</li>
+      <li><span class="t-micro">02</span> Kısa bir görüşmede işletmenizi ve hedefinizi konuşuyoruz.</li>
+      <li><span class="t-micro">03</span> Kapsam, takvim ve ödeme planıyla yazılı teklif gönderiyoruz.</li>
+    </ol>
+    <div class="ty__actions">
+      <a class="btn" href="/work/">İşlere göz atın <span class="arr arr-x" aria-hidden="true">→</span></a>
+      <a class="link" href={whatsappUrl(whatsappHello)} target="_blank" rel="noopener">Acil mi? WhatsApp’tan yazın <span class="arr" aria-hidden="true">↗</span></a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .ty {
+    min-height: 90svh;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: center;
+    gap: 24px;
+    padding-block: calc(var(--header-h) + 48px) 80px;
+  }
+  .ty__coord { display: inline-flex; gap: 10px; align-items: center; color: var(--axis); }
+  .ty__coord i { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+  .ty__title {
+    font-family: var(--f-display);
+    font-stretch: 125%;
+    font-weight: 800;
+    font-size: min(9.2vw, 10rem);
+    letter-spacing: -0.045em;
+    line-height: 0.9;
+    text-transform: uppercase;
+  }
+  .ty__lead { max-width: 40ch; }
+  .ty__steps { margin: 0; display: grid; max-width: 44ch; }
+  .ty__steps li { display: grid; grid-template-columns: 2.4rem 1fr; padding: 10px 0; border-top: 1px solid var(--line); }
+  .ty__steps .t-micro { color: var(--axis); }
+  .ty__actions { display: flex; flex-wrap: wrap; gap: 22px; align-items: center; margin-top: 8px; }
+</style>

@@ -1,0 +1,86 @@
+---
+/** Project card for the work index and service pages: the project's own colour, its first frame, its facts. */
+import { Picture } from 'astro:assets';
+import type { Project } from '../../data/projects';
+import { getService } from '../../data/services';
+
+interface Props {
+  project: Project;
+  note?: string;
+  sizes?: string;
+  headingLevel?: 'h2' | 'h3';
+  showServices?: boolean;
+  frame?: number;
+}
+const { project: p, note, sizes = '(min-width: 1024px) 45vw, 100vw', headingLevel: H = 'h3', showServices = true, frame = 0 } = Astro.props;
+const shot = p.shots[frame] ?? p.shots[0];
+---
+
+<article
+  class:list={['pc', p.theme.dark && 'pc--dark']}
+  style={`--p-bg:${p.theme.bg};--p-fg:${p.theme.fg};--p-accent:${p.theme.accent};--p-accent-ink:${p.theme.accentInk ?? p.theme.accent}`}
+>
+  <a class="pc__link" href={`/work/${p.slug}/`}>
+    <div class="pc__frame">
+      <Picture
+        src={shot.src}
+        alt={shot.alt}
+        formats={['avif']}
+        fallbackFormat="webp"
+        widths={[480, 800, 1200, 1600]}
+        sizes={sizes}
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+    <div class="pc__body">
+      <p class="pc__meta t-micro"><span>{p.no}</span><span>{p.category}</span><span>{p.year}</span></p>
+      <H class="pc__name" lang={p.nameLang}>{p.name}</H>
+      <p class="pc__tag">{p.tagline}</p>
+      {note && <p class="pc__note t-micro">{note}</p>}
+      {
+        showServices && (
+          <ul class="pc__svc t-micro" role="list" aria-label="Hizmetler">
+            {p.services.map((id) => <li>{getService(id).tr}</li>)}
+          </ul>
+        )
+      }
+      <span class="pc__go t-micro">Vaka çalışması <span aria-hidden="true">→</span></span>
+    </div>
+  </a>
+</article>
+
+<style>
+  .pc { background: var(--p-bg); color: var(--p-fg); min-width: 0; }
+  .pc__link { display: grid; height: 100%; grid-template-rows: auto 1fr; }
+  .pc__frame { overflow: hidden; background: color-mix(in srgb, var(--p-fg) 8%, var(--p-bg)); }
+  .pc__frame :global(img) {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    object-position: top;
+    transition: transform var(--t3) var(--ease);
+  }
+  .pc__link:hover .pc__frame :global(img) { transform: scale(1.025); }
+  .pc__body { display: grid; gap: 10px; align-content: start; padding: clamp(18px, 2vw, 28px); }
+  .pc__meta { display: flex; gap: 14px; flex-wrap: wrap; }
+  .pc__meta span + span { opacity: 0.86; }
+  .pc--dark .pc__meta span:first-child { color: var(--p-accent); }
+  .pc__name {
+    font-family: var(--f-display);
+    font-stretch: 112%;
+    font-weight: 800;
+    font-size: clamp(1.5rem, 1rem + 1.6vw, 2.5rem);
+    letter-spacing: -0.03em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+  .pc__tag { font-size: var(--fs-small); max-width: 40ch; opacity: 0.9; }
+  .pc__note { opacity: 0.86; }
+  .pc__svc { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 0; }
+  .pc__svc li { padding: 4px 8px; border: 1px solid color-mix(in srgb, currentColor 30%, transparent); }
+  .pc__go { margin-top: 6px; display: inline-flex; gap: 8px; }
+  .pc__go span { transition: transform var(--t2) var(--ease); }
+  .pc__link:hover .pc__go span { transform: translateX(5px); }
+  .pc__link:focus-visible { outline-offset: 4px; }
+</style>

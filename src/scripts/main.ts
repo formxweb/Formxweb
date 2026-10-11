@@ -1,9 +1,18 @@
 /**
  * VERYAXZ — page behaviour.
  * Small and dependency free: header state, mobile menu, act indicator,
- * one-axis reveals, Türkiye clock and the axis-locked index preview.
+ * one-axis reveals, mobile action bar, outbound-click events and the
+ * axis-locked index preview.
  */
 
+declare global {
+  interface Window {
+    __vx?: number;
+    plausible?: (event: string, options?: { props?: Record<string, string> }) => void;
+  }
+}
+
+window.__vx = 1;
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 /* Header: solid after the first screen, hides on the way down ------------- */
@@ -92,7 +101,7 @@ function initActs() {
   const acts = document.querySelectorAll<HTMLElement>('[data-act]');
   const no = document.querySelector<HTMLElement>('[data-act-no]');
   const name = document.querySelector<HTMLElement>('[data-act-name]');
-  const links = document.querySelectorAll<HTMLAnchorElement>('.hd__nav a');
+  const links = document.querySelectorAll<HTMLAnchorElement>('.hd__nav a[data-section]');
   if (!acts.length || !no || !name) return;
 
   const io = new IntersectionObserver(
@@ -103,8 +112,7 @@ function initActs() {
         no.textContent = el.dataset.act ?? '';
         name.textContent = el.dataset.actName ?? '';
         links.forEach((a) => {
-          const match = el.id && a.hash === `#${el.id}`;
-          if (match) a.setAttribute('aria-current', 'true');
+          if (el.id && a.dataset.section === el.id) a.setAttribute('aria-current', 'true');
           else a.removeAttribute('aria-current');
         });
       }
@@ -114,21 +122,62 @@ function initActs() {
   acts.forEach((el) => io.observe(el));
 }
 
-/* Türkiye clock -------------------------------------------------------------- */
-function initClock() {
-  const els = document.querySelectorAll<HTMLTimeElement>('[data-clock]');
-  if (!els.length) return;
-  const fmt = new Intl.DateTimeFormat('tr-TR', { timeZone: 'Europe/Istanbul', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
-  const tick = () => {
-    const now = new Date();
-    const text = fmt.format(now);
-    els.forEach((el) => {
-      el.textContent = text;
-      el.dateTime = now.toISOString();
+/* Mobile action bar: after the first screen, hidden where contact is on screen */
+function initActionBar() {
+  const bar = document.querySelector<HTMLElement>('[data-abar]');
+  if (!bar) return;
+  const quiet = document.querySelectorAll<HTMLElement>('[data-abar-hide], footer');
+  const visible = new Set<Element>();
+  let pastFold = false;
+  const sync = () => bar.toggleAttribute('data-show', pastFold && visible.size === 0);
+
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) visible.add(e.target);
+        else visible.delete(e.target);
+      }
+      sync();
     });
+    quiet.forEach((el) => io.observe(el));
+  }
+  const onScroll = () => {
+    const next = window.scrollY > window.innerHeight * 0.6;
+    if (next !== pastFold) {
+      pastFold = next;
+      sync();
+    }
   };
-  tick();
-  window.setInterval(tick, 20_000);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+}
+
+/* Events: cookieless analytics, only when the script is configured --------- */
+function initEvents() {
+  document.addEventListener('click', (e) => {
+    const el = (e.target as HTMLElement).closest<HTMLElement>('[data-event]');
+    if (!el || typeof window.plausible !== 'function') return;
+    const props: Record<string, string> = { yer: el.dataset.eventPlace ?? location.pathname };
+    window.plausible(el.dataset.event!, { props });
+  });
+}
+
+/* Copy buttons (phone number, brief text) */
+function initCopy() {
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
+    btn.hidden = !navigator.clipboard;
+    btn.addEventListener('click', async () => {
+      const label = btn.querySelector<HTMLElement>('[data-copy-label]') ?? btn;
+      const idle = label.textContent;
+      try {
+        await navigator.clipboard.writeText(btn.dataset.copy ?? '');
+        label.textContent = 'Kopyalandı';
+      } catch {
+        label.textContent = 'Kopyalanamadı';
+      }
+      window.setTimeout(() => (label.textContent = idle), 2000);
+    });
+  });
 }
 
 /* Index preview: follows the pointer on the Y axis only ---------------------- */
@@ -168,5 +217,9 @@ initHeader();
 initMenu();
 initReveal();
 initActs();
-initClock();
+initActionBar();
+initEvents();
+initCopy();
 initIndexPreview();
+
+export {};

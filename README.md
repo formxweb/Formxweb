@@ -1,34 +1,43 @@
-# VERYAXZ STUDIO® — Digital flagship
+# VERYAXZ STUDIO — Digital flagship
 
 **Your brand. A different presence.**
-VERYAXZ STUDIO'nun web tasarım ve geliştirme hizmetlerini satan dijital flagship sitesi.
+VERYAXZ STUDIO'nun web tasarım ve geliştirme hizmetlerini satan site: 23 sayfa, tamamen statik, çalışma zamanında JavaScript kütüphanesi yok.
 
-## Konsept: X / Y / Z
+## Yayından önce: sahibin dolduracakları
 
-Stüdyonun adı üç ekseni zaten içinde taşıyor: VER**Y**A**XZ**. Site bunu bir tasarım sistemine dönüştürüyor.
+Site, bilinmeyen hiçbir bilgiyi uydurmaz. Aşağıdaki alanlar boşken ilgili satırlar sitede hiç görünmez; dolduruldukları anda kendiliğinden yerlerine yerleşir.
 
-| Eksen | Disiplin | Sitedeki karşılığı |
-| --- | --- | --- |
-| **X** | Strateji | Yatay okunan akışlar, cetveller, geniş (%125) tipografi |
-| **Y** | Tasarım | Dikey ritim, dar (%75) "dikilen" kelimeler |
-| **Z** | Geliştirme | Derinlik: "PRESENCE." ve "DIFFERENT." kelimelerindeki katman izleri |
-| **P** | Markanız | Üç eksenin kesiştiği tek nokta |
+| # | Ne | Nerede | Neden |
+| --- | --- | --- | --- |
+| 1 | **Alan adı** | `SITE_URL` ortam değişkeni | Canonical, sitemap, paylaşım kartları. Tanımsızken `npm run build` bilerek hata verir. |
+| 2 | **Veri sorumlusu** (şahıs işletmesinde ad soyad, şirkette ticaret unvanı) | `src/data/site.ts` → `legal.controller` | KVKK aydınlatma metni ve künye. |
+| 3 | **KVKK başvuru kanalı**: adres, e-posta ya da KEP | `legal.address`, `legal.email`, `legal.kep` | Boşken metin, başvuru adresinin telefonla istenmesini söyler. |
+| 4 | MERSİS, vergi dairesi ve numarası | `legal.mersis`, `legal.taxOffice`, `legal.taxNo` | Altbilgideki künye. |
+| 5 | Barındırma ve form servisi (ad, ülke) | `legal.hosting`, `legal.formProcessor` | KVKK’daki aktarım bölümü. |
+| 6 | Talep saklama süresi | `legal.retention` | KVKK’daki saklama bölümü. |
+| 7 | E-posta adresi | `contact.email` | İletişim, teklif sayfası, altbilgi. |
+| 8 | Dönüş süresi, çalışma saatleri, şehir | `contact.responseTime`, `studio.hours`, `studio.city`, `studio.serviceArea` | Teklif sayfası, stüdyo sayfası. |
+| 9 | Kurucu adı ve unvanı | `studio.founder` | Stüdyo sayfasındaki künye. |
+| 10 | **Projelerin durumu ve canlı adresleri** | `src/data/projects.ts` → `status`, `liveUrl`, `liveLabel` | Vaka sayfasında "Yayında" etiketi ve "Canlı siteyi ziyaret et" düğmesi. |
+| 11 | Marka tescili | `site.trademark.registered` | `true` olduğunda logodaki ® işareti görünür. Tescil yokken kullanmayın. |
+| 12 | Form servisi (isteğe bağlı) | `PUBLIC_FORM_ENDPOINT` | Boşken form WhatsApp mesajı hazırlar. |
+| 13 | Ziyaret ölçümü (isteğe bağlı) | `PUBLIC_ANALYTICS_DOMAIN` | Boşken hiçbir ölçüm betiği yüklenmez; gizlilik sayfası buna göre yazılır. |
 
-Kurulan üç sanat yönetimi yaklaşımından (editoryal gazete, karanlık oda / kontak baskı, eksen sistemi) markanın kendi adından çıktığı için eksen sistemi seçildi.
+Derleme sırasında künye alanları boşsa terminalde bir uyarı çıkar.
 
-- **Tipografi:** Hubot Sans (genişlik ekseni %75–125, display), Mona Sans (metin), Spectral ExtraLight Italic (bölüm başına tek duygu cümlesi), Fragment Mono (etiketler ve koordinatlar).
-- **Renk:** kemik kağıt `#E8E4DA`, karbon mürekkep `#121211`, tek vurgu rengi eksen mavisi `#2433FF`. Mavi yalnızca eksenler, Y·X·Z harfleri, ana eylemler ve kapanış bölümünde kullanılıyor.
-- **Hareket:** tek eğri (`cubic-bezier(.2,.7,0,1)`), dört süre. Kural: her hareket tek bir eksende olur. Satırlar Y'de yükselir, çizgiler X'te çizilir, derinlik Z'de açılır. Döndürme, zıplama ya da sürekli dönen dekor yok. `prefers-reduced-motion` açıkken hareket kapanır.
+## Sayfalar
 
-### Sayfa kurgusu
-
-1. **Act I — Identity:** Eksen cetvelleriyle çerçevelenmiş tipografik açılış ve proje dizini.
-2. **Act II — Selected Work:** Her proje kendi renginde, kendi kompozisyonunda: tam genişlik (Boğazdayız), asimetrik (CUPISTAN), film şeridi ve dikey isim (Marmara Blue), dergi açılımı (La Joie), X ekseninde satış akışı (Motorcu Chopper), poster (Swiss Fit Club). Sonunda imleci yalnızca Y ekseninde takip eden önizlemeli bir dizin var.
-3. **Act III — Capabilities:** Beş hizmet; her birinin başlık genişliği, yerleşimi ve çizimi kendi amacına göre.
-4. **Act IV — Approach:** X·Y·Z modeli, beş adımlık süreç ve ilkeler.
-5. **Act V — Let's build:** Mavi kapanış, doğrudan kanallar ve teklif formu.
-
-Her proje için `/work/<slug>/` adresinde bir vaka çalışması sayfası var: konsept, ekran görüntüleri, tipografi ve renk sistemi, detaylar ve iletişim çağrısı.
+| Adres | İçerik |
+| --- | --- |
+| `/` | Beş bölüm: Kimlik, Seçili işler, Hizmetler, Yaklaşım, Başlayalım. Arada "Ne yapıyoruz" şeridi ve SSS. |
+| `/work/` | Bütün projeler ve "hangi işte hangi hizmet" tablosu |
+| `/work/<proje>/` | Vaka çalışması: kısaca, konsept, ekranlar (büyütülebilir), projenin gerçek yazı tipleriyle tipografi, renk, detaylar, sitenin baştan sona kareleri |
+| `/hizmetler/`, `/hizmetler/<hizmet>/` | Beş hizmet: kimin için, neler dahil, örnek işler, süreç, sorular |
+| `/teklif/` | Proje formu, doğrudan kanallar, sonraki adımlar |
+| `/studyo/` | Adın içindeki üç eksen, çalışma biçimi (sizden / bizden), ilkeler, yapmadıklarımız |
+| `/sss/` | Fiyat, süre, süreç ve sonrası |
+| `/kvkk/`, `/gizlilik/`, `/kullanim-kosullari/` | Yasal metinler; `site.ts`'deki künyeden beslenir |
+| `/tesekkurler/` | Form servisinin yönlendirdiği onay sayfası (arama motorlarına kapalı) |
 
 ## Komutlar
 
@@ -36,79 +45,72 @@ Node.js 22.12 veya üstü gerekir.
 
 ```bash
 npm install
-npm run dev        # http://localhost:4321
-npm run build      # tip kontrolü + üretim derlemesi → dist/
-npm run preview    # dist/ klasörünü yerelde sunar
+npm run dev          # http://localhost:4321
+npm run build        # tip kontrolü + üretim derlemesi (SITE_URL gerekir)
+npm run build:local  # yerel deneme derlemesi (SITE_URL olmadan)
+npm run preview      # dist/ klasörünü yerelde sunar
 ```
 
-İlk derleme ekran görüntülerinin AVIF/WebP sürümlerini ürettiği için birkaç dakika sürer. Sonraki derlemeler önbellekten birkaç saniyede biter.
+İlk derleme ekran görüntülerinin AVIF/WebP sürümlerini ürettiği için birkaç dakika sürer; sonrakiler önbellekten birkaç saniyede biter.
 
-## İçerik ve ayarlar
+## İçerik nerede
 
-| Ne | Nerede |
+| Ne | Dosya |
 | --- | --- |
-| WhatsApp, telefon, Instagram, e-posta | `src/data/site.ts` → `contact` |
-| Teklif formunun gönderileceği servis | `src/data/site.ts` → `form` veya ortam değişkenleri (aşağıda) |
-| Projeler, metinler, renkler, canlı site bağlantıları | `src/data/projects.ts` |
-| Proje ekran görüntüleri | `src/assets/work/<slug>/01.webp`, `02.webp` … (ilk görsel kapak olur) |
-| Renk, tipografi, grid ve hareket değişkenleri | `src/styles/global.css` → `:root` |
-| Paylaşım görseli | `public/og.jpg` (1200×630) |
+| İletişim, künye, form, ölçüm, menü | `src/data/site.ts` |
+| Hizmetler (ana sayfa, hizmet sayfaları, form seçenekleri) | `src/data/services.ts` |
+| Projeler, metinler, renkler, yazı tipleri | `src/data/projects.ts` |
+| Süreç adımları ve ilkeler | `src/data/process.ts` |
+| Sıkça sorulan sorular | `src/data/faq.ts` |
+| Proje ekran görüntüleri | `src/assets/work/<proje>/01.webp …` (ilk görsel kapak olur) |
+| "Baştan sona" kareleri | `src/assets/tour/<proje>/01.webp …` |
+| Vaka sayfası yazı tipi örnekleri | `src/assets/fonts/specimens/` (SIL OFL 1.1, lisans `OFL.txt`) |
+| Paylaşım kartları | `public/og.jpg`, `public/og/<proje>.jpg` (1200×630) |
+| Tasarım değişkenleri | `src/styles/global.css` → `:root` |
 
-### Proje bağlantıları
+## Teklif formu
 
-Ekran görüntüleri projelerin çalışan sürümlerinden (1440×900, 2× yoğunluk) alındı. Projelerin yayındaki adresleri bu ortamdan doğrulanamadığı için `liveUrl` alanları boş bırakıldı. Bir proje yayındaysa `src/data/projects.ts` içinde ilgili projeye ekleyin:
+Form sahte bir "gönderildi" mesajı göstermez.
 
-```ts
-liveUrl: 'https://ornek.com',
-```
+1. **WhatsApp (varsayılan):** Bilgiler hazır bir WhatsApp mesajına dönüşür. Ekran, mesajın ancak ziyaretçi WhatsApp'ta gönderdiğinde ulaşacağını açıkça söyler ve metni kopyalama seçeneği sunar.
+2. **Form servisi:** POST + FormData kabul eden herhangi bir servis (Formspree, Web3Forms, Getform ya da kendi API'niz):
 
-Vaka çalışması sayfasında "Canlı siteyi ziyaret et" düğmesi kendiliğinden görünür. Boşken sayfa ziyaretçiyi WhatsApp görüşmesine ve teklif formuna yönlendirir.
+   ```bash
+   PUBLIC_FORM_ENDPOINT=https://formspree.io/f/xxxxxxx
+   # Web3Forms için ayrıca:
+   PUBLIC_FORM_ACCESS_KEY=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+   ```
 
-### Teklif formu
+   Onay yalnızca servis 2xx yanıt verip hata bildirmediğinde görünür; 15 saniyede yanıt gelmezse ya da hata olursa yazılanlar kaybolmadan WhatsApp seçeneği açılır. JavaScript kapalıyken form doğrudan servise gider ve `/tesekkurler/` sayfasına yönlenir.
 
-Form sahte bir "gönderildi" mesajı göstermez. İki çalışma biçimi var:
+Ön doldurma: `/teklif/?hizmet=e-ticaret-sitesi` ya da `/teklif/?ref=cupistan&tur=Özel%20web%20sitesi`. Vaka ve hizmet sayfalarındaki düğmeler bunu kendiliğinden yapar.
 
-1. **WhatsApp (varsayılan):** Form servisi tanımlı değilse, girilen bilgiler hazır bir WhatsApp mesajına dönüşür ve `wa.me/905446552099` açılır. Mesaj, ziyaretçi WhatsApp'ta gönder tuşuna bastığında ulaşır; ekrandaki metin de bunu söyler.
-2. **Form servisi:** Formspree, Web3Forms, Getform ya da kendi API'niz. Derleme sırasında tanımlayın:
+## Ziyaret ölçümü
 
-```bash
-PUBLIC_FORM_ENDPOINT=https://formspree.io/f/xxxxxxx
-# Web3Forms için ayrıca:
-PUBLIC_FORM_ENDPOINT=https://api.web3forms.com/submit
-PUBLIC_FORM_ACCESS_KEY=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-```
-
-Başarı mesajı yalnızca servis 2xx yanıt verdiğinde görünür. Hata olursa aynı mesaj WhatsApp bağlantısıyla sunulur. Form istemci tarafında doğrulanır ve bot tuzağı (honeypot) alanı içerir.
+`PUBLIC_ANALYTICS_DOMAIN=alanadiniz.com` tanımlanınca Plausible uyumlu, çerezsiz betik yüklenir (kendi sunucunuz için `PUBLIC_ANALYTICS_SRC`). WhatsApp, telefon, Instagram ve teklif düğmeleri `data-event` ile olay olarak sayılır. Site çerez kullanmadığı için çerez onay penceresi yoktur.
 
 ## Yayına alma
 
-Site tamamen statiktir; `dist/` klasörü herhangi bir statik barındırmada çalışır.
+- **Vercel:** Depoyu içe aktarın; adres `VERCEL_PROJECT_PRODUCTION_URL`'den okunur (özel alan adı için `SITE_URL` tanımlayın). Başlıklar `vercel.json`'da.
+- **Netlify / Cloudflare Pages:** Derleme `npm run build`, klasör `dist`. Başlıklar `public/_headers`'ta. Cloudflare'de `SITE_URL` tanımlayın.
+- **cPanel / Hostinger / paylaşımlı hosting:** `SITE_URL=https://alanadiniz.com npm run build`, ardından `dist/` içeriğini `public_html/`'e yükleyin. `.htaccess` HTTPS yönlendirmesini, 404 sayfasını, güvenlik başlıklarını ve önbelleği ayarlar.
 
-- **Vercel:** Depoyu içe aktarın. Çerçeve otomatik algılanır (`npm run build`, çıktı `dist`). `vercel.json` güvenlik başlıklarını ve `/_astro/` için uzun önbelleği ayarlar.
-- **Netlify / Cloudflare Pages:** Derleme komutu `npm run build`, yayın klasörü `dist`. Başlıklar `public/_headers` dosyasından gelir.
-- **cPanel / Hostinger:** `npm run build` sonrası `dist/` içeriğini `public_html/` içine yükleyin.
+Yayından sonra Google Search Console'a `https://alanadiniz.com/sitemap.xml` adresini ekleyin. Doğrulama için `PUBLIC_GOOGLE_SITE_VERIFICATION` / `PUBLIC_YANDEX_VERIFICATION` kullanılabilir.
 
-Canonical, Open Graph ve site haritası adresleri için alan adınızı `SITE_URL` ile verin (örnek: `SITE_URL=https://alanadiniz.com`). Vercel ve Netlify'da tanımlanmazsa platformun üretim adresi kullanılır.
+## Kalite (yerel derleme, bu sürüm)
 
-## Kalite
+- **Erişilebilirlik:** axe-core (WCAG 2.1 AA + best practice) bütün sayfa türlerinde 1440 px ve 390 px genişlikte hatasız. Atlama bağlantısı, görünür odak, `<dialog>` menü ve görsel büyütücü (Esc ile kapanır, ok tuşları çalışır), `<details>` ile SSS, azaltılmış hareket desteği.
+- **Lighthouse (mobil, yavaş 4G simülasyonu):** Performans 93–99, Erişilebilirlik 100, En iyi uygulamalar 100, SEO 100; CLS 0.
+- **Düzen:** 360, 390, 768, 1024 ve 1440 px genişlikte hiçbir sayfada yatay kaydırma yok.
+- **Bağlantılar:** derlenen 23 sayfadaki bütün iç bağlantılar ve çapalar çalışıyor.
+- **SEO:** Türkçe sayfa başlıkları ve açıklamaları, canonical, Open Graph / Twitter kartları (sayfa başına marka kartı), tek bir `@graph` içinde Organization, WebSite, WebPage, BreadcrumbList, Service, CreativeWork ve FAQPage verileri, `sitemap.xml`, `robots.txt`.
+- **JavaScript kapalıyken** bütün içerik görünür; sayfa betiği yüklenemezse 2,5 saniye sonra gizli kalan öğeler kendiliğinden açılır.
 
-- **Erişilebilirlik:** axe-core (WCAG 2.1 AA + best practice) ana sayfada, altı vaka çalışmasında ve 404 sayfasında 1440 px ve 390 px genişlikte hatasız. Atlama bağlantısı, görünür odak, klavyeyle kullanılabilen menü (`<dialog>`, Esc ile kapanır), azaltılmış hareket desteği, açık renk zeminlerde AA kontrastlı vurgu renkleri.
-- **Performans:** Lighthouse mobil (yavaş 4G simülasyonu, yerel derleme) ölçümleri: Performans 94–99, Erişilebilirlik 100, En iyi uygulamalar 100, SEO 100. CLS 0. Görseller AVIF + WebP ve `srcset` ile sunulur, ekran dışındakiler tembel yüklenir. Yazı tipleri yalnızca Latin ve Latin Extended alt kümeleriyle kendi sunucunuzdan gelir.
-- **SEO:** Sayfa başına başlık ve açıklama, canonical, Open Graph / Twitter kartları, `ProfessionalService` ve `CreativeWork` yapılandırılmış verileri, `sitemap.xml`, `robots.txt`.
-- **Bağımlılık:** Çalışma zamanında hiçbir JavaScript kütüphanesi yok. Bütün etkileşim (başlık, menü, açılışlar, saat, dizin önizlemesi, form) birkaç kilobaytlık düz TypeScript.
+## Tasarım sistemi: X / Y / Z
 
-## Yapı
+Stüdyonun adı üç ekseni içinde taşıyor: VER**Y**A**XZ**. X strateji (geniş, %125 tipografi, yatay akışlar), Y tasarım (dar, %75 "dikilen" kelimeler), Z geliştirme (derinlik izleri), P ise markanızın üç eksenin kesiştiği nokta.
 
-```
-src/
-  data/site.ts            iletişim kanalları ve form ayarı
-  data/projects.ts        proje içerikleri, renkler, ekran görüntüsü açıklamaları
-  layouts/Base.astro      <head>, SEO, yazı tipleri, başlık ve altbilgi
-  components/             Hero, Work, Capabilities, Approach, Contact, Header, Footer…
-  components/work/        altı ayrı proje kompozisyonu
-  pages/index.astro       ana sayfa
-  pages/work/[slug].astro vaka çalışması sayfaları
-  scripts/main.ts         sayfa davranışları
-  styles/global.css       tasarım sistemi
-public/                   favicon, paylaşım görseli, başlık dosyaları
-```
+- **Tipografi:** Hubot Sans (genişlik ekseni %75–125), Mona Sans (metin), Spectral ExtraLight Italic (bölüm başına tek duygu cümlesi), Fragment Mono (etiketler). Hepsi kendi sunucunuzdan, yalnızca Latin + Latin Extended.
+- **Renk:** kemik kağıt `#E8E4DA`, karbon mürekkep `#121211`, tek vurgu eksen mavisi `#2433FF`. Her proje kendi renkleriyle gelir.
+- **Hareket:** tek eğri, dört süre; her hareket tek eksende. Sürekli dönen dekor, özel imleç, abartılı paralaks ya da bekleten açılış yok. Sayfalar arası geçiş tarayıcının kendi görünüm geçişiyle.
+- **Dil:** büyük gösterim başlıkları İngilizce (markanın sesi), bütün işlevsel arayüz Türkçe.

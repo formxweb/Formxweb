@@ -1,5 +1,6 @@
 ---
 import type { Project } from '../../data/projects';
+import { getService } from '../../data/services';
 
 interface Props {
   project: Project;
@@ -14,17 +15,27 @@ const { project: p, class: cls = '', compact = false } = Astro.props;
   <p class="ptext__sum" data-reveal="y" style="--d:1">{p.summary}</p>
   <dl class="ptext__meta" data-reveal="y" style="--d:2">
     <div>
-      <dt class="t-micro">Yaklaşım</dt>
-      <dd>{p.approach}</dd>
+      <dt class="t-micro">İhtiyaç</dt>
+      <dd>{p.need}</dd>
     </div>
     {
       !compact && (
         <div>
-          <dt class="t-micro">Kapsam</dt>
-          <dd>{p.scope.join(' · ')}</dd>
+          <dt class="t-micro">Sitede</dt>
+          <dd>
+            <ul class="ptext__feat" role="list">
+              {p.features.slice(0, 3).map((f) => <li>{f}</li>)}
+            </ul>
+          </dd>
         </div>
       )
     }
+    <div>
+      <dt class="t-micro">Hizmet</dt>
+      <dd class="ptext__svc">
+        {p.services.map((id) => { const s = getService(id); return <a href={`/hizmetler/${s.slug}/`}>{s.tr}</a>; })}
+      </dd>
+    </div>
   </dl>
   <a class="ptext__link" href={`/work/${p.slug}/`} data-reveal="x" style="--d:3">
     <span class="t-micro">{p.no}</span>
@@ -54,6 +65,24 @@ const { project: p, class: cls = '', compact = false } = Astro.props;
   }
   .ptext__meta dt { opacity: 0.8; margin-bottom: 4px; }
   .ptext__meta dd { margin: 0; font-size: var(--fs-small); line-height: 1.5; max-width: 46ch; }
+  .ptext__feat { margin: 0; display: grid; gap: 4px; }
+  .ptext__feat li { position: relative; padding-left: 1.1em; }
+  .ptext__feat li::before { content: '—'; position: absolute; left: 0; color: var(--p-accent-ink, var(--axis)); }
+  :global(.on-dark) .ptext__feat li::before { color: var(--p-accent, var(--axis-light)); }
+  .ptext__svc { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ptext__svc a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    padding: 0 10px;
+    border: 1px solid color-mix(in srgb, currentColor 32%, transparent);
+    font-family: var(--f-mono);
+    font-size: var(--fs-micro);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: border-color var(--t1) linear;
+  }
+  .ptext__svc a:hover { border-color: currentColor; }
   .ptext__link {
     display: inline-grid;
     grid-auto-flow: column;

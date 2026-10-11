@@ -1,4 +1,5 @@
 import type { ImageMetadata } from 'astro';
+import type { ServiceId } from './services';
 
 /**
  * Selected work.
@@ -12,15 +13,17 @@ import type { ImageMetadata } from 'astro';
  */
 
 const files = import.meta.glob<{ default: ImageMetadata }>('../assets/work/*/*.webp', { eager: true });
+const tourFiles = import.meta.glob<{ default: ImageMetadata }>('../assets/tour/*/*.webp', { eager: true });
 
-function shotsFor(slug: string): ImageMetadata[] {
-  return Object.keys(files)
-    .filter((key) => key.includes(`/work/${slug}/`))
+function imagesIn(set: typeof files, dir: string, slug: string): ImageMetadata[] {
+  return Object.keys(set)
+    .filter((key) => key.includes(`/${dir}/${slug}/`))
     .sort()
-    .map((key) => files[key].default);
+    .map((key) => set[key].default);
 }
+const shotsFor = (slug: string) => imagesIn(files, 'work', slug);
 
-export type Layout = 'fullbleed' | 'asymmetric' | 'filmstrip' | 'spread' | 'system' | 'poster';
+export type Layout = 'fullbleed' | 'asymmetric' | 'filmstrip' | 'spread' | 'system' | 'poster' | 'diptych';
 
 export interface Shot {
   src: ImageMetadata;
@@ -49,12 +52,29 @@ export interface Project {
   palette: { name: string; hex: string }[];
   /** accentInk: a darker accent for small text on light backgrounds (WCAG AA). */
   theme: { bg: string; fg: string; accent: string; accentInk?: string; dark: boolean };
+  /** Services this project demonstrates (drives the work × services matrix). */
+  services: ServiceId[];
+  /** Who a similar site suits, in an owner's words. */
+  audience: string;
+  /** What the site had to solve. */
+  need: string;
+  /** Concrete features, in owner language. */
+  features: string[];
   note?: string;
+  /**
+   * Publication facts, supplied by the owner. Undefined = nothing is rendered.
+   * status: 'live' (public URL), 'delivered', 'concept'.
+   */
+  status?: 'live' | 'delivered' | 'concept';
   liveUrl?: string;
+  /** Text for the live link, e.g. 'cupistan.com'. Defaults to the URL host. */
+  liveLabel?: string;
   shots: Shot[];
+  /** The site from top to bottom, one desktop viewport per frame (contact sheet on the case page). */
+  tour: ImageMetadata[];
 }
 
-interface ProjectInput extends Omit<Project, 'shots'> {
+interface ProjectInput extends Omit<Project, 'shots' | 'tour'> {
   shots: { alt: string; caption: string }[];
 }
 
@@ -69,7 +89,7 @@ const input: ProjectInput[] = [
     layout: 'fullbleed',
     tagline: 'Bir sayfa değil, bir gece.',
     summary:
-      'Tosun Paşa restoran gemisi için 19:30’dan 23:30’a uzanan bir Boğaz gecesi olarak kurgulanan dijital deneyim.',
+      'Tosun Paşa restoran gemisinin 19:30’dan 23:30’a uzanan bir Boğaz gecesi olarak kurgulanan dijital deneyimi.',
     approach:
       'Gerçek zamanlı bir WebGL Boğaz sahnesi. Kaydırdıkça gecenin saati ve rengi ilerliyor.',
     concept: [
@@ -96,6 +116,10 @@ const input: ProjectInput[] = [
       { name: 'Fener', hex: '#EC9A5E' },
     ],
     theme: { bg: '#080b12', fg: '#ece5d8', accent: '#ec9a5e', dark: true },
+    services: ['ozel', 'isletme'],
+    audience: "Restoran, mekân ve etkinlik işletmeleri",
+    need: "Bir restoran gemisi bir menü değil, bir gece satar. Sitenin de o geceyi ilk saniyeden hissettirmesi ve rezervasyona götürmesi gerekiyordu.",
+    features: ["Saat saat ilerleyen gece akışı: 19:30 → 23:30", "18 yemeğin tamamı için açılan menü diyaloğu", "Rezervasyon hattına hazır WhatsApp mesajı", "Restoran ve menü için yapılandırılmış veri", "Azaltılmış hareket desteği ve klavye erişimi"],
     shots: [
       { alt: 'Boğazdayız açılış ekranı: gece Boğaz’ında sudan yükselen BOĞAZ DAYIZ kelimeleri ve sudaki yansımaları.', caption: 'Açılış — kelimeler sudan yükseliyor' },
       { alt: 'Program sahnesi: “İki kıta arasında, üç saat.” başlığı, büyük 20:30 saati ve dikey zaman çizelgesi.', caption: 'Akış — saat kaydırmayla ilerliyor' },
@@ -146,11 +170,15 @@ const input: ProjectInput[] = [
       { name: 'Limon', hex: '#F2C95C' },
     ],
     theme: { bg: '#f6e6d3', fg: '#3a2a22', accent: '#d8434a', accentInk: '#b52a33', dark: false },
+    services: ['ozel', 'isletme'],
+    audience: "Tatlıcı, pastane ya da kafe",
+    need: "İki şubeli bir tatlıcının sitesi hem markanın neşesini taşımalı hem de “şu an hangi şube açık, nasıl giderim?” sorusunu hemen yanıtlamalıydı.",
+    features: ["Ana düğme o an açık olan şubeye gidiyor", "Her şube için tek dokunuşla yol tarifi", "Ürünler kendi kaplarının silüetinde", "Özel gün pastası için doğrudan mesaj çağrısı", "Derleme gerektirmeyen statik yayın"],
     shots: [
       { alt: 'CUPISTAN açılışı: krema taçlı kap maskotu, adaçayı yeşili daire ve CUPİSTAN logosu.', caption: 'KAPAK — maskot, kabın kendisi' },
       { alt: 'Kara tahta zeminli KAPIŞ KAPIŞ bölümü: kova waffle fotoğrafı ve büyük 250₺ fiyatı.', caption: 'KAPIŞ KAPIŞ — Kova Waffle Menü' },
       { alt: 'KAPRİS bölümü: kırmızı zeminde bir tabağa düşmüş dört renkli ekler ve fiş biçiminde açıklama.', caption: 'KAPRİS — ekler tabağa düşüyor' },
-      { alt: 'KAP bölümü: büyük KAP kelimesi, sözlük maddesi ve kap silüetinde magnolya ile dondurma fotoğrafları.', caption: 'KAP — ürünler kabın silüetinde' },
+      { alt: 'KAP bölümü: kap silüetinde magnolya ve dondurma fotoğrafları, ürün adları ve kısa açıklamaları.', caption: 'KAP — ürünler kabın silüetinde' },
       { alt: 'KAPAK OLSUN bölümü: şeftali zeminde pasta kutusu kapağı ve mühür biçiminde düğme.', caption: 'KAPAK OLSUN — kutu kapanıyor' },
       { alt: 'Kapanış: iki şube kapısı, çalışma saatleri ve büyük kırmızı KAP! yazısı.', caption: 'KAPI → KAP! — iki şube, gerçek saatler' },
     ],
@@ -195,11 +223,15 @@ const input: ProjectInput[] = [
       { name: 'Champagne', hex: '#BFA779' },
     ],
     theme: { bg: '#0a1628', fg: '#efe7d8', accent: '#bfa779', dark: true },
+    services: ['ozel', 'landing'],
+    audience: "Tekne, etkinlik ve organizasyon işletmeleri",
+    need: "Bir tekne organizasyon markasının en güçlü malzemesi kendi filmi. Site bu filmi stok görselle sulandırmadan etkinlik talebi toplamalıydı.",
+    features: ["Sayfanın arkasında hiç durmayan marka filmi", "Düğün, kurumsal, özel davet ve kahvaltı sahneleri", "Filmi ilgili andan oynatan “view moment” bağlantıları", "Etkinlik talep formu ve WhatsApp", "İstenirse tek dosyalık site sürümü"],
     shots: [
       { alt: 'Marmara Blue açılışı: Boğaz’da ilerleyen tekne filmi üzerinde MARMARA ve dev BLUE kelimeleri.', caption: 'Açılış — film sayfanın arkasında' },
-      { alt: '“The Bosphorus is not the backdrop, it is the experience.” cümlesi; film karesi ve köprü fotoğrafı.', caption: 'Boğaz — dekor değil, deneyim' },
-      { alt: 'WEDDINGS bölümü: teknede dans eden gelin ve dev WEDDINGS kelimesi.', caption: 'Düğün — sütun kare' },
-      { alt: 'Krem zeminde Brunch bölümü: büyük italik Brunch kelimesi ve kahvaltı menüsü.', caption: 'Kahvaltı — sabah manifestosu' },
+      { alt: 'WEDDINGS bölümü: teknede kollarını açmış gelin, kırmızı halı ve dev WEDDINGS kelimesi.', caption: 'Düğün — sütun kare' },
+      { alt: 'CORPORATE bölümü: gece teknesinde kurumsal etkinlik fotoğrafları ve dikey CORPORATE kelimesi.', caption: 'Kurumsal — gece diptiği' },
+      { alt: 'Krem zeminde Brunch bölümü: büyük italik Brunch kelimesi, köprü fotoğrafı ve kahvaltı menüsü.', caption: 'Kahvaltı — sabah manifestosu' },
       { alt: 'Moments bölümü: ışık masası üzerinde dağınık film kareleri ve dikey MOMENTS kelimesi.', caption: 'Anlar — ışık masası' },
       { alt: 'Kapanış: film üzerinde LET’S go. yazısı ve etkinlik talebi, WhatsApp, iletişim bağlantıları.', caption: 'Kapanış — doğrudan film üzerinde' },
     ],
@@ -241,12 +273,16 @@ const input: ProjectInput[] = [
       { name: 'Altın', hex: '#C6A15B' },
     ],
     theme: { bg: '#f4ecdc', fg: '#173f32', accent: '#b08a40', accentInk: '#7d5f24', dark: false },
+    services: ['ozel', 'isletme'],
+    audience: "Kafe, restoran ve fırın",
+    need: "Menüsü zaten bir menü uygulamasında yaşayan bir kafe için site, o bilgiyi yeniden yazmadan markayı anlatmalıydı.",
+    features: ["Menü fiyatları menü uygulamasından canlı okunuyor", "Tükenen ürün işaretleniyor, kaldırılan ürün gizleniyor", "Ön sipariş bağlantısı, ödeme kasada", "Gün boyunca menüyü anlatan “La Joie’de bir gün” bölümü", "Restore edilmiş, büyük boyutta da temiz logo"],
     shots: [
       { alt: 'La Joie kapağı: krem zeminde büyük yeşil La Joie yazısı, i harfinin üstünde altın nokta ve latte fincanı.', caption: 'Kapak — nokta masthead’e düşüyor' },
       { alt: 'Koyu yeşil zeminde “la joie [la ʒwa] · isim · Fransızca — Neşe.” sözlük maddesi ve kahve fincanı.', caption: 'Sözlük — neşe' },
       { alt: '“Önce kahve. Sonra tatlı. Bir çay daha.” başlıkları; masada espresso, tatlı ve çay kesimleri.', caption: 'Masa — ürünlerle kurulan natürmort' },
       { alt: 'Koyu yeşil zeminde büyük Kitchen kelimesi ve makarna tabağı.', caption: 'Mutfak' },
-      { alt: 'Menü bölümü: kategori listesi, Kahve & İçecekler başlığı, ürün açıklamaları ve fiyatlar.', caption: 'Menü — fiyatlar canlı okunuyor' },
+      { alt: 'Menü bölümü: büyük Menü başlığı, kategori listesi ve Kahve & İçecekler bölümü.', caption: 'Menü — fiyatlar canlı okunuyor' },
       { alt: '“La Joie’de bir gün” bölümü: güneş gibi ilerleyen altın nokta, 11:30 saati ve öğle ürünleri.', caption: 'Gün — nokta güneş gibi yol alıyor' },
     ],
   },
@@ -264,7 +300,7 @@ const input: ProjectInput[] = [
     approach:
       'Atölye karakteri taşıyan koyu, pirinç vurgulu bir vitrin. Arkasında siparişten iadeye kadar işleyen bir yönetim paneli.',
     concept: [
-      'Mağazanın ihtiyacı bir katalog değil, satış yapan bir sistemdi. Ürünler renk ve bedene göre stok ve fiyat taşıyor. Kişiye özel ürünlerde müşteri rocker ya da isim yazısını kendisi yazıyor; yazı sipariş ekranında aynen görünüyor.',
+      'Bir motorcu mağazasının ihtiyacı katalog değil, satış yapan bir sistemdi. Ürünler renk ve bedene göre stok ve fiyat taşıyor. Kişiye özel ürünlerde müşteri rocker ya da isim yazısını kendisi yazıyor; yazı sipariş ekranında aynen görünüyor.',
       'Kartla ödeme Shopier veya iyzico’nun güvenli ödeme sayfasıyla alınıyor; kart bilgisi siteye hiç gelmiyor. Müşteri siparişini Alındı → Hazırlanıyor → Kargoda → Teslim edildi adımlarıyla izliyor.',
       'Yönetim panelinde günlük satış, kargolanacak siparişler, azalan stok, iade talepleri ve kurulum kontrol listesi tek ekranda. Telefonla çekilen ürün fotoğrafları otomatik küçültülüyor.',
     ],
@@ -289,6 +325,10 @@ const input: ProjectInput[] = [
       { name: 'Krem', hex: '#F1E8DC' },
     ],
     theme: { bg: '#17110e', fg: '#f1e8dc', accent: '#d4ad5f', dark: true },
+    services: ['eticaret'],
+    audience: "Butik, atölye ve ürün satan markalar",
+    need: "Bir motorcu mağazasının ihtiyacı katalog değil, satış yapan bir sistemdi: ödeme, stok, kişiye özel ürün ve sipariş takibi.",
+    features: ["Shopier veya iyzico ile kartla ödeme", "Renk ve bedene göre stok ve fiyat", "Müşterinin kendi yazısıyla kişiye özel ürün", "Alındı → Kargoda → Teslim edildi sipariş takibi", "Yönetim paneli ve otomatik e-postalar", "Mesafeli satış, KVKK ve iade sayfaları"],
     note: 'Ekran görüntüleri, mağazanın örnek ürün verisiyle çalışan sürümünden alınmıştır.',
     shots: [
       { alt: 'Motorcu Chopper ana sayfası: “Kulüp yeleği, deri yelek ve sırt arması” başlığı ve armalı deri yelek.', caption: 'Vitrin' },
@@ -338,13 +378,72 @@ const input: ProjectInput[] = [
       { name: 'Beyaz', hex: '#F5F4F2' },
     ],
     theme: { bg: '#e8e4da', fg: '#121211', accent: '#e60000', accentInk: '#b00000', dark: false },
+    services: ['isletme'],
+    audience: "Spor salonu, stüdyo ve yerel hizmet işletmeleri",
+    need: "Bir spor salonu sitesinin işi, ziyaretçiyi ilk derse getirmek. Her bölüm aynı eyleme çağırmalıydı.",
+    features: ["Her bölümde ücretsiz deneme dersi çağrısı", "“Şu an açık mı?” gösteren çalışma saatleri", "Tüm talepler hazır mesajla WhatsApp’a", "Dersler, üyelik ve sık sorulan sorular tek sayfada", "Harita ve saatlerle yerel SEO"],
     shots: [
       { alt: 'Swiss Fit Club açılışı: kırmızı ışıklı karanlık salon önünde GÜCÜNÜ KEŞFET başlığı ve deneme dersi düğmesi.', caption: 'Açılış — GÜCÜNÜ KEŞFET' },
-      { alt: 'Kırmızı şeritler üzerinde HIIT, Reformer Pilates, Yoga ve Spinning disiplinleri.', caption: 'Disiplin şeritleri' },
-      { alt: '“Her şey tek çatı altında.” bölümü: kişisel antrenör fotoğrafı ve hizmet kartları.', caption: 'Hizmetler' },
-      { alt: 'Çalışma saatleri: AÇIK durumu ve günlere göre saat çizelgesi.', caption: 'Saatler — şu an açık mı?' },
-      { alt: 'Üyelik bölümü: yıllık üyelik kartı ve “Önce dene, sonra karar ver.” deneme dersi kartı.', caption: 'Üyelik — önce dene' },
-      { alt: 'Grup dersleri listesi: HIIT, Pilates, Yoga, Functional Training, Spinning.', caption: 'Dersler' },
+      { alt: '“Farkı hisset.” bölümü: kırmızı ışıklı salon fotoğrafı ve modern ekipman, profesyonel eğitmen kartları.', caption: 'Neden Swiss Fit — farkı hisset' },
+      { alt: '“Her şey tek çatı altında.” bölümü: kişisel antrenör fotoğrafı ve hizmet kartları.', caption: 'Hizmetler — tek çatı altında' },
+      { alt: 'Çalışma saatleri: salonun o anki durumu ve günlere göre saat çizelgesi.', caption: 'Saatler — şu an açık mı?' },
+      { alt: 'Üyelik bölümü: “Hedefine uygun planı seç.” başlığı ve yıllık üyelik kartı.', caption: 'Üyelik — önce dene' },
+      { alt: 'Grup dersleri: “Birlikte daha güçlü.” başlığı, ders filtreleri ve HIIT, Pilates listesi.', caption: 'Dersler — birlikte daha güçlü' },
+    ],
+  },
+  {
+    slug: 'mas-vip-transfer',
+    no: '07',
+    name: 'MAS VIP Transfer',
+    nameLang: 'en',
+    category: 'Şoförlü özel transfer',
+    sector: 'Mobility',
+    year: '2026',
+    layout: 'diptych',
+    tagline: 'A’dan B’ye tek bir yolculuk.',
+    summary:
+      'Havalimanı, özel, kurumsal, etkinlik ve şehirler arası transferler için A’dan B’ye bir yolculuk olarak kurgulanan, Türkçe ve İngilizce çalışan tek sayfalık site.',
+    approach:
+      'Sayfanın kendisi bir rota: üstteki A → B çizgisi kaydırdıkça ilerliyor, her bölüm bir durak.',
+    concept: [
+      'Bir transfer firmasının sattığı şey araç değil, kapıdan kapıya kesintisiz bir yolculuk. Site bu yüzden A’dan B’ye bir rota olarak kuruldu: Kalkış, Rota, Filo, Hizmet, Hassasiyet, Rezervasyon ve Varış.',
+      'Üst bardaki ince rota çizgisi okumanın nerede olduğunu gösteriyor. Açılıştaki gece yolu tek bir 2D canvas ile çiziliyor; araçlar fotoğraf yerine teknik çizgilerle sunuluyor.',
+      'Rezervasyon formu talebi WhatsApp’ta gönderilmeye hazır bir mesaja çeviriyor ve dürüst konuşuyor: mesaj gönderilip yanıt alınana kadar hiçbir şeyin rezerve edilmediğini açıkça söylüyor.',
+    ],
+    details: [
+      { title: 'İki dil, tek dosya', text: 'Türkçe ve İngilizce metinlerin tamamı aynı sayfada. Dil, ziyaretçinin tarayıcısına göre seçiliyor ve tek dokunuşla değişiyor.' },
+      { title: 'Rota çizgisi', text: 'Üst bardaki A → B çizgisi yedi durağı işaretliyor ve kaydırdıkça ilerliyor; navigasyon ve ilerleme aynı çizgide.' },
+      { title: 'Dürüst rezervasyon', text: 'Form bir ödeme ya da sahte onay ekranı değil. Talep WhatsApp’ta hazır açılıyor; açılmazsa mesaj kopyalanıp Instagram’dan gönderilebiliyor.' },
+      { title: 'Derlemesiz yayın', text: 'Bütün site tek bir HTML dosyası. Derleme adımı olmadan her sunucuda çalışıyor.' },
+    ],
+    scope: ['Konsept', 'Sanat yönetimi', 'İki dilli içerik', 'Geliştirme'],
+    stack: ['HTML', 'CSS', 'JavaScript', 'Canvas 2D'],
+    type: [
+      { name: 'Archivo', role: 'Genişlik ekseniyle display ve metin' },
+      { name: 'Martian Mono', role: 'Rota etiketleri, saat ve teknik bilgi' },
+    ],
+    palette: [
+      { name: 'Obsidian', hex: '#0A0B0D' },
+      { name: 'Graphite', hex: '#131518' },
+      { name: 'Bone', hex: '#ECE9E3' },
+      { name: 'Metal', hex: '#8F949B' },
+      { name: 'Signal', hex: '#EE7A68' },
+      { name: 'Xenon', hex: '#BFD2E2' },
+    ],
+    theme: { bg: '#0b0c0e', fg: '#ece9e3', accent: '#ee7a68', dark: true },
+    services: ['ozel', 'isletme', 'landing'],
+    audience: "Transfer, turizm ve rezervasyonla çalışan işletmeler",
+    need: "Şoförlü transfer satan bir işletme için site, yolculuğun kendisini anlatmalı ve talebi tek bir mesajda toplamalıydı.",
+    features: ["Türkçe ve İngilizce; dil tarayıcıya göre seçiliyor", "A → B rota çizgisiyle ilerleyen tek sayfa", "Nereden, nereye, tarih, yolcu ve araç seçen rezervasyon formu", "Talebi WhatsApp’ta hazır açan dürüst gönderim", "Derleme gerektirmeyen tek HTML dosyası"],
+    shots: [
+      { alt: 'MAS VIP Transfer Türkçe açılışı: gece yolunda arka lambaları yanan araç, üstte FARKLA, altta VARIN. yazısı.', caption: 'TR — FARKLA VARIN.' },
+      { alt: 'Aynı açılışın İngilizce hali: ARRIVE DIFFERENT. başlığı ve A Departure, Destination B rota çizgisi.', caption: 'EN — ARRIVE DIFFERENT.' },
+      { alt: 'Kalkış bölümü: “Her yolculuğun başlamadan önce bir anı vardır.” başlığı, yerel saat ve rota alanları.', caption: '01 Kalkış — yolculuktan önceki an' },
+      { alt: 'Filo bölümü: VIP Van aracının teknik çizgi çizimi, kapasite bilgileri ve kabin seçimi.', caption: '03 Filo — araç, çizgiyle' },
+      { alt: 'Hizmet bölümü: Havalimanı, Özel, Kurumsal, Etkinlik ve Şehirler Arası listesi, seçili hizmetin görseli.', caption: '04 Hizmet — beş tür yolculuk' },
+      { alt: 'Hassasiyet bölümü: açık zeminde ZAMAN, ROTA, VARIŞ, KONFOR, ÖZEN kelimeleri ve “Lüks, fazlalık değildir.” cümlesi.', caption: '05 Hassasiyet — lüks, fazlalık değildir' },
+      { alt: 'Rezervasyon formu: nereden, nereye, tarih, saat, yolcu sayısı ve araç seçimi.', caption: '06 Rezervasyon — WhatsApp’a hazır talep' },
+      { alt: 'Varış bölümü: “Sıradaki varış noktanız neresi?” kapanışı ve yolculuk planla bağlantısı.', caption: '07 Varış — sıradaki durak' },
     ],
   },
 ];
@@ -354,7 +453,7 @@ export const projects: Project[] = input.map((p) => {
   if (images.length < p.shots.length) {
     throw new Error(`Project "${p.slug}" lists ${p.shots.length} shots but has ${images.length} images.`);
   }
-  return { ...p, shots: p.shots.map((s, i) => ({ ...s, src: images[i] })) };
+  return { ...p, shots: p.shots.map((s, i) => ({ ...s, src: images[i] })), tour: imagesIn(tourFiles, 'tour', p.slug) };
 });
 
 export const getProject = (slug: string) => projects.find((p) => p.slug === slug);

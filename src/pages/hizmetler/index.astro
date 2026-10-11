@@ -1,0 +1,129 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/ui/PageHead.astro';
+import CtaBand from '../../components/ui/CtaBand.astro';
+import { services } from '../../data/services';
+import { getProject } from '../../data/projects';
+import { baseline } from '../../data/process';
+import { abs } from '../../lib/schema';
+
+const listLd = {
+  '@type': 'ItemList',
+  '@id': abs('/hizmetler/#list', Astro.site),
+  itemListElement: services.map((s, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    url: abs(`/hizmetler/${s.slug}/`, Astro.site),
+    name: s.h1,
+  })),
+};
+---
+
+<Base
+  title="Hizmetler — Web Tasarım, E-Ticaret, Landing Page"
+  description="Özel web sitesi tasarımı, işletme sitesi, e-ticaret, landing page ve web sitesi yenileme. Her biri ayrı bir amaç için; hepsinde mobil öncelikli, hızlı ve arama motorlarına hazır kod."
+  pageType="CollectionPage"
+  breadcrumbs={[{ name: 'Hizmetler', path: '/hizmetler/' }]}
+  jsonLd={[listLd]}
+  act={{ no: 'III', name: 'Hizmetler' }}
+>
+  <PageHead
+    crumbs={[{ name: 'Hizmetler' }]}
+    eyebrow="Capabilities — 05"
+    title="Beş hizmet, beş ayrı amaç."
+    lead="Hizmet listesi değil; her biri farklı bir ihtiyaca cevap. Hangisinin size uyduğundan emin değilseniz formda “Henüz emin değilim” seçin, birlikte bakalım."
+  />
+
+  <ol class="sv" role="list">
+    {
+      services.map((s) => (
+        <li class="sv__item">
+          <a class="grid sv__row" href={`/hizmetler/${s.slug}/`}>
+            <span class="t-micro sv__no">{s.no}</span>
+            <span class="sv__name">
+              <span class="sv__tr">{s.tr}</span>
+              <span class="sv__en t-micro" lang="en">{s.en}</span>
+            </span>
+            <span class="sv__text">{s.text}</span>
+            <span class="sv__for t-mute">{s.for}</span>
+            <span class="sv__proof t-micro">
+              {s.proofLabel}: {s.proof.map((pr) => getProject(pr.slug)?.name).filter(Boolean).join(' · ')}
+            </span>
+            <span class="sv__arr" aria-hidden="true">→</span>
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+
+  <section class="grid base" aria-labelledby="base-title">
+    <h2 class="base__title" id="base-title">Her projede, hangi hizmet olursa olsun</h2>
+    <ul class="base__list" role="list">
+      {baseline.map((b, i) => (<li data-reveal="y" style={`--d:${i % 3}`}><span class="t-micro">0{i + 1}</span>{b}</li>))}
+    </ul>
+    <p class="base__note t-mute">
+      Fiyat ve süre kapsama göre belirlenir; sabit paket fiyatımız yok. <a class="link" href="/sss/">Fiyat ve süre nasıl belirlenir?</a>
+    </p>
+  </section>
+
+  <CtaBand place="hizmetler" />
+</Base>
+
+<style>
+  .sv { margin: 0; border-top: 1px solid var(--line-2); }
+  .sv__row {
+    position: relative;
+    row-gap: 8px;
+    align-items: baseline;
+    padding-block: clamp(22px, 3vw, 40px);
+    border-bottom: 1px solid var(--line);
+    transition: background-color var(--t2) var(--ease);
+  }
+  .sv__row:hover { background: var(--paper-2); }
+  .sv__no { grid-column: 1 / 2; color: var(--axis); }
+  .sv__name { grid-column: 2 / -2; display: grid; gap: 4px; }
+  .sv__tr {
+    font-family: var(--f-display);
+    font-stretch: 112%;
+    font-weight: 800;
+    font-size: clamp(1.75rem, 1rem + 2.6vw, 3.5rem);
+    letter-spacing: -0.035em;
+    line-height: 1;
+    transition: transform var(--t2) var(--ease), color var(--t1) linear;
+  }
+  .sv__row:hover .sv__tr { transform: translateX(8px); color: var(--axis); }
+  .sv__en { color: var(--mute); }
+  .sv__text, .sv__for, .sv__proof { grid-column: 2 / -1; }
+  .sv__text { font-size: var(--fs-lead); line-height: 1.35; max-width: 36ch; }
+  .sv__for { font-size: var(--fs-small); max-width: 46ch; }
+  .sv__proof { color: var(--ink-2); }
+  .sv__arr { grid-column: -2 / -1; grid-row: 1; justify-self: end; font-size: 1.25rem; transition: transform var(--t2) var(--ease); }
+  .sv__row:hover .sv__arr { transform: translateX(6px); }
+
+  .base { row-gap: 24px; padding-block: clamp(64px, 8vw, 128px); }
+  .base__title {
+    grid-column: 1 / -1;
+    font-family: var(--f-display);
+    font-stretch: 112%;
+    font-weight: 750;
+    font-size: var(--fs-m);
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    max-width: 18ch;
+  }
+  .base__list { grid-column: 1 / -1; display: grid; gap: 0; margin: 0; }
+  .base__list li { display: grid; grid-template-columns: 2.4rem 1fr; padding: 14px 0; border-top: 1px solid var(--line); }
+  .base__list .t-micro { color: var(--axis); padding-top: 0.3em; }
+  .base__note { grid-column: 1 / -1; font-size: var(--fs-small); }
+
+  @media (min-width: 1024px) {
+    .sv__name { grid-column: 2 / 6; }
+    .sv__text { grid-column: 6 / 9; grid-row: 1; }
+    .sv__for { grid-column: 9 / 12; grid-row: 1; }
+    .sv__proof { grid-column: 6 / 12; }
+    .sv__arr { grid-column: 12 / 13; }
+    .base__title { grid-column: 1 / 5; }
+    .base__list { grid-column: 6 / 13; grid-template-columns: 1fr 1fr; column-gap: var(--g); }
+    .base__note { grid-column: 6 / 13; }
+  }
+</style>

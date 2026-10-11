@@ -1,0 +1,61 @@
+---
+import LegalPage from '../../components/ui/LegalPage.astro';
+import { site } from '../../data/site';
+
+const l = site.legal;
+const hosting = l.hosting.name ? `${l.hosting.name}${l.hosting.country ? ` (${l.hosting.country})` : ''}` : '';
+---
+
+<LegalPage
+  title="Gizlilik ve Çerezler"
+  path="/gizlilik/"
+  description="Bu site çerez kullanmaz. Ziyaret ölçümü, sunucu kayıtları, dış bağlantılar ve formlar hakkında VERYAXZ STUDIO gizlilik politikası."
+>
+  <p class="lead-in"><strong>Kısaca:</strong> Bu site çerez kullanmaz, reklam ya da takip araçları içermez ve sizi siteler arasında izlemez.</p>
+
+  <h2>Çerezler</h2>
+  <p>
+    Bu site, tarayıcınıza çerez (cookie) yerleştirmez ve tarayıcı depolamasını (localStorage, sessionStorage) kullanmaz.
+    Bu nedenle bir çerez onay penceresi göstermiyoruz.
+  </p>
+  <p>
+    Yazı tipleri ve görseller kendi sunucumuzdan yüklenir. Sayfalarda harita, video ya da sosyal medya gömme kodu gibi,
+    açıldığında üçüncü taraflara istek gönderen içerik bulunmaz.
+  </p>
+
+  <h2>Ziyaret ölçümü</h2>
+  {
+    site.analytics.domain ? (
+      <p>
+        Hangi sayfaların ne kadar okunduğunu anlamak için çerez kullanmayan ve kişisel veri saklamayan bir ölçüm aracı
+        kullanıyoruz. Araç yalnızca toplu sayılar üretir (ör. sayfa görüntüleme, yönlendiren site, ülke ve cihaz türü);
+        IP adresiniz saklanmaz ve sizi tanıyan kalıcı bir tanımlayıcı oluşturulmaz. WhatsApp, telefon ve teklif
+        düğmelerine kaç kez tıklandığı da kişisel bilgi içermeyen olaylar olarak sayılır.
+      </p>
+    ) : (
+      <p>Şu anda bu sitede herhangi bir ziyaret ölçüm aracı kullanılmamaktadır. Kullanılmaya başlanırsa bu sayfa güncellenecektir.</p>
+    )
+  }
+
+  <h2>Sunucu kayıtları</h2>
+  <p>
+    Site{hosting ? ` ${hosting} altyapısında` : ' bir barındırma hizmeti sağlayıcısında'} barındırılmaktadır. Sağlayıcı,
+    güvenlik ve işleyiş amacıyla standart sunucu kayıtları (IP adresi, tarayıcı bilgisi, istek zamanı ve istenen sayfa)
+    tutabilir. Bu kayıtları pazarlama ya da profil çıkarma amacıyla kullanmıyoruz.
+  </p>
+
+  <h2>Formlar ve mesajlar</h2>
+  <p>
+    Proje formuna, WhatsApp’a ya da e-postaya yazdığınız bilgiler yalnızca talebinizi yanıtlamak ve teklif hazırlamak için
+    kullanılır. Ayrıntılar <a href="/kvkk/">KVKK Aydınlatma Metni</a>’nde yer alır.
+  </p>
+
+  <h2>Dış bağlantılar</h2>
+  <p>
+    WhatsApp, Instagram ve vaka çalışmalarında yer alan proje siteleri gibi dış bağlantılara tıkladığınızda o hizmetlerin
+    kendi gizlilik ve çerez politikaları geçerli olur. Bu bağlantılar yeni sekmede açılır.
+  </p>
+
+  <h2>Değişiklikler</h2>
+  <p>Bu politika değiştiğinde sayfanın başındaki güncelleme tarihi yenilenir.</p>
+</LegalPage>

@@ -1,0 +1,73 @@
+---
+import LegalPage from '../../components/ui/LegalPage.astro';
+import { site } from '../../data/site';
+
+const l = site.legal;
+const c = site.contact;
+const who = l.controller || l.tradeName;
+---
+
+<LegalPage
+  title="Kullanım Koşulları"
+  path="/kullanim-kosullari/"
+  description="VERYAXZ STUDIO web sitesinin kullanım koşulları: içerik hakları, portföyde yer alan markalar, bilgilendirme niteliği ve uygulanacak hukuk."
+>
+  <p>
+    Bu web sitesini kullanarak aşağıdaki koşulları kabul etmiş sayılırsınız. Site, {who} tarafından işletilmektedir.
+  </p>
+
+  <h2>1. Site içeriği</h2>
+  <p>
+    Sitenin tasarımı, kodu, metinleri ve grafik unsurları, aksi belirtilmedikçe {l.tradeName}’ya aittir. İçerik; kaynak
+    gösterilerek alıntılanabilir, ancak izin alınmadan kopyalanamaz, çoğaltılamaz veya ticari amaçla kullanılamaz.
+  </p>
+
+  <h2>2. Portföy ve üçüncü taraf markalar</h2>
+  <p>
+    “İşler” bölümünde ve vaka çalışmalarında yer alan marka adları, logolar, fotoğraflar ve içerikler ilgili marka
+    sahiplerine aittir ve stüdyonun çalışmalarını göstermek amacıyla yer almaktadır. Ekran görüntüleri projelerin çalışan
+    sürümlerinden alınmıştır. Bu görüntülerde görünen fiyat, menü, adres ve telefon gibi bilgiler ilgili işletmelere aittir;
+    güncel olmayabilir ve bu sitenin bir teklifi değildir.
+  </p>
+
+  <h2>3. Bilgilendirme niteliği</h2>
+  <p>
+    Sitedeki hizmet açıklamaları genel bilgilendirme amaçlıdır ve bir teklif niteliği taşımaz. Bir projenin kapsamı,
+    takvimi ve ücreti yalnızca taraflarca onaylanan yazılı teklif ve sözleşmeyle belirlenir.
+  </p>
+
+  <h2>4. Dış bağlantılar</h2>
+  <p>
+    Site; WhatsApp, Instagram ve proje siteleri gibi üçüncü taraf hizmetlere bağlantılar içerir. Bu hizmetlerin içeriğinden,
+    erişilebilirliğinden ve gizlilik uygulamalarından ilgili hizmet sağlayıcılar sorumludur.
+  </p>
+
+  <h2>5. Sorumluluk</h2>
+  <p>
+    Site içeriğinin doğru ve güncel olması için özen gösterilir; ancak sitenin kesintisiz ya da hatasız çalışacağı garanti
+    edilmez. Sitenin kullanımından doğabilecek dolaylı zararlardan, kanunun izin verdiği ölçüde sorumluluk kabul edilmez.
+  </p>
+
+  <h2>6. Kişisel veriler</h2>
+  <p>
+    Kişisel verilerin işlenmesi <a href="/kvkk/">KVKK Aydınlatma Metni</a>’nde, çerezler ve ziyaret ölçümü
+    <a href="/gizlilik/">Gizlilik ve Çerezler</a> sayfasında açıklanmıştır.
+  </p>
+
+  <h2>7. Değişiklikler</h2>
+  <p>Bu koşullar güncellenebilir. Güncel metin her zaman bu sayfada yayımlanır; sayfanın başındaki tarih son değişikliği gösterir.</p>
+
+  <h2>8. Uygulanacak hukuk</h2>
+  <p>
+    Bu koşullar Türkiye Cumhuriyeti hukukuna tabidir. Uyuşmazlıklarda Türkiye Cumhuriyeti mahkemeleri ve icra daireleri
+    yetkilidir; tüketici sıfatıyla hareket eden kullanıcıların tüketici hakem heyetlerine ve tüketici mahkemelerine
+    başvurma hakları saklıdır.
+  </p>
+
+  <h2>9. İletişim</h2>
+  <p>
+    Sorularınız için <a href={`tel:${c.phoneHref}`}>{c.phoneDisplay}</a> numaralı hattan ya da
+    <a href={`https://wa.me/${c.whatsapp}`} target="_blank" rel="noopener">WhatsApp</a> üzerinden bize ulaşabilirsiniz{l.email ? ', ' : '.'}
+    {l.email && <>e-posta: <a href={`mailto:${l.email}`}>{l.email}</a>.</>}
+  </p>
+</LegalPage>

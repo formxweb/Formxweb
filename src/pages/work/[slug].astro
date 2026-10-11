@@ -1,9 +1,12 @@
 ---
-import { getImage } from 'astro:assets';
+import { getImage, Picture } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import Shot from '../../components/Shot.astro';
 import { projects, type Project } from '../../data/projects';
+import { getService } from '../../data/services';
 import { whatsappUrl } from '../../data/site';
+import { abs } from '../../lib/schema';
+import { specimensFor } from '../../lib/specimens';
 
 export function getStaticPaths() {
   return projects.map((project) => ({ params: { slug: project.slug }, props: { project } }));
@@ -18,47 +21,72 @@ const index = projects.indexOf(p);
 const next = projects[(index + 1) % projects.length];
 const total = String(projects.length).padStart(2, '0');
 const [hero, ...gallery] = p.shots;
+const svc = p.services.map(getService);
 
-const og = await getImage({ src: hero.src, width: 1200, height: 630, fit: 'cover', position: 'top', format: 'jpg', quality: 82 });
+/* Full-size frames for the lightbox (and for the no-JS link target). */
+const full = await Promise.all(p.shots.map((s) => getImage({ src: s.src, width: 2400, format: 'webp', quality: 80 })));
+const tourFull = await Promise.all(p.tour.map((src) => getImage({ src, width: 1600, format: 'webp', quality: 78 })));
 
-const jsonLd = [
-  {
-    '@context': 'https://schema.org',
-    '@type': 'CreativeWork',
-    name: `${p.name} — ${p.category}`,
-    description: p.summary,
-    dateCreated: p.year,
-    inLanguage: 'tr',
-    image: new URL(og.src, Astro.site).href,
-    url: new URL(`/work/${p.slug}/`, Astro.site).href,
-    creator: { '@id': new URL('/#studio', Astro.site).href },
-    keywords: [...p.scope, ...p.stack].join(', '),
-  },
-];
+const ogPath = `/og/${p.slug}.jpg`;
+const specimen = specimensFor(p.type.map((t) => t.name));
+const pangram = 'Pijamalı hasta yağız şoföre çabucak güvendi.';
+const host = p.liveUrl ? new URL(p.liveUrl).host.replace(/^www\./, '') : '';
+const statusLabel = { live: 'Yayında', delivered: 'Teslim edildi', concept: 'Konsept çalışma' } as const;
+
+const caseLd = {
+  '@type': 'CreativeWork',
+  '@id': abs(`/work/${p.slug}/#case`, Astro.site),
+  name: `${p.name} — ${p.category} web sitesi`,
+  headline: p.tagline,
+  description: p.summary,
+  dateCreated: p.year,
+  inLanguage: 'tr-TR',
+  image: abs(ogPath, Astro.site),
+  url: abs(`/work/${p.slug}/`, Astro.site),
+  creator: { '@id': abs('/#studio', Astro.site) },
+  genre: p.category,
+  keywords: [...svc.map((s) => s.tr), ...p.scope, ...p.stack].join(', '),
+  ...(p.liveUrl ? { sameAs: p.liveUrl } : {}),
+};
 
 const talk = whatsappUrl(`Merhaba VERYAXZ, ${p.name} projesini inceledim. Benzer bir proje için görüşmek istiyorum.`);
+const brief = `/teklif/?ref=${p.slug}&tur=${encodeURIComponent(svc[0]?.tr ?? '')}`;
+const themeVars = (t: Project['theme']) =>
+  `--p-bg:${t.bg};--p-fg:${t.fg};--p-accent:${t.accent};--p-accent-ink:${t.accentInk ?? t.accent}`;
 ---
 
 <Base
-  title={`${p.name} — ${p.category}`}
-  description={`${p.summary} Vaka çalışması: ${p.tagline}`}
-  image={og.src}
-  imageAlt={hero.alt}
+  title={`${p.name}: ${p.category} web sitesi`}
+  description={`${p.summary} ${p.tagline} VERYAXZ STUDIO vaka çalışması.`}
+  image={ogPath}
+  imageAlt={`${p.name} — ${p.category} web sitesi, VERYAXZ STUDIO vaka çalışması`}
   type="article"
-  jsonLd={jsonLd}
+  jsonLd={[caseLd]}
+  breadcrumbs={[
+    { name: 'İşler', path: '/work/' },
+    { name: p.name, path: `/work/${p.slug}/` },
+  ]}
   headerTone={p.theme.dark ? 'dark' : 'light'}
-  act={{ no: p.no, name: 'Case study' }}
+  themeColor={p.theme.bg}
+  act={{ no: p.no, name: 'Vaka çalışması' }}
 >
-  <article
-    class:list={['cs', p.theme.dark && 'on-dark']}
-    style={`--p-bg:${p.theme.bg};--p-fg:${p.theme.fg};--p-accent:${p.theme.accent};--p-accent-ink:${p.theme.accentInk ?? p.theme.accent}`}
-    aria-labelledby="cs-title"
-  >
+  {specimen.css && <style slot="head" is:inline set:html={specimen.css}></style>}
+  <article class:list={['cs', p.theme.dark && 'on-dark']} style={themeVars(p.theme)} aria-labelledby="cs-title">
     <header class="cs-hero">
       <div class="grid cs-hero__top t-micro">
-        <a class="cs-back" href="/#work"><span aria-hidden="true">←</span> Tüm işler</a>
-        <span class="cs-count"><span lang="en">Case</span> {p.no} / {total}</span>
-        <span class="cs-sector" lang="en">{p.sector}</span>
+        <nav class="cs-crumbs" aria-label="Konum">
+          <ol role="list">
+            <li><a href="/">Ana sayfa</a></li>
+            <li><a href="/work/">İşler</a></li>
+            <li><span aria-current="page">{p.name}</span></li>
+          </ol>
+        </nav>
+        <span class="cs-count">Vaka {p.no} / {total}</span>
+        <span class="cs-sector">
+          {p.status && <span class="cs-status">{statusLabel[p.status]}</span>}
+          {p.liveUrl && <a href={p.liveUrl} target="_blank" rel="noopener" class="cs-live">{p.liveLabel ?? host} ↗</a>}
+          {!p.status && !p.liveUrl && <span>{p.category}</span>}
+        </span>
       </div>
 
       <h1 class="cs-hero__name" id="cs-title" lang={p.nameLang}>{p.name}</h1>
@@ -73,8 +101,8 @@ const talk = whatsappUrl(`Merhaba VERYAXZ, ${p.name} projesini inceledim. Benzer
           <dd>{p.year}</dd>
         </div>
         <div>
-          <dt class="t-micro">Kapsam</dt>
-          <dd>{p.scope.join(' · ')}</dd>
+          <dt class="t-micro">Hizmet</dt>
+          <dd class="cs-svc">{svc.map((s) => <a href={`/hizmetler/${s.slug}/`}>{s.tr}</a>)}</dd>
         </div>
         <div>
           <dt class="t-micro">Teknoloji</dt>
@@ -82,11 +110,28 @@ const talk = whatsappUrl(`Merhaba VERYAXZ, ${p.name} projesini inceledim. Benzer
         </div>
       </dl>
 
-      <div class="cs-hero__shot">
+      <a class="cs-hero__shot" href={full[0].src} data-lb="0" aria-label={`Büyüt: ${hero.caption}`}>
         <Shot shot={hero} sizes="100vw" priority caption={false} bleed />
-      </div>
+      </a>
       <p class="cs-hero__cap t-micro wrap">01 — {hero.caption}</p>
     </header>
+
+    <section class="grid cs-brief" aria-labelledby="cs-brief">
+      <h2 class="t-micro cs-label" id="cs-brief">Kısaca</h2>
+      <div class="cs-brief__need">
+        <h3 class="t-micro cs-sublabel">İhtiyaç</h3>
+        <p class="cs-brief__big">{p.need}</p>
+      </div>
+      <div class="cs-brief__feat">
+        <h3 class="t-micro cs-sublabel">Sitede</h3>
+        <ul role="list">{p.features.map((f) => <li>{f}</li>)}</ul>
+      </div>
+      <div class="cs-brief__aud">
+        <h3 class="t-micro cs-sublabel">Benzer bir site kimlere uyar</h3>
+        <p>{p.audience}</p>
+        <a class="cs-brief__link" href={brief} data-event="Teklif" data-event-place={`case-${p.slug}-brief`}>Benzer bir proje başlat <span aria-hidden="true">→</span></a>
+      </div>
+    </section>
 
     <section class="grid cs-concept" aria-labelledby="cs-concept">
       <h2 class="t-micro cs-label" id="cs-concept">Konsept</h2>
@@ -101,7 +146,10 @@ const talk = whatsappUrl(`Merhaba VERYAXZ, ${p.name} projesini inceledim. Benzer
         {
           gallery.map((s, i) => (
             <li class="cs-g" data-reveal="y">
-              <Shot shot={s} sizes="(min-width: 1024px) 66vw, 100vw" caption={`0${i + 2} — ${s.caption}`} />
+              <a href={full[i + 1].src} data-lb={i + 1} class="cs-zoom" aria-label={`Büyüt: ${s.caption}`}>
+                <Shot shot={s} sizes="(min-width: 1024px) 66vw, 100vw" caption={false} />
+              </a>
+              <p class="cs-g__cap t-micro">{String(i + 2).padStart(2, '0')} — {s.caption}</p>
             </li>
           ))
         }
@@ -115,12 +163,22 @@ const talk = whatsappUrl(`Merhaba VERYAXZ, ${p.name} projesini inceledim. Benzer
         <h3 class="t-micro cs-sublabel">Tipografi</h3>
         <ul role="list">
           {
-            p.type.map((t) => (
-              <li data-reveal="y">
-                <span class="cs-type__name">{t.name}</span>
-                <span class="cs-type__role">{t.role}</span>
-              </li>
-            ))
+            p.type.map((t) => {
+              const sp = specimen.map.get(t.name);
+              const style = sp ? `font-family:'${sp.family}';font-weight:${sp.weight};font-style:${sp.style}` : '';
+              return (
+                <li data-reveal="y">
+                  <span class="cs-type__aa" style={style} aria-hidden="true">Aa</span>
+                  <span class="cs-type__meta">
+                    <span class="cs-type__name">{t.name}</span>
+                    <span class="cs-type__role">{t.role}</span>
+                  </span>
+                  <span class:list={['cs-type__sample', sp?.upper && 'is-upper']} style={style} lang="tr">
+                    {sp?.upper ? p.name : pangram}
+                  </span>
+                </li>
+              );
+            })
           }
         </ul>
       </div>
@@ -155,9 +213,41 @@ const talk = whatsappUrl(`Merhaba VERYAXZ, ${p.name} projesini inceledim. Benzer
       </ol>
     </section>
 
-    <section class="grid cs-cta" aria-labelledby="cs-cta">
+    {
+      p.tour.length > 0 && (
+        <section class="cs-tour" aria-labelledby="cs-tour">
+          <div class="grid cs-tour__head">
+            <h2 class="t-micro cs-label" id="cs-tour">Baştan sona</h2>
+            <p class="cs-tour__text">Sitenin tamamı, yukarıdan aşağı ekran ekran. Herhangi bir kareye dokunun, büyüsün.</p>
+          </div>
+          <ol class="cs-tour__grid wrap" role="list">
+            {
+              p.tour.map((src, i) => (
+                <li>
+                  <a href={tourFull[i].src} data-lb-tour={i} aria-label={`Kare ${i + 1} / ${p.tour.length}: büyüt`}>
+                    <Picture
+                      src={src}
+                      alt={`${p.name} sitesi, sayfa akışında ${i + 1}. ekran`}
+                      formats={['avif']}
+                      fallbackFormat="webp"
+                      widths={[360, 560, 800]}
+                      sizes="(min-width: 1024px) 24vw, (min-width: 640px) 45vw, 90vw"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                    <span class="t-micro cs-tour__n">{String(i + 1).padStart(2, '0')}</span>
+                  </a>
+                </li>
+              ))
+            }
+          </ol>
+        </section>
+      )
+    }
+
+    <section class="grid cs-cta" aria-labelledby="cs-cta" data-abar-hide>
       <h2 class="cs-cta__title" id="cs-cta">
-        {p.liveUrl ? 'Projeyi canlı görün.' : 'Benzer bir proje mi düşünüyorsunuz?'}
+        {p.liveUrl ? 'Projeyi canlı görün.' : `${p.category} için benzer bir site mi düşünüyorsunuz?`}
       </h2>
       <div class="cs-cta__actions">
         {
@@ -167,24 +257,107 @@ const talk = whatsappUrl(`Merhaba VERYAXZ, ${p.name} projesini inceledim. Benzer
             </a>
           )
         }
-        <a class="btn" href={talk} target="_blank" rel="noopener">
-          WhatsApp’ta konuşalım <span class="arr arr-x" aria-hidden="true">↗</span>
+        <a class="btn" href={brief} data-event="Teklif" data-event-place={`case-${p.slug}`}>
+          Benzer bir proje başlat <span class="arr arr-x" aria-hidden="true">→</span>
         </a>
-        <a class="link cs-cta__form" href="/#brief">
-          Proje formunu doldurun <span class="arr" aria-hidden="true">→</span>
+        <a class="link cs-cta__form" href={talk} target="_blank" rel="noopener" data-event="WhatsApp" data-event-place={`case-${p.slug}`}>
+          WhatsApp’ta konuşalım <span class="arr" aria-hidden="true">↗</span>
         </a>
       </div>
+      <p class="cs-tm t-micro">
+        {p.name} adı, logosu ve sitedeki içerikler marka sahibine aittir; bu sayfada stüdyonun çalışmasını göstermek için yer alır.
+      </p>
     </section>
   </article>
 
-  <nav class="cs-next" aria-label="Sonraki vaka çalışması">
+  <nav class:list={['cs-next', next.theme.dark && 'on-dark']} style={themeVars(next.theme)} aria-label="Sonraki vaka çalışması">
     <a href={`/work/${next.slug}/`} class="grid cs-next__link">
-      <span class="t-micro cs-next__label">Sonraki — {next.no} / {total}</span>
+      <span class="t-micro cs-next__label">Sonraki vaka — {next.no} / {total}</span>
       <span class="cs-next__name" lang={next.nameLang}>{next.name}</span>
       <span class="cs-next__cat t-micro">{next.category} <span aria-hidden="true">→</span></span>
+      <span class="cs-next__img" aria-hidden="true">
+        <Picture src={next.shots[0].src} alt="" formats={['avif']} fallbackFormat="webp" widths={[480, 800]} sizes="(min-width: 1024px) 30vw, 60vw" loading="lazy" />
+      </span>
     </a>
   </nav>
+
+  <dialog class="lb" data-lb-dialog aria-label="Görsel">
+    <div class="lb__bar t-micro">
+      <span data-lb-count></span>
+      <button type="button" class="lb__close" data-lb-close>Kapat <span aria-hidden="true">×</span></button>
+    </div>
+    <figure class="lb__fig">
+      <img data-lb-img alt="" />
+      <figcaption class="lb__cap t-micro" data-lb-cap></figcaption>
+    </figure>
+    <div class="lb__nav">
+      <button type="button" data-lb-prev aria-label="Önceki görsel">←</button>
+      <button type="button" data-lb-next aria-label="Sonraki görsel">→</button>
+    </div>
+  </dialog>
+  <script type="application/json" data-lb-data set:html={JSON.stringify({
+    shots: p.shots.map((s, i) => ({ src: full[i].src, alt: s.alt, cap: `${String(i + 1).padStart(2, '0')} — ${s.caption}` })),
+    tour: p.tour.map((_, i) => ({ src: tourFull[i].src, alt: `${p.name} sitesi, sayfa akışında ${i + 1}. ekran`, cap: `Baştan sona — ${String(i + 1).padStart(2, '0')} / ${String(p.tour.length).padStart(2, '0')}` })),
+  }).replace(/</g, '\\u003c')} />
 </Base>
+
+<script>
+  /* Lightbox: native <dialog>, arrow keys, swipe-free (the image can be pinch-zoomed). */
+  const dialog = document.querySelector<HTMLDialogElement>('[data-lb-dialog]');
+  const raw = document.querySelector<HTMLScriptElement>('[data-lb-data]');
+  if (dialog && raw && typeof dialog.showModal === 'function') {
+    type Item = { src: string; alt: string; cap: string };
+    const data: { shots: Item[]; tour: Item[] } = JSON.parse(raw.textContent || '{}');
+    const img = dialog.querySelector<HTMLImageElement>('[data-lb-img]')!;
+    const cap = dialog.querySelector<HTMLElement>('[data-lb-cap]')!;
+    const count = dialog.querySelector<HTMLElement>('[data-lb-count]')!;
+    let set: Item[] = [];
+    let at = 0;
+    let opener: HTMLElement | null = null;
+
+    const show = (i: number) => {
+      at = (i + set.length) % set.length;
+      const item = set[at];
+      img.src = item.src;
+      img.alt = item.alt;
+      cap.textContent = item.cap;
+      count.textContent = `${at + 1} / ${set.length}`;
+    };
+    const open = (which: Item[], i: number, from: HTMLElement) => {
+      set = which;
+      opener = from;
+      show(i);
+      dialog.showModal();
+      document.documentElement.style.overflow = 'hidden';
+    };
+    dialog.addEventListener('close', () => {
+      document.documentElement.style.overflow = '';
+      opener?.focus({ preventScroll: true });
+    });
+    document.querySelectorAll<HTMLAnchorElement>('[data-lb]').forEach((a) =>
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        open(data.shots, Number(a.dataset.lb), a);
+      }),
+    );
+    document.querySelectorAll<HTMLAnchorElement>('[data-lb-tour]').forEach((a) =>
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        open(data.tour, Number(a.dataset.lbTour), a);
+      }),
+    );
+    dialog.querySelector('[data-lb-close]')?.addEventListener('click', () => dialog.close());
+    dialog.querySelector('[data-lb-prev]')?.addEventListener('click', () => show(at - 1));
+    dialog.querySelector('[data-lb-next]')?.addEventListener('click', () => show(at + 1));
+    dialog.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') show(at - 1);
+      if (e.key === 'ArrowRight') show(at + 1);
+    });
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+  }
+</script>
 
 <style>
   .cs {
@@ -200,10 +373,18 @@ const talk = whatsappUrl(`Merhaba VERYAXZ, ${p.name} projesini inceledim. Benzer
     border-bottom: 1px solid color-mix(in srgb, currentColor 22%, transparent);
     row-gap: 6px;
   }
-  .cs-back { grid-column: 1 / -1; display: inline-flex; gap: 8px; padding-block: 6px; width: max-content; }
-  .cs-back:hover { color: var(--p-accent-ink); }
+  .cs-crumbs { grid-column: 1 / -1; }
+  .cs-crumbs ol { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 10px; margin: 0; padding: 0; list-style: none; }
+  .cs-crumbs li { padding-block: 6px; }
+  .cs-crumbs li + li::before { content: '/'; margin-right: 10px; opacity: 0.55; }
+  .cs-crumbs a { display: inline-block; }
+  .cs-crumbs a:hover { color: var(--p-accent-ink); }
+  .on-dark .cs-crumbs a:hover { color: var(--p-accent); }
   .cs-count { grid-column: 1 / 3; color: var(--p-accent-ink); }
-  .cs-sector { grid-column: 3 / -1; text-align: right; opacity: 0.8; }
+  .on-dark .cs-count { color: var(--p-accent); }
+  .cs-sector { grid-column: 3 / -1; display: flex; gap: 14px; justify-content: end; }
+  .cs-status { opacity: 0.86; }
+  .cs-live { text-decoration: underline; text-underline-offset: 3px; }
 
   .cs-hero__name {
     margin: clamp(28px, 5vw, 72px) 0 0;
@@ -224,6 +405,37 @@ const talk = whatsappUrl(`Merhaba VERYAXZ, ${p.name} projesini inceledim. Benzer
   .cs-facts div { grid-column: span 2; }
   .cs-facts dt { opacity: 0.8; margin-bottom: 6px; }
   .cs-facts dd { margin: 0; font-size: var(--fs-small); line-height: 1.5; }
+  .cs-svc { display: flex; flex-wrap: wrap; gap: 6px; }
+  .cs-svc a { padding: 2px 8px; border: 1px solid color-mix(in srgb, currentColor 32%, transparent); transition: border-color var(--t1) linear; }
+  .cs-svc a:hover { border-color: currentColor; }
+  .cs-hero__shot { display: block; cursor: zoom-in; }
+
+  /* brief ---------------------------------------------------------------------------- */
+  .cs-brief {
+    row-gap: 28px;
+    padding-block: clamp(56px, 7vw, 112px);
+    border-bottom: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+  }
+  .cs-brief > div { grid-column: 1 / -1; }
+  .cs-brief__big { font-size: var(--fs-lead); line-height: 1.4; letter-spacing: -0.01em; max-width: 36ch; }
+  .cs-brief__feat ul { margin: 0; padding: 0; list-style: none; display: grid; }
+  .cs-brief__feat li { padding: 9px 0; border-top: 1px solid color-mix(in srgb, currentColor 18%, transparent); font-size: var(--fs-small); font-weight: 600; }
+  .cs-brief__aud p { font-size: var(--fs-small); line-height: 1.55; max-width: 32ch; }
+  .cs-brief__link {
+    display: inline-flex;
+    gap: 10px;
+    margin-top: 16px;
+    padding-bottom: 3px;
+    border-bottom: 1px solid currentColor;
+    font-family: var(--f-display);
+    font-stretch: 112%;
+    font-weight: 700;
+    font-size: 0.8125rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+  .cs-brief__link span { transition: transform var(--t2) var(--ease); }
+  .cs-brief__link:hover span { transform: translateX(5px); }
   .cs-hero__shot :global(.shot__frame) { background: transparent; }
   .cs-hero__cap { padding-top: 12px; opacity: 0.8; }
 
@@ -238,6 +450,8 @@ const talk = whatsappUrl(`Merhaba VERYAXZ, ${p.name} projesini inceledim. Benzer
   .cs-gallery { padding-bottom: clamp(48px, 7vw, 112px); }
   .cs-gallery__list { row-gap: clamp(36px, 6vw, 96px); margin: 0; align-items: start; }
   .cs-g { grid-column: 1 / -1; }
+  .cs-zoom { display: block; cursor: zoom-in; }
+  .cs-g__cap { padding-top: 10px; opacity: 0.8; }
   .cs-note { padding-top: 28px; opacity: 0.8; }
 
   /* art direction ----------------------------------------------------------------- */
@@ -253,19 +467,31 @@ const talk = whatsappUrl(`Merhaba VERYAXZ, ${p.name} projesini inceledim. Benzer
   .cs-palette ul { margin: 0; display: grid; gap: 0; }
   .cs-type li {
     display: grid;
-    gap: 4px;
-    padding: 16px 0;
+    grid-template-columns: auto 1fr;
+    column-gap: 18px;
+    row-gap: 12px;
+    align-items: center;
+    padding: 18px 0;
     border-top: 1px solid color-mix(in srgb, currentColor 22%, transparent);
   }
+  .cs-type__aa { font-size: clamp(2.75rem, 2rem + 2.5vw, 4.5rem); line-height: 1; min-width: 1.5em; }
+  .cs-type__meta { display: grid; gap: 4px; }
   .cs-type__name {
     font-family: var(--f-display);
     font-stretch: 112%;
     font-weight: 700;
-    font-size: clamp(1.5rem, 1rem + 1.8vw, 2.5rem);
-    letter-spacing: -0.02em;
-    line-height: 1.05;
+    font-size: clamp(1.125rem, 1rem + 0.6vw, 1.5rem);
+    letter-spacing: -0.015em;
+    line-height: 1.1;
   }
   .cs-type__role { font-size: var(--fs-small); opacity: 0.8; }
+  .cs-type__sample {
+    grid-column: 1 / -1;
+    font-size: clamp(1.25rem, 1rem + 1vw, 1.75rem);
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+  }
+  .cs-type__sample.is-upper { text-transform: uppercase; font-size: clamp(1.75rem, 1rem + 2.4vw, 3rem); line-height: 1; }
   .cs-palette ul { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 18px var(--g); }
   .cs-palette li { display: grid; gap: 6px; align-content: start; }
   .cs-swatch {
@@ -298,6 +524,38 @@ const talk = whatsappUrl(`Merhaba VERYAXZ, ${p.name} projesini inceledim. Benzer
   }
   .cs-dd { font-size: var(--fs-small); line-height: 1.6; max-width: 48ch; opacity: 0.88; }
 
+  /* tour ----------------------------------------------------------------------- */
+  .cs-tour {
+    padding-block: clamp(56px, 8vw, 120px);
+    border-top: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+  }
+  .cs-tour__head { row-gap: 12px; margin-bottom: clamp(24px, 3vw, 40px); }
+  .cs-tour__text { grid-column: 1 / -1; font-size: var(--fs-small); max-width: 46ch; opacity: 0.9; }
+  .cs-tour__grid {
+    margin: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .cs-tour__grid a { position: relative; display: block; cursor: zoom-in; }
+  .cs-tour__grid :global(img) {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    outline: 1px solid color-mix(in srgb, currentColor 16%, transparent);
+    transition: opacity var(--t2) linear;
+  }
+  .cs-tour__grid a:hover :global(img) { opacity: 0.86; }
+  .cs-tour__n {
+    position: absolute;
+    left: 6px;
+    top: 6px;
+    padding: 2px 6px;
+    background: var(--p-bg);
+    color: var(--p-fg);
+  }
+
   /* cta ----------------------------------------------------------------------- */
   .cs-cta {
     padding-block: clamp(56px, 8vw, 120px);
@@ -316,6 +574,7 @@ const talk = whatsappUrl(`Merhaba VERYAXZ, ${p.name} projesini inceledim. Benzer
     letter-spacing: -0.015em;
   }
   .cs-cta__actions { grid-column: 1 / -1; display: grid; gap: 14px; justify-items: start; }
+  .cs-tm { grid-column: 1 / -1; opacity: 0.72; max-width: 70ch; text-transform: none; letter-spacing: 0.01em; }
   .cs-cta__actions .btn { min-width: min(100%, 320px); }
   .on-dark .cs-cta__actions .btn:not(.btn--paper) { --btn-bg: var(--p-fg); --btn-fg: var(--p-bg); }
   .cs-cta__form {
@@ -329,14 +588,16 @@ const talk = whatsappUrl(`Merhaba VERYAXZ, ${p.name} projesini inceledim. Benzer
   }
 
   /* next ------------------------------------------------------------------------ */
-  .cs-next { background: var(--paper); }
+  .cs-next { background: var(--p-bg); color: var(--p-fg); overflow: hidden; }
   .cs-next__link {
+    position: relative;
     padding-block: clamp(48px, 7vw, 112px);
     row-gap: 12px;
     align-items: end;
-    transition: color var(--t1) linear;
   }
-  .cs-next__label { grid-column: 1 / -1; color: var(--axis); }
+  .cs-next__label { grid-column: 1 / -1; color: var(--p-accent-ink); }
+  .cs-next.on-dark .cs-next__label { color: var(--p-accent); }
+  .cs-next__img { display: none; }
   .cs-next__name {
     grid-column: 1 / -1;
     font-family: var(--f-display);
@@ -349,13 +610,75 @@ const talk = whatsappUrl(`Merhaba VERYAXZ, ${p.name} projesini inceledim. Benzer
     transition: transform var(--t3) var(--ease);
   }
   .cs-next__cat { grid-column: 1 / -1; }
-  .cs-next__link:hover { color: var(--axis); }
   .cs-next__link:hover .cs-next__name { transform: translateX(1.5vw); }
 
+  /* lightbox -------------------------------------------------------------------- */
+  .lb {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: #0c0c0b;
+    color: var(--paper);
+  }
+  .lb[open] { display: grid; grid-template-rows: auto 1fr auto; }
+  .lb::backdrop { background: rgb(12 12 11 / 0.8); }
+  .lb :focus-visible { outline-color: var(--axis-light); }
+  .lb__bar { display: flex; justify-content: space-between; align-items: center; padding: 10px var(--m); }
+  .lb__close {
+    display: inline-flex;
+    gap: 10px;
+    align-items: center;
+    min-height: 44px;
+    padding: 0;
+    background: none;
+    border: 0;
+    font: inherit;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .lb__fig { display: grid; place-items: center; min-height: 0; padding: 0 var(--m); overflow: auto; }
+  .lb__fig img { max-width: 100%; max-height: calc(100svh - 150px); width: auto; height: auto; object-fit: contain; }
+  .lb__cap { padding-top: 10px; opacity: 0.8; text-align: center; }
+  .lb__nav { display: flex; justify-content: center; gap: 10px; padding: 10px var(--m) max(14px, env(safe-area-inset-bottom)); }
+  .lb__nav button {
+    min-width: 56px;
+    min-height: 44px;
+    background: none;
+    border: 1px solid rgb(232 228 218 / 0.35);
+    color: inherit;
+    font-size: 1.125rem;
+  }
+  .lb__nav button:hover { border-color: currentColor; }
+
   @media (min-width: 1024px) {
-    .cs-back { grid-column: 1 / 4; }
-    .cs-count { grid-column: 6 / 9; }
-    .cs-sector { grid-column: 10 / 13; }
+    .cs-crumbs { grid-column: 1 / 6; }
+    .cs-count { grid-column: 6 / 9; align-self: center; }
+    .cs-sector { grid-column: 9 / 13; align-self: center; }
+    .cs-brief .cs-label { grid-column: 1 / 3; }
+    .cs-brief > .cs-brief__need { grid-column: 3 / 7; }
+    .cs-brief > .cs-brief__feat { grid-column: 7 / 10; }
+    .cs-brief > .cs-brief__aud { grid-column: 10 / 13; }
+    .cs-tour__head .cs-label { grid-column: 1 / 3; }
+    .cs-tour__text { grid-column: 3 / 9; }
+    .cs-tour__grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+    .cs-tm { grid-column: 1 / 13; }
+    .cs-next__img {
+      display: block;
+      position: absolute;
+      right: var(--m);
+      top: 50%;
+      width: 26vw;
+      transform: translateY(-50%) rotate(-2deg);
+      opacity: 0;
+      transition: opacity var(--t2) linear, transform var(--t3) var(--ease);
+      pointer-events: none;
+    }
+    .cs-next__img :global(img) { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; box-shadow: 0 30px 60px -20px rgb(0 0 0 / 0.45); }
+    .cs-next__link:hover .cs-next__img { opacity: 1; transform: translateY(-50%) rotate(0deg); }
     .cs-hero__name { font-size: min(15.5vw, 18rem); }
     .cs-facts div:nth-child(1) { grid-column: 1 / 3; }
     .cs-facts div:nth-child(2) { grid-column: 3 / 5; }

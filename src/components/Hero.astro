@@ -1,13 +1,14 @@
 ---
 import { projects } from '../data/projects';
+import { site } from '../data/site';
 
 const layers = [1, 2, 3];
 ---
 
-<section class="hero" id="top" data-act="I" data-act-name="Identity" aria-labelledby="hero-title">
+<section class="hero" id="kimlik" data-act="I" data-act-name="Kimlik" aria-labelledby="hero-title">
   <div class="hero__meta grid t-micro">
-    <span class="hero__meta-a" lang="en">Creative direction / Digital flagship / 001</span>
-    <span class="hero__meta-b"><span lang="en">Act I — Identity</span></span>
+    <span class="hero__meta-a">{site.role}</span>
+    <span class="hero__meta-b">Bölüm I — Kimlik</span>
     <span class="hero__meta-c">X Strateji · Y Tasarım · Z Geliştirme</span>
   </div>
 
@@ -46,14 +47,14 @@ const layers = [1, 2, 3];
     </p>
 
     <nav class="hero__index" aria-label="Seçili işler">
-      <p class="t-micro t-mute"><span lang="en">Selected work</span> — {String(projects.length).padStart(2, '0')}</p>
+      <p class="t-micro t-mute">Seçili işler — {String(projects.length).padStart(2, '0')}</p>
       <ol role="list">
         {
           projects.map((p) => (
             <li>
               <a href={`#p-${p.slug}`}>
                 <span class="t-micro idx-no">{p.no}</span>
-                <span class="idx-name">{p.name}</span>
+                <span class="idx-name" lang={p.nameLang}>{p.name}</span>
                 <span class="t-micro idx-cat">{p.category}</span>
               </a>
             </li>
@@ -63,10 +64,10 @@ const layers = [1, 2, 3];
     </nav>
 
     <div class="hero__cta">
-      <a class="btn" href="#work" lang="en">
+      <a class="btn" href="#work" lang="en" data-event="Isler" data-event-place="hero">
         Explore selected work <span class="arr arr-y" aria-hidden="true">↓</span>
       </a>
-      <a class="link hero__second" href="#contact" lang="en">
+      <a class="link hero__second" href="#contact" lang="en" data-event="Teklif" data-event-place="hero">
         Start a project <span class="arr" aria-hidden="true">→</span>
       </a>
     </div>

@@ -1,7 +1,7 @@
 ---
 import Wordmark from './Wordmark.astro';
 import AxisMark from './AxisMark.astro';
-import { nav, site, whatsappUrl } from '../data/site';
+import { acts, nav, site, whatsappHello, whatsappUrl } from '../data/site';
 
 interface Props {
   /** Colour of whatever sits under the transparent header at the top of the page. */
@@ -9,7 +9,15 @@ interface Props {
   /** Label shown in the act indicator before any section reports itself. */
   act?: { no: string; name: string };
 }
-const { tone = 'light', act = { no: 'I', name: 'Identity' } } = Astro.props;
+const { tone = 'light', act = { no: 'I', name: acts.I } } = Astro.props;
+
+const path = Astro.url.pathname;
+const isHome = path === '/';
+/** Current page: exact match for the page itself, prefix match for its children (/work/x/ → İşler). */
+const current = (href: string) => !href.includes('#') && path.startsWith(href);
+/** Section id each nav item stands for on the home page (for the scroll-spy). */
+const section = (home: string) => (home.startsWith('/#') ? home.slice(2) : undefined);
+const wa = whatsappUrl(whatsappHello);
 ---
 
 <header class="hd" data-hd data-tone={tone}>
@@ -20,12 +28,7 @@ const { tone = 'light', act = { no: 'I', name: 'Identity' } } = Astro.props;
 
   <p class="hd__act t-micro" aria-hidden="true">
     <span class="hd__act-no" data-act-no>{act.no}</span>
-    <span class="hd__act-name" data-act-name lang="en">{act.name}</span>
-  </p>
-
-  <p class="hd__clock t-micro">
-    <span class="t-mute">TR</span>
-    <time data-clock aria-label="Türkiye saati">--:--</time>
+    <span class="hd__act-name" data-act-name>{act.name}</span>
   </p>
 
   <nav class="hd__nav" aria-label="Ana menü">
@@ -33,7 +36,11 @@ const { tone = 'light', act = { no: 'I', name: 'Identity' } } = Astro.props;
       {
         nav.map((item) => (
           <li>
-            <a href={item.href} lang="en">
+            <a
+              href={item.href}
+              data-section={isHome ? section(item.home) : undefined}
+              aria-current={current(item.href) ? 'page' : undefined}
+            >
               {item.label}
             </a>
           </li>
@@ -42,8 +49,12 @@ const { tone = 'light', act = { no: 'I', name: 'Identity' } } = Astro.props;
     </ul>
   </nav>
 
-  <a class="btn btn--axis hd__cta" href="/#contact" lang="en">
-    Start a project <span class="arr arr-x" aria-hidden="true">→</span>
+  <a class="hd__wa t-micro" href={wa} target="_blank" rel="noopener" data-event="WhatsApp" data-event-place="header">
+    <span class="hd__wa-dot" aria-hidden="true"></span>WhatsApp<span class="sr-only"> (yeni sekmede açılır)</span>
+  </a>
+
+  <a class="btn btn--axis hd__cta" href="/teklif/" data-event="Teklif" data-event-place="header">
+    Proje başlat <span class="arr arr-x" aria-hidden="true">→</span>
   </a>
 
   <button class="hd__menu" type="button" aria-haspopup="dialog" aria-controls="menu" aria-expanded="false" data-menu-open>
@@ -62,13 +73,19 @@ const { tone = 'light', act = { no: 'I', name: 'Identity' } } = Astro.props;
   </div>
   <nav aria-label="Mobil menü">
     <ol class="menu__list" role="list">
+      <li>
+        <a href="/" data-menu-link aria-current={isHome ? 'page' : undefined}>
+          <span class="t-micro menu__no">00</span>
+          <span class="menu__label">Ana sayfa</span>
+        </a>
+      </li>
       {
         nav.map((item, i) => (
           <li>
-            <a href={item.href} data-menu-link>
+            <a href={item.href} data-menu-link aria-current={current(item.href) ? 'page' : undefined}>
               <span class="t-micro menu__no">0{i + 1}</span>
-              <span class="menu__label" lang="en">{item.label}</span>
-              <span class="t-micro menu__tr">{item.tr}</span>
+              <span class="menu__label">{item.label}</span>
+              <span class="t-micro menu__en" lang="en">{item.en}</span>
             </a>
           </li>
         ))
@@ -76,13 +93,13 @@ const { tone = 'light', act = { no: 'I', name: 'Identity' } } = Astro.props;
     </ol>
   </nav>
   <div class="menu__foot">
-    <a class="btn btn--axis" href="/#contact" data-menu-link lang="en">
-      Start a project <span class="arr arr-x" aria-hidden="true">→</span>
+    <a class="btn btn--axis" href="/teklif/" data-menu-link data-event="Teklif" data-event-place="menu">
+      Proje başlat <span class="arr arr-x" aria-hidden="true">→</span>
     </a>
     <ul class="menu__contact t-micro" role="list">
-      <li><a href={whatsappUrl('Merhaba VERYAXZ, bir web sitesi projesi için yazıyorum.')} rel="noopener" target="_blank">WhatsApp ↗</a></li>
-      <li><a href={`tel:${site.contact.phoneHref}`}>{site.contact.phoneDisplay}</a></li>
-      <li><a href={site.contact.instagram} rel="noopener" target="_blank">Instagram ↗</a></li>
+      <li><a href={wa} rel="noopener" target="_blank" data-event="WhatsApp" data-event-place="menu">WhatsApp ↗</a></li>
+      <li><a href={`tel:${site.contact.phoneHref}`} class="menu__tel" data-event="Telefon" data-event-place="menu">{site.contact.phoneDisplay}</a></li>
+      <li><a href={site.contact.instagram} rel="noopener" target="_blank" data-event="Instagram" data-event-place="menu">Instagram ↗</a></li>
     </ul>
   </div>
 </dialog>
@@ -107,10 +124,15 @@ const { tone = 'light', act = { no: 'I', name: 'Identity' } } = Astro.props;
       border-color var(--t2) linear;
   }
   .hd[data-scrolled] {
-    background: color-mix(in srgb, var(--paper) 94%, transparent);
+    background: rgb(232 228 218 / 0.95);
     border-bottom-color: var(--line);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+  }
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    .hd[data-scrolled] {
+      background: rgb(232 228 218 / 0.93);
+      backdrop-filter: blur(12px) saturate(1.2);
+      -webkit-backdrop-filter: blur(12px) saturate(1.2);
+    }
   }
   .hd[data-hidden] { transform: translateY(-100%); }
   .hd[data-tone='dark']:not([data-scrolled]) { color: var(--paper); }
@@ -118,7 +140,7 @@ const { tone = 'light', act = { no: 'I', name: 'Identity' } } = Astro.props;
   .hd[data-tone='dark']:not([data-scrolled]) .hd__act-no { color: var(--axis-light); }
   .hd[data-tone='dark']:not([data-scrolled]) :global(.axis-letter) { color: var(--axis-light); }
   .hd[data-tone='dark']:not([data-scrolled]) :focus-visible { outline-color: var(--axis-light); }
-  .hd[data-tone='dark']:not([data-scrolled]) .t-mute { color: rgb(232 228 218 / 0.72); }
+  .hd[data-tone='dark']:not([data-scrolled]) .hd__wa { border-color: rgb(232 228 218 / 0.4); }
 
   .hd__brand {
     grid-column: 1 / span 3;
@@ -132,8 +154,8 @@ const { tone = 'light', act = { no: 'I', name: 'Identity' } } = Astro.props;
   .hd__brand :global(.hd__word) { font-size: 0.9375rem; }
 
   .hd__act,
-  .hd__clock,
   .hd__nav,
+  .hd__wa,
   .hd__cta { display: none; }
 
   .hd__menu {
@@ -162,13 +184,13 @@ const { tone = 'light', act = { no: 'I', name: 'Identity' } } = Astro.props;
   @media (min-width: 1024px) {
     .hd {
       display: flex;
-      gap: clamp(16px, 2vw, 32px);
+      gap: clamp(14px, 1.8vw, 28px);
     }
     .hd__brand { margin-right: auto; }
     .hd__act {
       display: flex;
       gap: 10px;
-      min-width: 13.5rem;
+      min-width: 9rem;
     }
     .hd__act-no { color: var(--axis); min-width: 2.2em; }
     .hd__nav {
@@ -177,7 +199,7 @@ const { tone = 'light', act = { no: 'I', name: 'Identity' } } = Astro.props;
     }
     .hd__nav ul {
       display: flex;
-      gap: clamp(14px, 1.8vw, 28px);
+      gap: clamp(14px, 1.7vw, 26px);
       margin: 0;
     }
     .hd__nav a {
@@ -187,8 +209,8 @@ const { tone = 'light', act = { no: 'I', name: 'Identity' } } = Astro.props;
       font-family: var(--f-display);
       font-stretch: 112%;
       font-weight: 600;
-      font-size: 0.8125rem;
-      letter-spacing: 0.01em;
+      font-size: 0.875rem;
+      letter-spacing: 0;
     }
     .hd__nav a::after {
       content: '';
@@ -203,9 +225,26 @@ const { tone = 'light', act = { no: 'I', name: 'Identity' } } = Astro.props;
       transition: transform var(--t2) var(--ease);
     }
     .hd__nav a:hover::after,
-    .hd__nav a[aria-current='true']::after {
+    .hd__nav a[aria-current]::after {
       transform: scaleX(1);
       transform-origin: left;
+    }
+    .hd__wa {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 40px;
+      padding: 0 12px;
+      border: 1px solid var(--line-2);
+      transition: border-color var(--t1) linear, color var(--t1) linear;
+    }
+    .hd__wa:hover { border-color: currentColor; }
+    .hd__wa-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #25d366;
+      box-shadow: 0 0 0 2px rgb(37 211 102 / 0.22);
     }
     .hd__cta {
       display: inline-flex;
@@ -214,11 +253,11 @@ const { tone = 'light', act = { no: 'I', name: 'Identity' } } = Astro.props;
     }
     .hd__menu { display: none; }
   }
-  @media (min-width: 1360px) {
-    .hd__clock { display: flex; gap: 8px; min-width: 6rem; }
-  }
-  @media (min-width: 1024px) and (max-width: 1199px) {
+  @media (min-width: 1024px) and (max-width: 1279px) {
     .hd__act { display: none; }
+  }
+  @media (min-width: 1024px) and (max-width: 1099px) {
+    .hd__wa { display: none; }
   }
 
   /* --- mobile menu ------------------------------------------------------- */
@@ -234,6 +273,7 @@ const { tone = 'light', act = { no: 'I', name: 'Identity' } } = Astro.props;
     color: var(--ink);
     display: none;
     flex-direction: column;
+    overflow-y: auto;
   }
   .menu[open] { display: flex; }
   .menu::backdrop { background: rgb(18 18 17 / 0.4); }
@@ -241,6 +281,7 @@ const { tone = 'light', act = { no: 'I', name: 'Identity' } } = Astro.props;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex: none;
     height: var(--header-h);
     border-bottom: 1px solid var(--line);
   }
@@ -256,9 +297,10 @@ const { tone = 'light', act = { no: 'I', name: 'Identity' } } = Astro.props;
     font-size: 1.5rem;
     line-height: 1;
   }
+  .menu nav { flex: 1; display: flex; }
   .menu__list {
     margin: 0;
-    padding: 0;
+    padding: 12px 0;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -266,27 +308,26 @@ const { tone = 'light', act = { no: 'I', name: 'Identity' } } = Astro.props;
   }
   .menu__list a {
     display: grid;
-    grid-template-columns: 2.5rem 1fr;
+    grid-template-columns: 2.5rem 1fr auto;
     align-items: baseline;
-    row-gap: 4px;
-    padding: 14px 0;
+    padding: 12px 0;
     border-bottom: 1px solid var(--line);
   }
+  .menu__list a[aria-current] .menu__label { color: var(--axis); }
   .menu__label {
     font-family: var(--f-display);
     font-stretch: 112%;
     font-weight: 800;
-    font-size: min(9vw, 3.25rem);
+    font-size: min(8.4vw, 3rem);
     letter-spacing: -0.03em;
     line-height: 1;
-    text-transform: uppercase;
   }
-  .menu__tr { grid-column: 2; }
   .menu__no { color: var(--axis); }
-  .menu__tr { color: var(--mute); }
+  .menu__en { color: var(--mute); }
   .menu__foot {
     display: grid;
     gap: 18px;
+    flex: none;
     padding-top: 18px;
   }
   .menu__foot .btn { width: 100%; }
@@ -299,15 +340,23 @@ const { tone = 'light', act = { no: 'I', name: 'Identity' } } = Astro.props;
     display: inline-block;
     padding: 10px 0;
   }
+  .menu__contact .menu__tel { font-family: var(--f-text); font-size: 0.875rem; font-weight: 600; letter-spacing: 0; }
+  @media (max-height: 560px) {
+    .menu__label { font-size: 1.75rem; }
+    .menu__list a { padding: 8px 0; }
+  }
 
   @media (prefers-reduced-motion: no-preference) {
     .menu[open] { animation: menu-in var(--t2) var(--ease); }
     .menu[open] .menu__list li {
       animation: menu-item var(--t3) var(--ease) both;
+      animation-delay: calc(var(--n, 0) * 40ms);
     }
-    .menu[open] .menu__list li:nth-child(2) { animation-delay: 50ms; }
-    .menu[open] .menu__list li:nth-child(3) { animation-delay: 100ms; }
-    .menu[open] .menu__list li:nth-child(4) { animation-delay: 150ms; }
+    .menu[open] .menu__list li:nth-child(2) { --n: 1; }
+    .menu[open] .menu__list li:nth-child(3) { --n: 2; }
+    .menu[open] .menu__list li:nth-child(4) { --n: 3; }
+    .menu[open] .menu__list li:nth-child(5) { --n: 4; }
+    .menu[open] .menu__list li:nth-child(6) { --n: 5; }
   }
   @keyframes menu-in {
     from { clip-path: inset(0 0 100% 0); }

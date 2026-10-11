@@ -81,6 +81,7 @@ html {
 
 body {
   margin: 0;
+  overflow-x: hidden;
   min-height: 100svh;
   background: var(--paper);
   color: var(--ink);
@@ -92,7 +93,9 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  overflow-x: clip;
+}
+@supports (overflow: clip) {
+  body { overflow-x: clip; }
 }
 
 img, picture, svg, video { display: block; max-width: 100%; }
@@ -312,6 +315,16 @@ h1, h2, h3, h4, p, ul, ol, figure, blockquote, dl, dd { margin: 0; }
   }
 }
 
+/* Failsafe: if the page script never ran, nothing stays hidden */
+.no-reveal [data-reveal] { opacity: 1 !important; transform: none !important; clip-path: none !important; }
+
+/* Page-to-page: a short cross-fade, native and script free */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition { navigation: auto; }
+  ::view-transition-old(root),
+  ::view-transition-new(root) { animation-duration: 260ms; animation-timing-function: var(--ease); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -334,6 +347,13 @@ h1, h2, h3, h4, p, ul, ol, figure, blockquote, dl, dd { margin: 0; }
   padding-block: clamp(56px, 8vw, 128px) clamp(64px, 9vw, 144px);
   overflow: clip;
 }
+/* Below-the-fold acts skip layout and paint until they approach the viewport. */
+@supports (content-visibility: auto) {
+  .svc, .windex, .ap, .hfaq { content-visibility: auto; contain-intrinsic-size: auto 1200px; }
+}
+@media print {
+  .svc, .windex, .ap, .hfaq { content-visibility: visible; }
+}
 .pj-name {
   margin: 0;
   font-family: var(--f-display);
@@ -345,3 +365,59 @@ h1, h2, h3, h4, p, ul, ol, figure, blockquote, dl, dd { margin: 0; }
 .pj-name--y { font-stretch: 75%; letter-spacing: -0.01em; line-height: 0.9; }
 .case-link { display: block; color: inherit; }
 .case-link:focus-visible { outline-offset: 6px; }
+
+/* --------------------------------------------------------------------------
+   Long-form text (legal pages, service pages, FAQ answers)
+   -------------------------------------------------------------------------- */
+.prose { max-width: 68ch; }
+.prose > * + * { margin-top: 1em; }
+.prose h2 {
+  margin-top: 2.2em;
+  font-family: var(--f-display);
+  font-stretch: 112%;
+  font-weight: 700;
+  font-size: clamp(1.25rem, 1rem + 0.8vw, 1.625rem);
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+}
+.prose h3 { margin-top: 1.6em; font-weight: 700; font-size: 1.0625rem; }
+.prose ul, .prose ol { padding-left: 1.2em; }
+.prose li + li { margin-top: 0.4em; }
+.prose a { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+.prose a:hover { color: var(--axis); }
+.prose strong { font-weight: 700; }
+.prose table { width: 100%; border-collapse: collapse; font-size: var(--fs-small); }
+.prose th, .prose td { text-align: left; vertical-align: top; padding: 10px 12px 10px 0; border-bottom: 1px solid var(--line); }
+.prose th { font-family: var(--f-mono); font-weight: 400; font-size: var(--fs-micro); letter-spacing: 0.06em; text-transform: uppercase; }
+.table-scroll { position: relative; overflow-x: auto; }
+
+/* Page head shared by inner pages */
+.ph {
+  padding-block: calc(var(--header-h) + clamp(32px, 6vw, 96px)) clamp(32px, 5vw, 72px);
+}
+.ph__crumbs { display: flex; flex-wrap: wrap; gap: 6px 10px; margin-bottom: clamp(20px, 3vw, 40px); color: var(--mute); }
+.ph__crumbs a:hover { color: var(--axis); }
+.ph__crumbs li + li::before { content: '/'; margin-right: 10px; opacity: 0.6; }
+.ph__title {
+  font-family: var(--f-display);
+  font-stretch: 112%;
+  font-weight: 800;
+  font-size: clamp(2.5rem, 1rem + 6vw, 7rem);
+  letter-spacing: -0.04em;
+  line-height: 0.92;
+}
+.ph__lead { margin-top: clamp(18px, 2.4vw, 32px); max-width: 44ch; font-size: var(--fs-lead); line-height: 1.4; letter-spacing: -0.01em; }
+
+/* --------------------------------------------------------------------------
+   Print: content only, links spelled out
+   -------------------------------------------------------------------------- */
+@media print {
+  :root { --paper: #fff; }
+  html, body { background: #fff; color: #000; }
+  .hd, .menu, .skip, .abar, [data-no-print] { display: none !important; }
+  [data-reveal] { opacity: 1 !important; transform: none !important; clip-path: none !important; }
+  .on-dark, .pj, .cs { background: #fff !important; color: #000 !important; }
+  .prose a[href^='http']::after { content: ' (' attr(href) ')'; font-size: 0.85em; }
+  main { padding-top: 0 !important; }
+  img { break-inside: avoid; }
+}

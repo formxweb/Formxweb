@@ -1,16 +1,27 @@
 ---
 import Base from '../layouts/Base.astro';
+import { nav } from '../data/site';
+import { projects } from '../data/projects';
 ---
 
-<Base title="Sayfa bulunamadı" description="Aradığınız sayfa bu koordinatta yok." act={{ no: '404', name: 'Off the axis' }}>
-  <meta slot="head" name="robots" content="noindex" />
+<Base title="Sayfa bulunamadı" description="Aradığınız sayfa bu koordinatta yok." noindex act={{ no: '404', name: 'Eksen dışı' }}>
   <section class="nf">
     <p class="t-micro nf__coord"><i aria-hidden="true"></i>X 404 · Y 404 · Z 404</p>
-    <h1 class="nf__title" lang="en">Off the axis.</h1>
-    <p class="nf__text t-lead">Aradığınız sayfa bu koordinatta yok. Başlangıç noktasına dönelim.</p>
+    <h1 class="nf__title"><span lang="en">Off the axis.</span><span class="sr-only"> Sayfa bulunamadı.</span></h1>
+    <p class="nf__text t-lead">Aradığınız sayfa bu koordinatta yok. Adres değişmiş ya da yanlış yazılmış olabilir.</p>
     <div class="nf__actions">
       <a class="btn" href="/">Ana sayfa <span class="arr arr-x" aria-hidden="true">→</span></a>
-      <a class="link" href="/#work">Seçili işler <span class="arr" aria-hidden="true">→</span></a>
+      <a class="link" href="/teklif/">Proje başlat <span class="arr" aria-hidden="true">→</span></a>
+    </div>
+    <div class="nf__lists">
+      <nav aria-labelledby="nf-pages">
+        <h2 class="t-micro" id="nf-pages">Sayfalar</h2>
+        <ul role="list">{nav.map((n) => <li><a href={n.href}>{n.label}</a></li>)}</ul>
+      </nav>
+      <nav aria-labelledby="nf-work">
+        <h2 class="t-micro" id="nf-work">İşler</h2>
+        <ul role="list">{projects.map((p) => <li><a href={`/work/${p.slug}/`} lang={p.nameLang}>{p.name}</a></li>)}</ul>
+      </nav>
     </div>
   </section>
 </Base>
@@ -19,6 +30,7 @@ import Base from '../layouts/Base.astro';
   .nf {
     min-height: 100svh;
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     align-content: center;
     gap: 22px;
     padding: calc(var(--header-h) + 40px) var(--m) 64px;
@@ -37,4 +49,9 @@ import Base from '../layouts/Base.astro';
   }
   .nf__text { max-width: 36ch; }
   .nf__actions { display: flex; flex-wrap: wrap; gap: 22px; align-items: center; }
+  .nf__lists { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 28px; margin-top: 28px; max-width: 720px; }
+  .nf__lists h2 { color: var(--mute); margin-bottom: 8px; }
+  .nf__lists ul { margin: 0; display: grid; }
+  .nf__lists a { display: block; padding: 8px 0; border-top: 1px solid var(--line); font-weight: 600; }
+  .nf__lists a:hover { color: var(--axis); }
 </style>

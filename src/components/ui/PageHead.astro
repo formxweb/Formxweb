@@ -1,0 +1,42 @@
+---
+/** Inner-page header: breadcrumbs, eyebrow, display title, lead. */
+interface Props {
+  crumbs?: { name: string; path?: string }[];
+  eyebrow?: string;
+  title: string;
+  titleLang?: string;
+  lead?: string;
+  class?: string;
+}
+const { crumbs = [], eyebrow, title, titleLang, lead, class: cls = '' } = Astro.props;
+---
+
+<header class:list={['ph wrap', cls]}>
+  {
+    crumbs.length > 0 && (
+      <nav aria-label="Konum">
+        <ol class="ph__crumbs t-micro" role="list">
+          <li><a href="/">Ana sayfa</a></li>
+          {crumbs.map((c, i) => (
+            <li>{c.path && i < crumbs.length - 1 ? <a href={c.path}>{c.name}</a> : <span aria-current="page">{c.name}</span>}</li>
+          ))}
+        </ol>
+      </nav>
+    )
+  }
+  {eyebrow && <p class="t-micro ph__eyebrow"><i aria-hidden="true"></i>{eyebrow}</p>}
+  <h1 class="ph__title" lang={titleLang} data-reveal="mask">{title}</h1>
+  {lead && <p class="ph__lead" data-reveal="y">{lead}</p>}
+  <slot />
+</header>
+
+<style>
+  .ph__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+    color: var(--axis);
+  }
+  .ph__eyebrow i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+</style>

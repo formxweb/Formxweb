@@ -1,0 +1,233 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/ui/PageHead.astro';
+import ProjectCard from '../../components/ui/ProjectCard.astro';
+import Faq from '../../components/ui/Faq.astro';
+import CtaBand from '../../components/ui/CtaBand.astro';
+import { services, type Service } from '../../data/services';
+import { getProject } from '../../data/projects';
+import { steps } from '../../data/process';
+import { faqs } from '../../data/faq';
+import { abs } from '../../lib/schema';
+
+export function getStaticPaths() {
+  return services.map((service) => ({ params: { slug: service.slug }, props: { service } }));
+}
+
+interface Props {
+  service: Service;
+}
+const { service: s } = Astro.props;
+const proofs = s.proof.map((pr) => ({ project: getProject(pr.slug)!, note: pr.note })).filter((x) => x.project);
+const others = services.filter((o) => o.id !== s.id);
+
+const extra: Record<Service['id'], string[]> = {
+  ozel: ['Neden üç farklı tasarım yönü?', 'Metinleri ve fotoğrafları kim hazırlıyor?'],
+  isletme: ['Google’da çıkar mıyım?', 'Siteyi sonra kendim güncelleyebilir miyim?'],
+  eticaret: ['Online ödeme alabilir miyim?', 'Siteyi sonra kendim güncelleyebilir miyim?', 'KVKK ve yasal sayfalar ne olacak?'],
+  landing: ['Site telefonda düzgün çalışır mı?', 'Metinleri ve fotoğrafları kim hazırlıyor?'],
+  yenileme: ['Mevcut sitemi yenileyebilir misiniz?', 'Google’da çıkar mıyım?'],
+};
+const wanted = ['Bir web sitesi ne kadara mal olur?', 'Site ne kadar sürede hazır olur?', ...extra[s.id]];
+const questions = wanted.map((q) => faqs.find((f) => f.q === q)).filter((f): f is (typeof faqs)[number] => Boolean(f));
+
+const serviceLd = {
+  '@type': 'Service',
+  '@id': abs(`/hizmetler/${s.slug}/#service`, Astro.site),
+  name: s.h1,
+  serviceType: s.tr,
+  description: `${s.text} ${s.value}`,
+  provider: { '@id': abs('/#studio', Astro.site) },
+  areaServed: { '@type': 'Country', name: 'Türkiye' },
+  audience: { '@type': 'Audience', audienceType: s.for },
+  url: abs(`/hizmetler/${s.slug}/`, Astro.site),
+};
+---
+
+<Base
+  title={s.seo.title}
+  description={s.seo.description}
+  breadcrumbs={[
+    { name: 'Hizmetler', path: '/hizmetler/' },
+    { name: s.tr, path: `/hizmetler/${s.slug}/` },
+  ]}
+  jsonLd={[serviceLd]}
+  act={{ no: s.no, name: s.tr }}
+>
+  <PageHead
+    crumbs={[{ name: 'Hizmetler', path: '/hizmetler/' }, { name: s.tr }]}
+    eyebrow={`${s.no} / 05 — ${s.en}`}
+    title={s.h1}
+    lead={s.value}
+  >
+    <div class="sd__cta">
+      <a class="btn btn--axis" href={`/teklif/?hizmet=${s.slug}`} data-event="Teklif" data-event-place={`hizmet-${s.id}`}>
+        Bu hizmet için teklif al <span class="arr arr-x" aria-hidden="true">→</span>
+      </a>
+      <a class="link" href="#ornekler">{s.proofLabel === 'Örnek' ? 'Örnek işleri gör' : 'İlgili işi gör'} <span class="arr" aria-hidden="true">↓</span></a>
+    </div>
+  </PageHead>
+
+  <section class="grid sd__intro" aria-labelledby="sd-for">
+    <div class="sd__block">
+      <h2 class="t-micro sd__label" id="sd-for">Kimin için</h2>
+      <p class="sd__big">{s.for}.</p>
+    </div>
+    <div class="sd__block">
+      <h2 class="t-micro sd__label">Ne kazandırır</h2>
+      <ul class="sd__gets" role="list">
+        {s.gets.map((g) => <li>{g}</li>)}
+      </ul>
+    </div>
+  </section>
+
+  <section class="grid sd__inc" aria-labelledby="sd-inc">
+    <h2 class="sd__h" id="sd-inc">Neler dahil</h2>
+    <ol class="sd__list" role="list">
+      {
+        s.includes.map((item, i) => (
+          <li data-reveal="y" style={`--d:${i % 3}`}>
+            <span class="t-micro">{String(i + 1).padStart(2, '0')}</span>
+            {item}
+          </li>
+        ))
+      }
+    </ol>
+    <p class="sd__note t-mute">
+      Kapsam projeye göre netleşir ve teklifte yazılı olarak belirtilir. Fiyat ve süre sabit bir paketten değil, bu kapsamdan çıkar.
+    </p>
+  </section>
+
+  <section class="sd__proof" id="ornekler" aria-labelledby="sd-proof">
+    <div class="grid sd__proof-head">
+      <h2 class="sd__h" id="sd-proof">{s.proofLabel === 'Örnek' ? 'Bu hizmetle yapılan işler' : 'İlgili iş'}</h2>
+      <p class="sd__proof-text t-mute">Görseller, projelerin çalışan sürümlerinden alınmış masaüstü ekran görüntüleridir.</p>
+    </div>
+    <div class:list={['grid sd__cards', proofs.length === 1 && 'sd__cards--one']}>
+      {proofs.map(({ project, note }) => <ProjectCard project={project} note={note} />)}
+    </div>
+  </section>
+
+  <section class="grid sd__steps" aria-labelledby="sd-steps">
+    <h2 class="sd__h" id="sd-steps">Nasıl ilerliyoruz</h2>
+    <ol class="sd__steplist" role="list">
+      {
+        steps.map((st, i) => (
+          <li>
+            <span class="t-micro sd__sn">0{i + 1}</span>
+            <h3 class="sd__st">{st.t}</h3>
+            <p class="sd__sd">{st.d}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  <section class="grid sd__faq" aria-labelledby="sd-faq">
+    <h2 class="sd__h" id="sd-faq">Sorular</h2>
+    <div class="sd__faqlist">
+      <Faq items={questions} />
+    </div>
+  </section>
+
+  <nav class="grid sd__others" aria-labelledby="sd-others">
+    <h2 class="t-micro sd__label" id="sd-others">Diğer hizmetler</h2>
+    <ul role="list">
+      {
+        others.map((o) => (
+          <li>
+            <a href={`/hizmetler/${o.slug}/`}>
+              <span class="t-micro">{o.no}</span>
+              <span class="sd__on">{o.tr}</span>
+              <span aria-hidden="true">→</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+
+  <CtaBand
+    title={`${s.tr} için ilk adım.`}
+    href={`/teklif/?hizmet=${s.slug}`}
+    whatsapp={`Merhaba VERYAXZ, ${s.tr.toLocaleLowerCase('tr')} hizmeti hakkında bilgi almak istiyorum.`}
+    place={`hizmet-${s.id}`}
+  />
+</Base>
+
+<style>
+  .sd__cta { display: flex; flex-wrap: wrap; gap: 22px; align-items: center; margin-top: clamp(24px, 3vw, 40px); }
+  .sd__h {
+    grid-column: 1 / -1;
+    font-family: var(--f-display);
+    font-stretch: 112%;
+    font-weight: 750;
+    font-size: var(--fs-m);
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    max-width: 18ch;
+  }
+  .sd__label { color: var(--axis); margin-bottom: 14px; }
+
+  .sd__intro { row-gap: 36px; padding-block: clamp(40px, 5vw, 80px); border-top: 1px solid var(--line-2); }
+  .sd__block { grid-column: 1 / -1; }
+  .sd__big { font-size: var(--fs-lead); line-height: 1.35; max-width: 30ch; }
+  .sd__gets { display: grid; margin: 0; }
+  .sd__gets li { padding: 12px 0; border-top: 1px solid var(--line); font-weight: 600; }
+
+  .sd__inc { row-gap: 24px; padding-block: clamp(40px, 5vw, 80px); }
+  .sd__list { grid-column: 1 / -1; margin: 0; display: grid; }
+  .sd__list li { display: grid; grid-template-columns: 2.6rem 1fr; padding: 14px 0; border-top: 1px solid var(--line); }
+  .sd__list .t-micro { color: var(--axis); padding-top: 0.3em; }
+  .sd__note { grid-column: 1 / -1; font-size: var(--fs-small); max-width: 60ch; }
+
+  .sd__proof { padding-block: clamp(48px, 6vw, 96px); background: var(--paper-2); }
+  .sd__proof-head { row-gap: 12px; margin-bottom: clamp(24px, 3vw, 40px); }
+  .sd__proof-text { grid-column: 1 / -1; font-size: var(--fs-small); }
+  .sd__cards { row-gap: var(--g); }
+  .sd__cards > :global(*) { grid-column: 1 / -1; }
+
+  .sd__steps { row-gap: 24px; padding-block: clamp(56px, 7vw, 112px); }
+  .sd__steplist { grid-column: 1 / -1; margin: 0; display: grid; gap: 0; }
+  .sd__steplist li { display: grid; grid-template-columns: 2.6rem 1fr; row-gap: 6px; padding: 18px 0; border-top: 1px solid var(--line); }
+  .sd__sn { color: var(--axis); grid-row: span 2; padding-top: 0.35em; }
+  .sd__st { font-family: var(--f-display); font-stretch: 112%; font-weight: 700; font-size: 1.25rem; letter-spacing: -0.015em; }
+  .sd__sd { font-size: var(--fs-small); color: var(--ink-2); max-width: 52ch; }
+
+  .sd__faq { row-gap: 24px; padding-block: clamp(40px, 5vw, 80px) clamp(56px, 7vw, 112px); }
+  .sd__faqlist { grid-column: 1 / -1; }
+
+  .sd__others { row-gap: 8px; padding-block: 0 clamp(56px, 7vw, 112px); }
+  .sd__others h2, .sd__others ul { grid-column: 1 / -1; }
+  .sd__others ul { margin: 0; display: grid; }
+  .sd__others a {
+    display: grid;
+    grid-template-columns: 2.6rem 1fr auto;
+    align-items: baseline;
+    padding: 14px 0;
+    border-top: 1px solid var(--line);
+    transition: color var(--t1) linear;
+  }
+  .sd__others a:hover { color: var(--axis); }
+  .sd__on { font-family: var(--f-display); font-stretch: 112%; font-weight: 700; font-size: 1.125rem; }
+
+  @media (min-width: 640px) {
+    .sd__cards > :global(*) { grid-column: span 3; }
+    .sd__cards--one > :global(*) { grid-column: 1 / -1; }
+  }
+  @media (min-width: 1024px) {
+    .sd__block:first-child { grid-column: 1 / 6; }
+    .sd__block:last-child { grid-column: 7 / 13; }
+    .sd__inc .sd__h, .sd__steps .sd__h, .sd__faq .sd__h { grid-column: 1 / 5; align-self: start; position: sticky; top: calc(var(--header-h) + 24px); }
+    .sd__list, .sd__steplist, .sd__faqlist { grid-column: 5 / 13; }
+    .sd__note { grid-column: 5 / 13; }
+    .sd__proof-head .sd__h { grid-column: 1 / 7; }
+    .sd__proof-text { grid-column: 8 / 13; align-self: end; }
+    .sd__cards > :global(*) { grid-column: span 6; }
+    .sd__cards--one > :global(*) { grid-column: 1 / -1; }
+    .sd__cards--one :global(.pc__link) { grid-template-columns: 8fr 4fr; grid-template-rows: auto; }
+    .sd__cards--one :global(.pc__body) { align-content: end; }
+    .sd__others h2 { grid-column: 1 / 5; }
+    .sd__others ul { grid-column: 5 / 13; grid-template-columns: 1fr 1fr; column-gap: var(--g); }
+  }
+</style>

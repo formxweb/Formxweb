@@ -1,0 +1,82 @@
+---
+/** FAQ as native disclosure widgets: keyboard and screen-reader friendly with no script. */
+import { rich, type Faq } from '../../data/faq';
+
+interface Props {
+  items: Faq[];
+  /** Open the first question by default. */
+  openFirst?: boolean;
+  class?: string;
+}
+const { items, openFirst = false, class: cls = '' } = Astro.props;
+---
+
+<div class:list={['faq', cls]}>
+  {
+    items.map((item, i) => (
+      <details class="faq__item" open={openFirst && i === 0}>
+        <summary class="faq__q">
+          <span class="faq__qt">{item.q}</span>
+          <span class="faq__icon" aria-hidden="true" />
+        </summary>
+        <div class="faq__a">
+          {item.a.map((para) => <p set:html={rich(para)} />)}
+        </div>
+      </details>
+    ))
+  }
+</div>
+
+<style>
+  .faq { border-top: 1px solid var(--line-2); }
+  .faq__item { border-bottom: 1px solid var(--line); }
+  .faq__q {
+    display: grid;
+    grid-template-columns: 1fr 22px;
+    gap: 20px;
+    align-items: center;
+    padding: 20px 0;
+    cursor: pointer;
+    list-style: none;
+    font-family: var(--f-display);
+    font-stretch: 105%;
+    font-weight: 650;
+    font-size: clamp(1.0625rem, 0.95rem + 0.45vw, 1.375rem);
+    letter-spacing: -0.012em;
+    line-height: 1.25;
+    transition: color var(--t1) linear;
+  }
+  .faq__q::-webkit-details-marker { display: none; }
+  .faq__q:hover { color: var(--axis); }
+  .faq__icon {
+    position: relative;
+    width: 22px;
+    height: 22px;
+  }
+  .faq__icon::before,
+  .faq__icon::after {
+    content: '';
+    position: absolute;
+    left: 3px;
+    right: 3px;
+    top: 50%;
+    height: 1.5px;
+    background: currentColor;
+    transition: transform var(--t2) var(--ease);
+  }
+  .faq__icon::after { transform: rotate(90deg); }
+  .faq__item[open] .faq__icon::after { transform: rotate(0deg); }
+  .faq__item[open] .faq__q { color: var(--axis); }
+  .faq__a {
+    display: grid;
+    gap: 0.8em;
+    max-width: 64ch;
+    padding: 0 0 26px;
+    color: var(--ink-2);
+  }
+  .faq__a :global(a) { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+  .faq__a :global(a:hover) { color: var(--axis); }
+  :global(.on-dark) .faq { border-top-color: rgb(232 228 218 / 0.3); }
+  :global(.on-dark) .faq__item { border-bottom-color: rgb(232 228 218 / 0.18); }
+  :global(.on-dark) .faq__a { color: inherit; opacity: 0.86; }
+</style>

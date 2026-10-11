@@ -2,12 +2,14 @@
 import { Picture } from 'astro:assets';
 import { projects } from '../data/projects';
 import Rail from './Rail.astro';
+import { countWord } from '../lib/text';
 import FullBleed from './work/FullBleed.astro';
 import Asymmetric from './work/Asymmetric.astro';
 import Filmstrip from './work/Filmstrip.astro';
 import Spread from './work/Spread.astro';
 import System from './work/System.astro';
 import Poster from './work/Poster.astro';
+import Diptych from './work/Diptych.astro';
 
 const layouts = {
   fullbleed: FullBleed,
@@ -16,12 +18,14 @@ const layouts = {
   spread: Spread,
   system: System,
   poster: Poster,
+  diptych: Diptych,
 } as const;
 const count = String(projects.length).padStart(2, '0');
+const n = countWord(projects.length);
 ---
 
-<section class="work" id="work" data-act="II" data-act-name="Selected work" aria-labelledby="work-title">
-  <Rail act="Act II" title="Selected work" axis="Y — her proje kendi yüksekliğinde" end={`${count} proje`} />
+<section class="work" id="work" data-act="II" data-act-name="İşler" aria-labelledby="work-title">
+  <Rail act="Bölüm II" title="Seçili işler" en="Selected work" axis="Y — her proje kendi yüksekliğinde" end={`${count} proje`} />
 
   <div class="grid work__intro">
     <h2 class="work__title" id="work-title" lang="en" data-reveal="mask">
@@ -29,24 +33,38 @@ const count = String(projects.length).padStart(2, '0');
       <span class="t-x">Work<sup class="t-micro">({count})</sup></span>
     </h2>
     <div class="work__lead" data-reveal="y">
-      <p class="t-lead">Her proje kendi dünyası: altı marka, altı ayrı sanat yönetimi.</p>
+      <p class="t-lead">Her proje kendi dünyası: {n} marka, {n} ayrı sanat yönetimi.</p>
       <p class="t-mute work__note">
-        Görseller, projelerin çalışan sürümlerinden alınmış gerçek masaüstü ekran görüntüleridir. Hiçbiri maket ya da
-        şablon değildir.
+        Görseller, projelerin çalışan sürümlerinden alınmış gerçek masaüstü ekran görüntüleridir.
       </p>
     </div>
   </div>
 
   {
-    projects.map((p) => {
+    projects.map((p, i) => {
       const Layout = layouts[p.layout];
-      return <Layout project={p} />;
+      return (
+        <>
+          <Layout project={p} />
+          {i === 3 && (
+            <div class="grid work__mid">
+              <p class="work__mid-q">Bunlardan birine benzeyen bir şey mi düşünüyorsunuz?</p>
+              <div class="work__mid-a">
+                <a class="btn btn--axis" href="/teklif/" data-event="Teklif" data-event-place="work-mid">
+                  Proje başlat <span class="arr arr-x" aria-hidden="true">→</span>
+                </a>
+                <a class="link" href="/work/">Tüm işler <span class="arr" aria-hidden="true">→</span></a>
+              </div>
+            </div>
+          )}
+        </>
+      );
     })
   }
 
   <div class="windex" aria-labelledby="windex-title">
     <div class="grid windex__head">
-      <h3 class="windex__title t-micro" id="windex-title"><span lang="en">Index</span> — tüm vaka çalışmaları</h3>
+      <h3 class="windex__title t-micro" id="windex-title">Dizin — tüm vaka çalışmaları</h3>
       <p class="windex__cols t-micro t-mute" aria-hidden="true">
         <span>Proje</span><span>Kategori</span><span>Yaklaşım</span><span>Yıl</span>
       </p>
@@ -115,6 +133,23 @@ const count = String(projects.length).padStart(2, '0');
   }
   .work__lead { grid-column: 1 / -1; display: grid; gap: 14px; max-width: 46ch; }
   .work__note { font-size: var(--fs-small); }
+
+  .work__mid { row-gap: 18px; align-items: center; padding-block: clamp(40px, 5vw, 72px); border-block: 1px solid var(--line-2); }
+  .work__mid-q {
+    grid-column: 1 / -1;
+    font-family: var(--f-display);
+    font-stretch: 112%;
+    font-weight: 750;
+    font-size: var(--fs-m);
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    max-width: 22ch;
+  }
+  .work__mid-a { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 22px; align-items: center; }
+  @media (min-width: 1024px) {
+    .work__mid-q { grid-column: 1 / 8; }
+    .work__mid-a { grid-column: 9 / 13; justify-content: end; }
+  }
 
   @media (min-width: 1024px) {
     .work__title { grid-column: 1 / -1; flex-direction: row; align-items: baseline; gap: 0.22em; }
